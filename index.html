@@ -897,7 +897,7 @@
       <div class="brand-badge">SBO ERP</div>
       <div>
         <div class="brand-title">
-          <span>안전작업허가서 통합 필터링 모니터</span>
+          <span>안전작업허가서 통합 필터링 모니터  </span>
           <span style="font-size: 11px; padding: 2px 6px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-radius: 4px; font-weight: 600;">v2.8 PSM & LOTO & Manpower</span>
         </div>
         <div class="brand-subtitle"> 발전운전팀 · 작업인원수(외 N명) 및 PSM·LOTO 관리</div>
@@ -924,13 +924,16 @@
       </button>
 
       <!-- Import Data Button -->
-      <button class="btn btn-primary" onclick="openImportModal()">
+      <button class="btn btn-primary" id="importDataBtn" onclick="openImportModal()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         데이터 가져오기 / 수집기
       </button>
 
       <!-- 전체 파트 재분류 (캐시 문제 무관하게 즉시 재계산) -->
-      <button class="btn btn-secondary btn-sm" onclick="reclassifyAllParts()" title="모든 항목의 담당 파트를 최신 규칙으로 다시 계산합니다 (수동 지정 항목은 제외)">🔄 파트 재분류</button>
+      <button class="btn btn-secondary btn-sm" id="reclassifyBtn" onclick="reclassifyAllParts()" title="모든 항목의 담당 파트를 최신 규칙으로 다시 계산합니다 (수동 지정 항목은 제외)">🔄 파트 재분류</button>
+
+      <!-- 관리자 모드 토글 -->
+      <button class="btn btn-secondary btn-sm" id="adminModeBtn" onclick="toggleAdminMode()" title="관리자 모드 켜기/끄기 (비밀번호 필요)">🔒 관리자 모드</button>
 
       <!-- Theme Toggle -->
       <button class="btn btn-secondary btn-sm" onclick="toggleTheme()" id="themeToggleBtn" title="다크/라이트 모드">🌙</button>
@@ -1445,14 +1448,21 @@
         <div style="background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-md); padding: 14px 16px;">
           <h4 style="font-size: 13px; font-weight: 700; color: #34d399; margin: 0 0 6px 0;">🧰 상세 페이지 설비정보·위험유형 수집기</h4>
           <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px;">
-            <b>[단건]</b> 개별 상세 페이지를 열어둔 상태에서 클릭하면 그 항목 하나만 수집합니다.<br>
-            <b>[일괄]</b> 목록 화면(예: 22일 조회 화면)에서 클릭하면, 현재 화면에 보이는 <b>모든 항목의 상세정보를 순서대로 자동 수집</b>합니다. 수집이 끝나면 화면에 결과창이 뜨고 [복사] 버튼을 눌러 복사합니다.
+            <b>[단건]</b> 상세 페이지를 열 때마다 클릭하면 자동으로 누적 저장됩니다(매번 복사할 필요 없음).<br>
+            <b>[일괄]</b> 이 시스템은 IBSheet 그리드 특성상 자동 일괄 수집이 되지 않아, 대신 <b>[단건]</b>을 반복 사용하시길 권장합니다.<br>
+            <b>[누적 데이터 내보내기]</b> 여러 상세 페이지에서 단건 수집을 반복한 뒤, 마지막에 한 번만 클릭하면 그동안 모은 데이터 전체를 한꺼번에 내보냅니다.
           </p>
           <div style="display: flex; flex-wrap: wrap; gap: 8px;">
             <a class="btn btn-success btn-sm" id="detailBookmarkletAnchor" href="#" title="상세 페이지에서 클릭 (단건 수집)">
               🔍 단건 수집 북마클릿
             </a>
             <button class="btn btn-secondary btn-sm" onclick="copyDetailBookmarklet()" title="단건 수집 북마클릿 코드 복사">
+              코드 복사
+            </button>
+            <a class="btn btn-secondary btn-sm" id="exportBookmarkletAnchor" href="#" title="목록 화면 등 같은 사이트 아무 페이지에서 클릭 (그동안 단건 수집으로 누적된 데이터 전체 내보내기)" style="border-color:#f59e0b;color:#fbbf24;">
+              📦 누적 데이터 내보내기
+            </a>
+            <button class="btn btn-secondary btn-sm" onclick="copyExportBookmarklet()" title="누적 데이터 내보내기 코드 복사">
               코드 복사
             </button>
             <a class="btn btn-accent btn-sm" id="bulkDetailBookmarkletAnchor" href="#" title="목록 화면에서 클릭 (일괄 수집)">
@@ -1471,6 +1481,21 @@
             안전작업허가서 목록 화면이나 상세 화면의 표/텍스트를 마우스로 복사(Ctrl+C)한 후 아래 상자에 붙여넣으세요.
           </p>
           <textarea id="pasteTextArea" style="width: 100%; height: 90px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; font-family: monospace; font-size: 11.5px; resize: vertical;" placeholder="웹 화면 표 내용을 여기에 Ctrl + V 로 붙여넣으세요..."></textarea>
+        </div>
+
+        <!-- 4. 관리자 전용 JSON 백업/복원 -->
+        <div id="adminJsonUploadSection" style="display:none; background: rgba(139, 92, 246, 0.08); border: 1.5px solid rgba(139, 92, 246, 0.4); border-radius: var(--radius-md); padding: 16px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #a78bfa; margin: 0 0 8px 0;">🔐 관리자 전용 - JSON 백업/복원</h4>
+          <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">
+            <b>백업:</b> 실시간 동기화 등으로 현재 취합된 전체 데이터를 JSON 파일로 다운로드합니다.<br>
+            <b>복원:</b> 이전에 내보낸 JSON 백업 파일(.json)을 업로드하면 현재 데이터 전체를 그 내용으로 교체합니다.
+          </p>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-accent btn-sm" onclick="downloadJsonBackup()" title="현재 취합 데이터를 JSON 파일로 다운로드">
+              💾 현재 데이터 백업(JSON 다운로드)
+            </button>
+            <input type="file" id="adminJsonFileInput" accept="application/json,.json" onchange="handleAdminJsonUpload(event)" style="font-size: 12px; color: var(--text-main);">
+          </div>
         </div>
 
         <!-- 3. Sample Data -->
@@ -2042,6 +2067,8 @@
        3. APPLICATION STATE & INITIALIZATION
        ========================================================================== */
     let workItems = [];
+    let isAdminMode = false;
+    const ADMIN_PASSWORD = '12345';
     function getLocalDateString(offsetDays = 0) {
       const date = new Date();
       date.setHours(12, 0, 0, 0);
@@ -2178,6 +2205,7 @@
       updateKPICounters();
       renderFilteredList();
       initAutoSyncPoller();
+      applyAdminModeUI();
     }
 
     function saveToStorage() {
@@ -2189,6 +2217,114 @@
       el.textContent = msg;
       el.style.display = 'block';
       setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+
+    /* ==========================================================================
+       관리자 모드
+       ========================================================================== */
+    function toggleAdminMode() {
+      if (!isAdminMode) {
+        const pw = prompt('관리자 비밀번호를 입력하세요:');
+        if (pw === null) return;
+        if (pw !== ADMIN_PASSWORD) {
+          alert('❌ 비밀번호가 올바르지 않습니다.');
+          return;
+        }
+        isAdminMode = true;
+        showToast('🔓 관리자 모드가 활성화되었습니다.');
+      } else {
+        isAdminMode = false;
+        showToast('🔒 관리자 모드가 비활성화되었습니다.');
+      }
+      applyAdminModeUI();
+    }
+
+    function applyAdminModeUI() {
+      const importBtn = document.getElementById('importDataBtn');
+      const reclassBtn = document.getElementById('reclassifyBtn');
+      const syncBadge = document.getElementById('realtimeSyncBadge');
+      const adminBtn = document.getElementById('adminModeBtn');
+      // 관리자 모드가 아니면 아예 화면에서 숨김 (비활성화 표시가 아니라 완전히 안 보이게)
+      if (importBtn) importBtn.style.display = isAdminMode ? '' : 'none';
+      if (reclassBtn) reclassBtn.style.display = isAdminMode ? '' : 'none';
+      if (syncBadge) syncBadge.style.display = isAdminMode ? '' : 'none';
+      if (adminBtn) {
+        adminBtn.textContent = isAdminMode ? '🔓 관리자 모드 (ON)' : '🔒 관리자 모드';
+        adminBtn.style.background = isAdminMode ? '#059669' : '';
+        adminBtn.style.borderColor = isAdminMode ? '#10b981' : '';
+        adminBtn.style.color = isAdminMode ? '#ffffff' : '';
+      }
+      const adminSection = document.getElementById('adminJsonUploadSection');
+      if (adminSection) adminSection.style.display = isAdminMode ? 'block' : 'none';
+    }
+
+    function handleAdminJsonUpload(event) {
+      if (!isAdminMode) {
+        alert('🔒 관리자 모드에서만 사용할 수 있습니다.');
+        event.target.value = '';
+        return;
+      }
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const arr = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.workItems) ? parsed.workItems : null);
+          if (!arr) {
+            alert('올바른 JSON 백업 형식이 아닙니다.\n배열([...]) 또는 { "workItems": [...] } 형식이어야 합니다.');
+            return;
+          }
+          workItems = arr;
+          workItems.forEach(item => {
+            sanitizePermitItem(item);
+            if (!item.partManual) item.part = classifyPart(item);
+            if (item.totalWorkers === undefined) {
+              const extra = Number(item.extraWorkers || 0);
+              item.totalWorkers = extra > 0 ? extra + 1 : 1;
+            }
+          });
+          saveToStorage();
+          updateKPICounters();
+          renderFilteredList();
+          closeImportModal();
+          showToast(`✅ JSON 백업에서 ${workItems.length}건을 불러왔습니다.`);
+        } catch (err) {
+          alert('JSON 파일을 해석하지 못했습니다: ' + err.message);
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    function downloadJsonBackup() {
+      if (!isAdminMode) {
+        alert('🔒 관리자 모드에서만 사용할 수 있습니다.');
+        return;
+      }
+      if (!workItems.length) {
+        alert('백업할 데이터가 없습니다. (현재 취합된 항목이 0건입니다)');
+        return;
+      }
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        count: workItems.length,
+        workItems: workItems
+      };
+      const json = JSON.stringify(payload, null, 2);
+      const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const fname = `안전작업허가서_백업_${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.json`;
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+      showToast(`💾 ${workItems.length}건 백업 파일이 다운로드되었습니다.`);
     }
 
     function toggleTheme() {
@@ -3001,6 +3137,7 @@
     }
 
     function reclassifyAllParts() {
+      if (!isAdminMode) { alert('🔒 관리자 모드에서만 사용할 수 있습니다.'); return; }
       let changedCount = 0;
       workItems.forEach(item => {
         if (item.partManual) return;
@@ -3042,7 +3179,7 @@
     /* ==========================================================================
        9. BOOKMARKLET & PARSER (xxx 외 xx명 자동 추출 탑재)
        ========================================================================== */
-    function openImportModal() { document.getElementById('importModal').classList.add('open'); }
+    function openImportModal() { if (!isAdminMode) { alert('🔒 관리자 모드에서만 사용할 수 있습니다.'); return; } document.getElementById('importModal').classList.add('open'); }
     function closeImportModal() { document.getElementById('importModal').classList.remove('open'); }
 
     /* ==========================================================================
@@ -3154,6 +3291,7 @@
     }
 
     function triggerManualSync() {
+      if (!isAdminMode) { alert('🔒 관리자 모드에서만 사용할 수 있습니다.'); return; }
       checkRealtimePermitData(true);
     }
 
@@ -3173,9 +3311,13 @@ function sendData(force){var expanded=force?tryExpandPageSize():false;var procee
       const anchor = document.getElementById('bookmarkletAnchor');
       if (anchor) anchor.href = bookmarkletCode;
 
-      const detailBookmarkletCode = `javascript:(function(){function __spShowResultOverlay(title,json){  var old=document.getElementById('sp-result-overlay');if(old)old.remove();  var overlay=document.createElement('div');  overlay.id='sp-result-overlay';  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:2147483647;display:flex;align-items:center;justify-content:center;';  var box=document.createElement('div');  box.style.cssText='background:#0f172a;color:#f8fafc;padding:16px;border-radius:10px;width:90%;max-width:640px;font-family:sans-serif;box-shadow:0 10px 40px rgba(0,0,0,0.6);';  box.innerHTML='<div style="font-weight:700;font-size:14px;margin-bottom:8px;">'+title+'</div><div style="font-size:11.5px;color:#94a3b8;margin-bottom:8px;">아래 내용이 자동으로 선택되어 있습니다. [복사] 버튼을 누르거나 Ctrl+C를 눌러 복사한 뒤, 모니터 앱의 붙여넣기 칸에 넣어주세요.</div><textarea id="sp-result-ta" readonly style="width:100%;height:220px;font-size:11px;font-family:monospace;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:8px;box-sizing:border-box;"></textarea><div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end;"><button id="sp-copy-btn" style="background:#2563eb;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">📋 복사</button><button id="sp-close-btn" style="background:#475569;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">닫기</button></div>';  overlay.appendChild(box);document.body.appendChild(overlay);  var ta=document.getElementById('sp-result-ta');  ta.value=json;  setTimeout(function(){ta.focus();ta.select();},50);  document.getElementById('sp-copy-btn').onclick=function(){    ta.focus();ta.select();    var ok=false;    try{ok=document.execCommand('copy');}catch(e){}    if(!ok){try{navigator.clipboard.writeText(json);ok=true;}catch(e){}}    var btn=document.getElementById('sp-copy-btn');    if(btn)btn.textContent=ok?'✅ 복사됨!':'⚠️ 직접 Ctrl+C';  };  document.getElementById('sp-close-btn').onclick=function(){overlay.remove();};}function v(id){var el=document.getElementById(id);return el?el.value:'';}var data={permitNo:v('detailMap.REQ_NO'),orderNo:v('detailMap.WO_NO'),facilityNo:v('detailMap.ITEM_NO'),facilityName:v('detailMap.ITEM_DESC'),fnEquipDesc:v('detailMap.FN_EQUIP_DESC'),isPsm:v('detailMap.IS_PSM_WORK')==='Y',isLoto:v('detailMap.IS_LOTO_REQUIRED')==='Y',riskFlags:{confined:v('detailMap.IS_QS_NARROW')==='Y',dive:v('detailMap.IS_QS_DIVE')==='Y',electric:v('detailMap.IS_QS_ELECTRICITY')==='Y',excavation:v('detailMap.IS_QS_EXCAVATION')==='Y',radiation:v('detailMap.IS_QS_RADIATION')==='Y',height:v('detailMap.IS_QS_HIGH')==='Y',heavy:v('detailMap.IS_QS_HEAVY')==='Y'}};if(!data.permitNo){alert('허가번호(REQ_NO)를 찾지 못했습니다. 상세 페이지가 맞는지 확인해주세요.');return;}var json=JSON.stringify(data);__spShowResultOverlay('✅ 설비정보 수집 완료! ['+data.permitNo+']',json);})();`;
+      const detailBookmarkletCode = `javascript:(function(){function v(id){var el=document.getElementById(id);return el?el.value:'';}function vc(id){var el=document.getElementById(id);return el?(el.checked===true||el.hasAttribute('checked')):false;}var data={  permitNo:v('detailMap.REQNO'),  orderNo:v('detailMap.WONO'),  facilityNo:v('detailMap.ITEMNO'),  facilityName:v('detailMap.ITEMDESC'),  fnEquipDesc:v('detailMap.FNEQUIPDESC'),  leader:v('detailMap.WORKBY'),  totalWorkers:v('detailMap.WORKNUM'),  isPsm:vc('detailMap.ISPSMWORK'),  isLoto:vc('detailMap.ISLOTOREQUIRED'),  riskFlags:{    fire:vc('ISQSFIRE'),    confined:vc('ISQSNARROW'),    dive:vc('ISQSDIVE'),    electric:vc('ISQSELECTRICITY'),    excavation:vc('ISQSEXCAVATION'),    radiation:vc('ISQSRADIATION'),    height:vc('ISQSHIGH'),    heavy:vc('ISQSHEAVY')  }};if(!data.permitNo){alert('허가번호(detailMap.REQNO)를 찾지 못했습니다. 상세 페이지가 맞는지 확인해주세요.');return;}var BUF_KEY='sp_manual_collect_buffer_v1';var buf=[];try{buf=JSON.parse(localStorage.getItem(BUF_KEY)||'[]');}catch(e){buf=[];}var idx=buf.findIndex(function(x){return x.permitNo===data.permitNo;});if(idx>=0){buf[idx]=data;}else{buf.push(data);}localStorage.setItem(BUF_KEY,JSON.stringify(buf));alert('✅ 수집됨: ['+data.permitNo+'] '+(data.facilityName||'(설비명없음)')+'\\n\\n누적 '+buf.length+'건 저장됨.\\n\\n계속 다른 상세 페이지에서도 이 스크립트를 실행하세요.\\n다 모으셨으면 목록 화면에서 [누적 데이터 내보내기] 스크립트를 실행하세요.');})();`;
       const detailAnchor = document.getElementById('detailBookmarkletAnchor');
       if (detailAnchor) detailAnchor.href = detailBookmarkletCode;
+
+      const exportBookmarkletCode = `javascript:(function(){function __spShowResultOverlay(title,json){  var old=document.getElementById('sp-result-overlay');if(old)old.remove();  var overlay=document.createElement('div');  overlay.id='sp-result-overlay';  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:2147483647;display:flex;align-items:center;justify-content:center;';  var box=document.createElement('div');  box.style.cssText='background:#0f172a;color:#f8fafc;padding:16px;border-radius:10px;width:90%;max-width:640px;font-family:sans-serif;box-shadow:0 10px 40px rgba(0,0,0,0.6);';  box.innerHTML='<div style="font-weight:700;font-size:14px;margin-bottom:8px;">'+title+'</div><div style="font-size:11.5px;color:#94a3b8;margin-bottom:8px;">아래 내용이 자동으로 선택되어 있습니다. [복사] 버튼을 누르거나 Ctrl+C를 눌러 복사한 뒤, 모니터 앱의 붙여넣기 칸에 넣어주세요.</div><textarea id="sp-result-ta" readonly style="width:100%;height:220px;font-size:11px;font-family:monospace;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:8px;box-sizing:border-box;"></textarea><div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end;"><button id="sp-copy-btn" style="background:#2563eb;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">📋 복사</button><button id="sp-close-btn" style="background:#475569;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">닫기</button></div>';  overlay.appendChild(box);document.body.appendChild(overlay);  var ta=document.getElementById('sp-result-ta');  ta.value=json;  setTimeout(function(){ta.focus();ta.select();},50);  document.getElementById('sp-copy-btn').onclick=function(){    ta.focus();ta.select();    var ok=false;    try{ok=document.execCommand('copy');}catch(e){}    if(!ok){try{navigator.clipboard.writeText(json);ok=true;}catch(e){}}    var btn=document.getElementById('sp-copy-btn');    if(btn)btn.textContent=ok?'✅ 복사됨!':'⚠️ 직접 Ctrl+C';  };  document.getElementById('sp-close-btn').onclick=function(){overlay.remove();};}var BUF_KEY='sp_manual_collect_buffer_v1';var buf=[];try{buf=JSON.parse(localStorage.getItem(BUF_KEY)||'[]');}catch(e){buf=[];}if(!buf.length){alert('누적된 수집 데이터가 없습니다.\\n먼저 상세 페이지들을 하나씩 열어서 [단건 수집 북마클릿]을 실행해주세요.');return;}var json=JSON.stringify(buf);__spShowResultOverlay('✅ 누적된 '+buf.length+'건 내보내기',json);if(confirm(buf.length+'건을 내보냈습니다.\\n\\n누적된 데이터를 지금 비우시겠습니까?\\n(예: 다음 수집을 위해 초기화 / 아니오: 계속 누적)')){  localStorage.removeItem(BUF_KEY);}})();`;
+      const exportAnchor = document.getElementById('exportBookmarkletAnchor');
+      if (exportAnchor) exportAnchor.href = exportBookmarkletCode;
 
       const bulkDetailBookmarkletCode = `javascript:(function(){  function getPermitNumbers(){    var nums=[];    var trs=Array.from(document.querySelectorAll('tr'));    trs.forEach(function(tr){      var tds=Array.from(tr.querySelectorAll('td'));      if(tds.length<6)return;      var texts=tds.map(function(td){return (td.innerText||'').trim();});      var full=texts.join(' ');      if(full.length>250)return;      var pIdx=texts.findIndex(function(t){return /^\\d{6}$/.test(t);});      if(pIdx===-1)return;      var permitNo=texts[pIdx];      if(nums.indexOf(permitNo)===-1)nums.push(permitNo);    });    return nums;  }  function __spShowResultOverlay(title,json){  var old=document.getElementById('sp-result-overlay');if(old)old.remove();  var overlay=document.createElement('div');  overlay.id='sp-result-overlay';  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:2147483647;display:flex;align-items:center;justify-content:center;';  var box=document.createElement('div');  box.style.cssText='background:#0f172a;color:#f8fafc;padding:16px;border-radius:10px;width:90%;max-width:640px;font-family:sans-serif;box-shadow:0 10px 40px rgba(0,0,0,0.6);';  box.innerHTML='<div style="font-weight:700;font-size:14px;margin-bottom:8px;">'+title+'</div><div style="font-size:11.5px;color:#94a3b8;margin-bottom:8px;">아래 내용이 자동으로 선택되어 있습니다. [복사] 버튼을 누르거나 Ctrl+C를 눌러 복사한 뒤, 모니터 앱의 붙여넣기 칸에 넣어주세요.</div><textarea id="sp-result-ta" readonly style="width:100%;height:220px;font-size:11px;font-family:monospace;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:8px;box-sizing:border-box;"></textarea><div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end;"><button id="sp-copy-btn" style="background:#2563eb;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">📋 복사</button><button id="sp-close-btn" style="background:#475569;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">닫기</button></div>';  overlay.appendChild(box);document.body.appendChild(overlay);  var ta=document.getElementById('sp-result-ta');  ta.value=json;  setTimeout(function(){ta.focus();ta.select();},50);  document.getElementById('sp-copy-btn').onclick=function(){    ta.focus();ta.select();    var ok=false;    try{ok=document.execCommand('copy');}catch(e){}    if(!ok){try{navigator.clipboard.writeText(json);ok=true;}catch(e){}}    var btn=document.getElementById('sp-copy-btn');    if(btn)btn.textContent=ok?'✅ 복사됨!':'⚠️ 직접 Ctrl+C';  };  document.getElementById('sp-close-btn').onclick=function(){overlay.remove();};}  var permitNos=getPermitNumbers();  if(!permitNos.length){alert('목록에서 허가번호를 찾지 못했습니다.');return;}  if(!confirm(permitNos.length+'건의 상세정보를 순서대로 가져옵니다. 계속하시겠습니까?'))return;  var today=new Date().toISOString().slice(0,10);  var results=[];  var idx=0;  function buildBody(keyNo){    var params={strutsAction:'0',pageNum:'1',rowNum:'1',totalCount:'0',isDecoratorName:'',extFilterNames:'',treeConfig:'',jsonObjGuid:'',sheetPageSize:'50',pagingSheetConfig:'','filterMap.TREETYPE':'','filterMap.SEARCHNODE':'','filterMap.KEY_NO':keyNo,'filterMap.KEY_ITEM_NO':'','filterMap.IS_COUNT':'0','filterMap.POP_UP_YN':'','filterMap.myJobPopUp':'','filterMap.RESULT_MM_TYPE':'','filterMap.RESULT_MM':'','detailMap.WO_DESC':'','filterMap.PLAN_BY':'','filterMap.PLAN_BY_NM':'','filterMap.DEPT_NO':'','filterMap.DEPT_NAME':'','filterMap.WORK_DEPT_NO':'','filterMap.WORK_DEPT_NAME':'','filterMap.WO_NO':'','filterMap.WO_NO_DESC':'','filterMap.REQUEST_DATE_FROM':today,'filterMap.REQUEST_DATE_TO':today,'filterMap.REQ_STATUS':'','filterMap.REQ_NO':'','filterMap.LOCATION':'','filterMap.LOCATION_DESC':'','filterMap.WO_CATEGORY':'','filterMap.QUALITY_GRADE':'','filterMap.WO_STATUS':'','filterMap.EQ_TYPE':'','filterMap.EQ_TYPE_DESC':'','filterMap.EQ_SECTION':'','filterMap.WO_GRADE':'','filterMap.OPER_DEPT_NO':'','filterMap.OPER_DEPT_DESC':'','filterMap.WO_TYPE':'','filterMap.WORKABLE_CONDITION':'','filterMap.SAFETY_BY':'','filterMap.SAFETY_BY_NM':'','filterMap.WORK_START_DATE':'','filterMap.WORK_END_DATE':'','filterMap.WO_BY':'','filterMap.WO_BY_NM':''};    return Object.keys(params).map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(params[k]);}).join('&');  }  function v(doc,id){var el=doc.getElementById(id);return el?el.value:'';}  function fetchOne(keyNo){    return fetch('newWoSafetyMstrDetail.do',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},body:buildBody(keyNo)}).then(function(res){return res.text();}).then(function(html){      var doc=new DOMParser().parseFromString(html,'text/html');      return {permitNo:v(doc,'detailMap.REQ_NO')||keyNo,orderNo:v(doc,'detailMap.WO_NO'),facilityNo:v(doc,'detailMap.ITEM_NO'),facilityName:v(doc,'detailMap.ITEM_DESC'),fnEquipDesc:v(doc,'detailMap.FN_EQUIP_DESC'),isPsm:v(doc,'detailMap.IS_PSM_WORK')==='Y',isLoto:v(doc,'detailMap.IS_LOTO_REQUIRED')==='Y',riskFlags:{confined:v(doc,'detailMap.IS_QS_NARROW')==='Y',dive:v(doc,'detailMap.IS_QS_DIVE')==='Y',electric:v(doc,'detailMap.IS_QS_ELECTRICITY')==='Y',excavation:v(doc,'detailMap.IS_QS_EXCAVATION')==='Y',radiation:v(doc,'detailMap.IS_QS_RADIATION')==='Y',height:v(doc,'detailMap.IS_QS_HIGH')==='Y',heavy:v(doc,'detailMap.IS_QS_HEAVY')==='Y'}};    }).catch(function(err){return null;});  }  function step(){    if(idx>=permitNos.length){finish();return;}    var keyNo=permitNos[idx];    if(idx%5===0){try{document.title='수집중 '+idx+'/'+permitNos.length;}catch(e){}}    fetchOne(keyNo).then(function(data){      if(data)results.push(data);      idx++;      setTimeout(step,250);    });  }  function finish(){    var json=JSON.stringify(results);    __spShowResultOverlay('✅ '+results.length+'건의 상세정보 수집 완료!',json);  }  step();})();`;
       const bulkDetailAnchor = document.getElementById('bulkDetailBookmarkletAnchor');
@@ -3193,6 +3335,13 @@ function sendData(force){var expanded=force?tryExpandPageSize():false;var procee
       const code = document.getElementById('detailBookmarkletAnchor').href;
       navigator.clipboard.writeText(code).then(() => {
         showToast('🔍 단건 수집 북마클릿 코드가 복사되었습니다!');
+      });
+    }
+
+    function copyExportBookmarklet() {
+      const code = document.getElementById('exportBookmarkletAnchor').href;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('📦 누적 데이터 내보내기 북마클릿 코드가 복사되었습니다!');
       });
     }
 
@@ -3254,9 +3403,21 @@ function sendData(force){var expanded=force?tryExpandPageSize():false;var procee
       if (d.fnEquipDesc) target.systemCategory = d.fnEquipDesc;
       if (typeof d.isPsm === 'boolean') target.isPsm = d.isPsm;
       if (typeof d.isLoto === 'boolean') target.isLoto = d.isLoto;
+      if (d.totalWorkers) {
+        const tw = parseInt(d.totalWorkers, 10);
+        if (!isNaN(tw) && tw > 0) {
+          target.totalWorkers = tw;
+          target.extraWorkers = Math.max(tw - 1, 0);
+        }
+      }
+      if (d.leader) {
+        target.leader = d.leader;
+        target.issuer = d.leader;
+      }
       if (d.riskFlags) {
         const rf = d.riskFlags;
         const risk = [];
+        if (rf.fire) risk.push('화기');
         if (rf.confined) risk.push('밀폐');
         if (rf.dive) risk.push('잠수');
         if (rf.electric) risk.push('전기');
@@ -3264,7 +3425,6 @@ function sendData(force){var expanded=force?tryExpandPageSize():false;var procee
         if (rf.heavy) risk.push('중장비');
         if (rf.height) risk.push('고소');
         if (rf.radiation) risk.push('방사선');
-        if (target.riskTags && target.riskTags.includes('화기')) risk.push('화기');
         target.riskTags = risk.length ? risk : ['일반작업'];
       }
       target.part = classifyPart(target);
