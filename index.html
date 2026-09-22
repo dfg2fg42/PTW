@@ -1544,6 +1544,79 @@
      * 2. 전기 계통 ➡️ SBO
      * 3. 발전 파트 (발전 1,2,3,4파트 / CCR / EES) ➡️ #1 BTG-B, #1 BTG-T, #2 BTG-B, #2 BTG-T 세부 판별
      */
+    function sanitizePermitItem(item) {
+      if (!item) return item;
+
+      // ── 특정 허가서 자동 교정 (121704 작성중, 121699 작성중) ──
+      if (item.permitNo === '121704') {
+        item.status = '작성중';
+        if (!item.equipment || item.equipment === '-') item.equipment = '#1 Absorber';
+      } else if (item.permitNo === '121699') {
+        item.status = '작성중';
+        if (!item.equipment || item.equipment === '-') item.equipment = 'Limestone Slurry Tank 상부';
+      }
+
+      // ── equipment (작업위치) 정제 ──────────────────────────────────────────
+      if (item.equipment !== undefined) {
+        let eq = String(item.equipment || '');
+        // 오염 조건: 개행/탭 포함, 60자 초과, 발행관련 키워드, 순수 숫자(오더번호), 날짜 패턴
+        const isCorrupt =
+          eq.includes('\n') || eq.includes('\t') ||
+          eq.length > 60 ||
+          eq.includes('발행완료') || eq.includes('작업오더') || eq.includes('허가서') ||
+          /^\d{5,}$/.test(eq.trim()) ||
+          /^\d{4}-\d{2}-\d{2}/.test(eq.trim()) ||
+          /\d{4}-\d{2}-\d{2}.*\d{4}-\d{2}-\d{2}/.test(eq);
+        if (isCorrupt) {
+          // 알려진 설비명 패턴으로 구출 시도
+          const m = eq.match(/(TBN\s*BLDG|#?[12]\s*BLR|#?[12]\s*TBN|CPP|GIS|345\s*kV|SWITCHYARD|Absorber|SILO|CWP|STT|Operating\s*Floor|저장고|하역|저탄|수소|석탄사일로)/i);
+          item.equipment = m ? m[1].trim() : '';
+        }
+        // 깨끗하더라도 60자 초과면 잘라내기
+        if (item.equipment && String(item.equipment).length > 60) {
+          item.equipment = String(item.equipment).substring(0, 58) + '…';
+        }
+      }
+
+      // ── operDept 정제 ──────────────────────────────────────────────────────
+      if (item.operDept) {
+        let od = String(item.operDept);
+        if (od.includes('\n') || od.includes('\t') || od.length > 40 || od.includes('발행완료') || od.includes('작업오더')) {
+          const m = od.match(/(발전\s*[1-4]파트|연료설비[^\r\n\t]{0,15}|회처리[^\r\n\t]{0,15}|탈황[^\r\n\t]{0,15}|수처리[^\r\n\t]{0,15}|수폐수[^\r\n\t]{0,15})/);
+          item.operDept = m ? m[1].trim() : '운전팀';
+        }
+        if (item.operDept.length > 40) item.operDept = item.operDept.substring(0, 39) + '…';
+      }
+
+      // ── dept 정제 ─────────────────────────────────────────────────────────
+      if (item.dept) {
+        let dp = String(item.dept);
+        if (dp.includes('\n') || dp.includes('\t') || dp.length > 40) {
+          const m = dp.match(/([가-힣a-zA-Z0-9\s]+팀|[가-힣a-zA-Z0-9\s]+과|[가-힣a-zA-Z0-9\s]+사)/);
+          item.dept = m ? m[1].trim() : '협력사';
+        }
+        if (item.dept.length > 40) item.dept = item.dept.substring(0, 39) + '…';
+      }
+
+      // ── contractor 정제 ───────────────────────────────────────────────────
+      if (item.contractor) {
+        let ct = String(item.contractor);
+        if (ct.includes('\n') || ct.includes('\t') || ct.length > 40) {
+          item.contractor = item.dept || '협력사';
+        }
+      }
+
+      // ── workTitle 정제 ────────────────────────────────────────────────────
+      if (item.workTitle) {
+        let wt = String(item.workTitle);
+        if (wt.includes('\n') || wt.includes('\t')) {
+          item.workTitle = wt.split(/[\r\n\t]/)[0].trim();
+        }
+      }
+
+      return item;
+    }
+
     function classifyPart(item) {
       const oper = (item.operDept || '').trim();
       const loc = (item.equipment || '').toLowerCase();
@@ -2115,78 +2188,7 @@
         saveToStorage();
       }
 
-    function sanitizePermitItem(item) {
-      if (!item) return item;
-
-      // ── 특정 허가서 자동 교정 (121704 작성중, 121699 작성중) ──
-      if (item.permitNo === '121704') {
-        item.status = '작성중';
-        if (!item.equipment || item.equipment === '-') item.equipment = '#1 Absorber';
-      } else if (item.permitNo === '121699') {
-        item.status = '작성중';
-        if (!item.equipment || item.equipment === '-') item.equipment = 'Limestone Slurry Tank 상부';
-      }
-
-      // ── equipment (작업위치) 정제 ──────────────────────────────────────────
-      if (item.equipment !== undefined) {
-        let eq = String(item.equipment || '');
-        // 오염 조건: 개행/탭 포함, 60자 초과, 발행관련 키워드, 순수 숫자(오더번호), 날짜 패턴
-        const isCorrupt =
-          eq.includes('\n') || eq.includes('\t') ||
-          eq.length > 60 ||
-          eq.includes('발행완료') || eq.includes('작업오더') || eq.includes('허가서') ||
-          /^\d{5,}$/.test(eq.trim()) ||
-          /^\d{4}-\d{2}-\d{2}/.test(eq.trim()) ||
-          /\d{4}-\d{2}-\d{2}.*\d{4}-\d{2}-\d{2}/.test(eq);
-        if (isCorrupt) {
-          // 알려진 설비명 패턴으로 구출 시도
-          const m = eq.match(/(TBN\s*BLDG|#?[12]\s*BLR|#?[12]\s*TBN|CPP|GIS|345\s*kV|SWITCHYARD|Absorber|SILO|CWP|STT|Operating\s*Floor|저장고|하역|저탄|수소|석탄사일로)/i);
-          item.equipment = m ? m[1].trim() : '';
-        }
-        // 깨끗하더라도 60자 초과면 잘라내기
-        if (item.equipment && String(item.equipment).length > 60) {
-          item.equipment = String(item.equipment).substring(0, 58) + '…';
-        }
-      }
-
-      // ── operDept 정제 ──────────────────────────────────────────────────────
-      if (item.operDept) {
-        let od = String(item.operDept);
-        if (od.includes('\n') || od.includes('\t') || od.length > 40 || od.includes('발행완료') || od.includes('작업오더')) {
-          const m = od.match(/(발전\s*[1-4]파트|연료설비[^\r\n\t]{0,15}|회처리[^\r\n\t]{0,15}|탈황[^\r\n\t]{0,15}|수처리[^\r\n\t]{0,15}|수폐수[^\r\n\t]{0,15})/);
-          item.operDept = m ? m[1].trim() : '운전팀';
-        }
-        if (item.operDept.length > 40) item.operDept = item.operDept.substring(0, 39) + '…';
-      }
-
-      // ── dept 정제 ─────────────────────────────────────────────────────────
-      if (item.dept) {
-        let dp = String(item.dept);
-        if (dp.includes('\n') || dp.includes('\t') || dp.length > 40) {
-          const m = dp.match(/([가-힣a-zA-Z0-9\s]+팀|[가-힣a-zA-Z0-9\s]+과|[가-힣a-zA-Z0-9\s]+사)/);
-          item.dept = m ? m[1].trim() : '협력사';
-        }
-        if (item.dept.length > 40) item.dept = item.dept.substring(0, 39) + '…';
-      }
-
-      // ── contractor 정제 ───────────────────────────────────────────────────
-      if (item.contractor) {
-        let ct = String(item.contractor);
-        if (ct.includes('\n') || ct.includes('\t') || ct.length > 40) {
-          item.contractor = item.dept || '협력사';
-        }
-      }
-
-      // ── workTitle 정제 ────────────────────────────────────────────────────
-      if (item.workTitle) {
-        let wt = String(item.workTitle);
-        if (wt.includes('\n') || wt.includes('\t')) {
-          item.workTitle = wt.split(/[\r\n\t]/)[0].trim();
-        }
-      }
-
-      return item;
-    }
+    
 
     workItems.forEach(item => {
       sanitizePermitItem(item);
@@ -2244,7 +2246,6 @@
       const reclassBtn = document.getElementById('reclassifyBtn');
       const syncBadge = document.getElementById('realtimeSyncBadge');
       const adminBtn = document.getElementById('adminModeBtn');
-      // 관리자 모드가 아니면 아예 화면에서 숨김 (비활성화 표시가 아니라 완전히 안 보이게)
       if (importBtn) importBtn.style.display = isAdminMode ? '' : 'none';
       if (reclassBtn) reclassBtn.style.display = isAdminMode ? '' : 'none';
       if (syncBadge) syncBadge.style.display = isAdminMode ? '' : 'none';
@@ -2258,6 +2259,27 @@
       if (adminSection) adminSection.style.display = isAdminMode ? 'block' : 'none';
     }
 
+    function parseBackupJsonText(rawText) {
+      let text = String(rawText || '').replace(/^\uFEFF/, '').trim();
+      if (!text) {
+        throw new Error('파일 내용이 비어 있습니다.');
+      }
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (err) {
+        const snippet = text.substring(0, 120).replace(/\s+/g, ' ');
+        throw new Error(`JSON 문법 오류: ${err.message}\n\n파일 시작 부분(120자): "${snippet}"`);
+      }
+      const arr = Array.isArray(parsed)
+        ? parsed
+        : (parsed && Array.isArray(parsed.workItems) ? parsed.workItems : null);
+      if (!arr) {
+        throw new Error('배열([...]) 또는 { "workItems": [...] } 형식이 아닙니다.\n업로드한 파일이 이 시스템에서 만든 백업 파일(JSON)인지 확인해주세요.');
+      }
+      return arr;
+    }
+
     function handleAdminJsonUpload(event) {
       if (!isAdminMode) {
         alert('🔒 관리자 모드에서만 사용할 수 있습니다.');
@@ -2269,16 +2291,13 @@
       const reader = new FileReader();
       reader.onload = function (e) {
         try {
-          const parsed = JSON.parse(e.target.result);
-          const arr = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.workItems) ? parsed.workItems : null);
-          if (!arr) {
-            alert('올바른 JSON 백업 형식이 아닙니다.\n배열([...]) 또는 { "workItems": [...] } 형식이어야 합니다.');
-            return;
-          }
+          const arr = parseBackupJsonText(e.target.result);
           workItems = arr;
           workItems.forEach(item => {
-            sanitizePermitItem(item);
-            if (!item.partManual) item.part = classifyPart(item);
+            try { sanitizePermitItem(item); } catch (e2) { /* 정제 실패해도 계속 진행 */ }
+            if (!item.partManual) {
+              try { item.part = classifyPart(item); } catch (e3) { item.part = item.part || 'ETC'; }
+            }
             if (item.totalWorkers === undefined) {
               const extra = Number(item.extraWorkers || 0);
               item.totalWorkers = extra > 0 ? extra + 1 : 1;
@@ -2290,10 +2309,14 @@
           closeImportModal();
           showToast(`✅ JSON 백업에서 ${workItems.length}건을 불러왔습니다.`);
         } catch (err) {
-          alert('JSON 파일을 해석하지 못했습니다: ' + err.message);
+          alert('JSON 파일을 해석하지 못했습니다.\n\n' + err.message);
         } finally {
           event.target.value = '';
         }
+      };
+      reader.onerror = function () {
+        alert('파일을 읽는 중 오류가 발생했습니다: ' + (reader.error ? reader.error.message : '알 수 없는 오류'));
+        event.target.value = '';
       };
       reader.readAsText(file, 'utf-8');
     }
