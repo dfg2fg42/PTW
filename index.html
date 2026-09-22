@@ -1,0 +1,3337 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>안전작업허가서 통합 필터링 모니터</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0b0f19;
+      --bg-panel: #111827;
+      --bg-card: #1e293b;
+      --bg-card-hover: #273549;
+      --border-subtle: #334155;
+      --border-accent: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      /* Part Colors: 발전 (BTG-B, BTG-T, SBO) + 운전부서 (CHS, EP, FGD, 수처리) */
+      --color-btgb1: #f97316;   /* #1 BTG-B (오렌지/보일러) */
+      --color-btgt1: #06b6d4;   /* #1 BTG-T (시안/터빈) */
+      --color-btgb2: #ef4444;   /* #2 BTG-B (레드/보일러) */
+      --color-btgt2: #10b981;   /* #2 BTG-T (에메랄드/터빈) */
+      --color-sbo: #eab308;     /* SBO (골드/전기) */
+      --color-chs: #f59e0b;     /* CHS (연료설비: 앰버) */
+      --color-ep: #a855f7;      /* EP (회처리설비: 바이올렛) */
+      --color-fgd: #14b8a6;     /* FGD (탈황설비: 틸) */
+      --color-wwt: #38bdf8;     /* 수처리 (수폐수설비: 스카이블루) */
+      --color-ccr: #3b82f6;     /* CCR (발전통합) */
+      --color-etc: #64748b;     /* 기타 */
+      
+      /* Status Colors */
+      --status-request: #64748b;
+      --status-review: #f59e0b;
+      --status-approved: #3b82f6;
+      --status-working: #10b981;
+      --status-done: #6b7280;
+      --status-cancel: #ef4444;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.35);
+      --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.25);
+    }
+
+    body.light-theme {
+      --bg-main: #f1f5f9;
+      --bg-panel: #ffffff;
+      --bg-card: #f8fafc;
+      --bg-card-hover: #edf2f7;
+      --border-subtle: #cbd5e1;
+      --border-accent: #2563eb;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.08);
+      --shadow-glow: 0 0 12px rgba(37, 99, 235, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navbar */
+    header.top-navbar {
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary { background: #2563eb; color: #ffffff; border-color: #3b82f6; }
+    .btn-primary:hover { background: #1d4ed8; box-shadow: 0 0 12px rgba(37, 99, 235, 0.4); }
+    .btn-success { background: #059669; color: #ffffff; border-color: #10b981; }
+    .btn-success:hover { background: #047857; }
+    .btn-secondary { background: var(--bg-card); color: var(--text-main); border-color: var(--border-subtle); }
+    .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--text-muted); }
+    .btn-accent { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    .btn-accent:hover { background: linear-gradient(135deg, #d97706, #b45309); }
+    .btn-sm { padding: 5px 9px; font-size: 11.5px; }
+
+    .origin-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(59, 130, 246, 0.12);
+      color: #60a5fa;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .origin-link:hover {
+      background: rgba(59, 130, 246, 0.22);
+      color: #93c5fd;
+    }
+
+    /* Realtime Sync Status Badge */
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #4ade80;
+      transition: all 0.25s ease;
+      user-select: none;
+    }
+    .sync-badge:hover {
+      background: rgba(34, 197, 94, 0.22);
+      transform: translateY(-1px);
+    }
+    .sync-badge.disconnected {
+      background: rgba(148, 163, 184, 0.12);
+      border-color: rgba(148, 163, 184, 0.25);
+      color: #94a3b8;
+    }
+    .sync-badge .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+      animation: pulse-sync 2s infinite ease-in-out;
+    }
+    .sync-badge.disconnected .sync-dot {
+      background: #94a3b8;
+      box-shadow: none;
+      animation: none;
+    }
+    .sync-badge.syncing .sync-dot {
+      background: #38bdf8;
+      box-shadow: 0 0 10px #38bdf8;
+      animation: pulse-sync 0.6s infinite ease-in-out;
+    }
+    @keyframes pulse-sync {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+
+    /* Main Container (좌우 여백 축소하여 전체 화면 공간 극대화) */
+    main.main-content {
+      flex: 1;
+      padding: 12px 10px 40px;
+      max-width: 100%;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* DATE AGGREGATOR TOOLBAR */
+    .date-agg-bar {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15);
+    }
+
+    .date-control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .date-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .date-input {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .date-nav-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .date-nav-btn:hover { background: var(--bg-card-hover); }
+
+    .date-summary-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .date-summary-text b {
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* KPI Summary Cards Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .kpi-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 13px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+
+    .kpi-card.card-all::before { background: #3b82f6; }
+    .kpi-card.card-btgb1::before { background: var(--color-btgb1); }
+    .kpi-card.card-btgt1::before { background: var(--color-btgt1); }
+    .kpi-card.card-btgb2::before { background: var(--color-btgb2); }
+    .kpi-card.card-btgt2::before { background: var(--color-btgt2); }
+    .kpi-card.card-sbo::before { background: var(--color-sbo); }
+    .kpi-card.card-chs::before { background: var(--color-chs); }
+    .kpi-card.card-ep::before { background: var(--color-ep); }
+    .kpi-card.card-fgd::before { background: var(--color-fgd); }
+    .kpi-card.card-wwt::before { background: var(--color-wwt); }
+
+    .kpi-card.active {
+      border-color: var(--border-accent);
+      background: var(--bg-card);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .kpi-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .kpi-dot { width: 9px; height: 9px; border-radius: 50%; }
+
+    .kpi-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .kpi-count {
+      font-size: 26px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+
+    .kpi-unit { font-size: 12px; color: var(--text-muted); }
+
+    .kpi-breakdown {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border-subtle);
+      display: flex;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .kpi-pill {
+      background: var(--bg-card-hover);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .part-tabs-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 10px;
+    }
+
+    .part-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .part-tab {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .part-tab:hover { color: var(--text-main); background: var(--bg-card-hover); }
+    .part-tab.active { color: white; border-color: transparent; }
+    .part-tab.tab-all.active { background: #3b82f6; color: white; }
+    .part-tab.tab-btgb1.active { background: var(--color-btgb1); color: white; }
+    .part-tab.tab-btgt1.active { background: var(--color-btgt1); color: #000; }
+    .part-tab.tab-btgb2.active { background: var(--color-btgb2); color: white; }
+    .part-tab.tab-btgt2.active { background: var(--color-btgt2); color: #000; }
+    .part-tab.tab-sbo.active { background: var(--color-sbo); color: #000; }
+    .part-tab.tab-chs.active { background: var(--color-chs); color: #000; }
+    .part-tab.tab-ep.active { background: var(--color-ep); color: white; }
+    .part-tab.tab-fgd.active { background: var(--color-fgd); color: white; }
+    .part-tab.tab-wwt.active { background: var(--color-wwt); color: #000; }
+
+    .tab-badge {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .filter-select {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      min-width: 260px;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 7px 12px 7px 32px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--border-accent); }
+
+    .search-icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+      width: 15px; height: 15px;
+    }
+
+    .view-toggles {
+      display: flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 2px;
+    }
+
+    .view-toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .view-toggle-btn.active { background: #2563eb; color: white; }
+
+    /* Content Area & Table */
+    .content-area {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .table-container { width: 100%; overflow-x: auto; }
+
+    table.work-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      font-size: 12.5px;
+    }
+
+    table.work-table th {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 8px 3px;
+      border-bottom: 2px solid var(--border-subtle);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      text-align: center;
+      font-size: 11.5px;
+    }
+
+    table.work-table td {
+      padding: 7px 3px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+      color: var(--text-main);
+      text-align: center;
+    }
+
+    table.work-table tr:hover { background: var(--bg-card-hover); }
+
+    /* Tags & Badges */
+    .part-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+    .part-tag.btgb1 { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); }
+    .part-tag.btgt1 { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
+    .part-tag.btgb2 { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .part-tag.btgt2 { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .part-tag.sbo { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
+    .part-tag.chs { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .part-tag.ep { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .part-tag.fgd { background: rgba(20, 184, 166, 0.2); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.4); }
+    .part-tag.wwt { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .part-tag.ccr { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .part-tag.etc { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.4); }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .status-badge.발행완료 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .status-badge.작업중 { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .status-badge.작성중 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .status-badge.승인대기 { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .status-badge.승인완료 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .status-badge.승인중 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .status-badge.반려 { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .status-badge.취소 { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+
+
+    /* LOTO & PSM Badges */
+    .badge-loto-yes {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .badge-loto-no {
+      color: var(--text-dim);
+      font-size: 11px;
+    }
+
+    .badge-psm-yes {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .badge-psm-no {
+      color: var(--text-dim);
+      font-size: 11px;
+    }
+
+    /* Worker Count Pill */
+    .worker-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(37, 99, 235, 0.15);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .risk-tag {
+      display: inline-block;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-size: 10.5px;
+      font-weight: 700;
+      margin-right: 3px;
+    }
+    .risk-high { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); }
+    .risk-fire { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.35); }
+    .risk-elec { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.35); }
+    .risk-confined { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); }
+
+    .work-title-cell {
+      cursor: pointer;
+      text-align: center !important;
+      padding-left: 10px !important;
+      padding-right: 10px !important;
+    }
+    .work-title-text {
+      font-weight: 600;
+      color: var(--text-main);
+      display: block;
+      margin-bottom: 2px;
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: center !important;
+    }
+    .work-title-cell:hover .work-title-text {
+      color: #60a5fa;
+      text-decoration: underline;
+    }
+
+    .work-meta-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: center !important;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 3px;
+      text-align: center !important;
+    }
+
+    /* Kanban View */
+    .kanban-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .kanban-column {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      max-height: 720px;
+    }
+
+    .kanban-col-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .kanban-cards-list {
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .kanban-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 11px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .kanban-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-accent);
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+
+    .modal-dialog {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 840px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .detail-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+    }
+    .detail-item.full { grid-column: 1 / -1; }
+    .detail-label { font-size: 11px; color: var(--text-dim); font-weight: 600; margin-bottom: 2px; }
+    .detail-val { font-size: 12.5px; font-weight: 600; color: var(--text-main); }
+
+    .safety-highlight-box {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .report-preview-box {
+      background: #020617;
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    #toast-msg {
+      position: fixed;
+      bottom: 20px; right: 20px;
+      background: #1e293b;
+      color: white;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      border: 1px solid #3b82f6;
+      z-index: 9999;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header class="top-navbar">
+    <div class="brand-section">
+      <div class="brand-badge">SBO ERP</div>
+      <div>
+        <div class="brand-title">
+          <span>안전작업허가서 통합 필터링 모니터</span>
+          <span style="font-size: 11px; padding: 2px 6px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-radius: 4px; font-weight: 600;">v2.8 PSM & LOTO & Manpower</span>
+        </div>
+        <div class="brand-subtitle">삼척블루파워 발전운전팀 · 작업인원수(외 N명) 및 PSM·LOTO 관리</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Realtime Sync Status Badge -->
+      <div id="realtimeSyncBadge" class="sync-badge disconnected" onclick="triggerManualSync()" title="인트라넷(220.70.136.113) 수동 동기화 (클릭 시에만 즉시 확인, 스크롤 자동수집)">
+        <span class="sync-dot"></span>
+        <span id="syncStatusText">수동 동기화 대기 중 (클릭 시 동기화)</span>
+      </div>
+
+      <!-- Target Origin URL -->
+      <a href="http://220.70.136.113/newWoSafetyMstrList.do" target="_blank" rel="noopener" class="origin-link" title="안전작업허가서 원본 목록 열기">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        안전작업허가서(220.70.136.113)
+      </a>
+
+      <!-- Daily Summary Report Button -->
+      <button class="btn btn-accent" onclick="openReportModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        당일 취합 보고서 / 일지 복사
+      </button>
+
+      <!-- Import Data Button -->
+      <button class="btn btn-primary" onclick="openImportModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        데이터 가져오기 / 수집기
+      </button>
+
+      <!-- 전체 파트 재분류 (캐시 문제 무관하게 즉시 재계산) -->
+      <button class="btn btn-secondary btn-sm" onclick="reclassifyAllParts()" title="모든 항목의 담당 파트를 최신 규칙으로 다시 계산합니다 (수동 지정 항목은 제외)">🔄 파트 재분류</button>
+
+      <!-- Theme Toggle -->
+      <button class="btn btn-secondary btn-sm" onclick="toggleTheme()" id="themeToggleBtn" title="다크/라이트 모드">🌙</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <!-- DATE AGGREGATOR TOOLBAR -->
+    <section class="date-agg-bar">
+      <div class="date-control-group">
+        <span class="date-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          취합 기준 일자:
+        </span>
+        <button class="date-nav-btn" onclick="stepDate(-1)" title="이전 날짜">◀</button>
+        <input type="date" id="targetDateInput" class="date-input" onchange="onDateChanged()">
+        <button class="date-nav-btn" onclick="stepDate(1)" title="다음 날짜">▶</button>
+        <button id="datePresetYesterday" class="btn btn-secondary btn-sm" onclick="setRelativeDate(-1)">어제</button>
+        <button id="datePresetToday" class="btn btn-secondary btn-sm" onclick="setDatePreset('today')">오늘</button>
+        <button id="datePresetTomorrow" class="btn btn-secondary btn-sm" onclick="setRelativeDate(1)">내일 예정</button>
+        <button class="btn btn-secondary btn-sm" onclick="setDatePreset('all')">전체 일자 해제</button>
+      </div>
+
+      <div class="date-summary-text">
+        <span>취합 작업: <b id="dateFilteredCountText">0건</b></span>
+        <span style="color:var(--border-subtle);">|</span>
+        <span>총 투입인원: <b id="totalWorkerCountText" style="color:#60a5fa;">0명</b></span>
+        <span style="color:var(--border-subtle);">|</span>
+        <span>LOTO 필요: <b id="totalLotoCountText" style="color:#f87171;">0건</b></span>
+        <span style="color:var(--border-subtle);">|</span>
+        <span>PSM 대상: <b id="totalPsmCountText" style="color:#fbbf24;">0건</b></span>
+      </div>
+    </section>
+
+    <!-- Part KPI Summary Cards Grid (발전 BTG/SBO + 운전부서 CHS/EP/FGD/수처리) -->
+    <section class="kpi-grid">
+      <!-- ALL -->
+      <div class="kpi-card card-all active" onclick="setPartFilter('ALL')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:#3b82f6;"></span> 전체 취합
+          </span>
+          <span class="tab-badge" id="kpi-all-badge">0건</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-all-count">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>인원 <b id="kpi-all-workers" class="kpi-pill">0명</b></span>
+          <span>LOTO <b id="kpi-all-loto" class="kpi-pill">0건</b></span>
+          <span>PSM <b id="kpi-all-psm" class="kpi-pill">0건</b></span>
+        </div>
+      </div>
+
+      <!-- #1 BTG-B -->
+      <div class="kpi-card card-btgb1" onclick="setPartFilter('BTG-B1')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:var(--color-btgb1);"></span> #1 BTG-B
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">1호기 보일러</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-btgb1-count" style="color:var(--color-btgb1);">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>투입인원 <b id="kpi-btgb1-workers" class="kpi-pill">0명</b></span>
+        </div>
+      </div>
+
+      <!-- #1 BTG-T -->
+      <div class="kpi-card card-btgt1" onclick="setPartFilter('BTG-T1')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:var(--color-btgt1);"></span> #1 BTG-T
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">1호기 터빈</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-btgt1-count" style="color:var(--color-btgt1);">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>투입인원 <b id="kpi-btgt1-workers" class="kpi-pill">0명</b></span>
+        </div>
+      </div>
+
+      <!-- #2 BTG-B -->
+      <div class="kpi-card card-btgb2" onclick="setPartFilter('BTG-B2')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:var(--color-btgb2);"></span> #2 BTG-B
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">2호기 보일러</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-btgb2-count" style="color:var(--color-btgb2);">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>투입인원 <b id="kpi-btgb2-workers" class="kpi-pill">0명</b></span>
+        </div>
+      </div>
+
+      <!-- #2 BTG-T -->
+      <div class="kpi-card card-btgt2" onclick="setPartFilter('BTG-T2')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:var(--color-btgt2);"></span> #2 BTG-T
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">2호기 터빈</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-btgt2-count" style="color:var(--color-btgt2);">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>투입인원 <b id="kpi-btgt2-workers" class="kpi-pill">0명</b></span>
+        </div>
+      </div>
+
+      <!-- SBO -->
+      <div class="kpi-card card-sbo" onclick="setPartFilter('SBO')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:var(--color-sbo);"></span> SBO
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">전기/스위치야드</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-sbo-count" style="color:var(--color-sbo);">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>투입인원 <b id="kpi-sbo-workers" class="kpi-pill">0명</b></span>
+        </div>
+      </div>
+
+      <!-- CHS (연료설비) -->
+      <div class="kpi-card card-chs" onclick="setPartFilter('CHS')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:var(--color-chs);"></span> CHS
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">연료설비</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-chs-count" style="color:var(--color-chs);">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>투입인원 <b id="kpi-chs-workers" class="kpi-pill">0명</b></span>
+        </div>
+      </div>
+
+      <!-- EP (회처리설비) -->
+      <div class="kpi-card card-ep" onclick="setPartFilter('EP')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:var(--color-ep);"></span> EP
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">회처리설비</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-ep-count" style="color:var(--color-ep);">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>투입인원 <b id="kpi-ep-workers" class="kpi-pill">0명</b></span>
+        </div>
+      </div>
+
+      <!-- FGD (탈황설비) -->
+      <div class="kpi-card card-fgd" onclick="setPartFilter('FGD')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:var(--color-fgd);"></span> FGD
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">탈황설비</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-fgd-count" style="color:var(--color-fgd);">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>투입인원 <b id="kpi-fgd-workers" class="kpi-pill">0명</b></span>
+        </div>
+      </div>
+
+      <!-- 수처리 (수폐수설비) -->
+      <div class="kpi-card card-wwt" onclick="setPartFilter('WWT')">
+        <div class="kpi-header">
+          <span class="kpi-title">
+            <span class="kpi-dot" style="background:var(--color-wwt);"></span> 수처리
+          </span>
+          <span style="font-size:11px; color:var(--text-dim);">수폐수설비</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-count" id="kpi-wwt-count" style="color:var(--color-wwt);">0</span>
+          <span class="kpi-unit">건</span>
+        </div>
+        <div class="kpi-breakdown">
+          <span>투입인원 <b id="kpi-wwt-workers" class="kpi-pill">0명</b></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls Panel -->
+    <section class="controls-panel">
+      <!-- Part Navigation Tabs -->
+      <div class="part-tabs-container">
+        <div class="part-tabs">
+          <button class="part-tab tab-all active" onclick="setPartFilter('ALL')">
+            전체 보기 <span class="tab-badge" id="tab-all-badge">0</span>
+          </button>
+          <button class="part-tab tab-btgb1" onclick="setPartFilter('BTG-B1')">
+            #1 BTG-B <span class="tab-badge" id="tab-btgb1-badge">0</span>
+          </button>
+          <button class="part-tab tab-btgt1" onclick="setPartFilter('BTG-T1')">
+            #1 BTG-T <span class="tab-badge" id="tab-btgt1-badge">0</span>
+          </button>
+          <button class="part-tab tab-btgb2" onclick="setPartFilter('BTG-B2')">
+            #2 BTG-B <span class="tab-badge" id="tab-btgb2-badge">0</span>
+          </button>
+          <button class="part-tab tab-btgt2" onclick="setPartFilter('BTG-T2')">
+            #2 BTG-T <span class="tab-badge" id="tab-btgt2-badge">0</span>
+          </button>
+          <button class="part-tab tab-sbo" onclick="setPartFilter('SBO')">
+            SBO (전기) <span class="tab-badge" id="tab-sbo-badge">0</span>
+          </button>
+          <button class="part-tab tab-chs" onclick="setPartFilter('CHS')">
+            CHS (연료) <span class="tab-badge" id="tab-chs-badge">0</span>
+          </button>
+          <button class="part-tab tab-ep" onclick="setPartFilter('EP')">
+            EP (회처리) <span class="tab-badge" id="tab-ep-badge">0</span>
+          </button>
+          <button class="part-tab tab-fgd" onclick="setPartFilter('FGD')">
+            FGD (탈황) <span class="tab-badge" id="tab-fgd-badge">0</span>
+          </button>
+          <button class="part-tab tab-wwt" onclick="setPartFilter('WWT')">
+            수처리 (수폐수) <span class="tab-badge" id="tab-wwt-badge">0</span>
+          </button>
+        </div>
+
+        <div class="view-toggles">
+          <button class="view-toggle-btn active" id="viewTableBtn" onclick="setViewMode('table')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"></path></svg>
+            테이블
+          </button>
+          <button class="view-toggle-btn" id="viewKanbanBtn" onclick="setViewMode('kanban')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"></rect><rect x="10" y="3" width="5" height="18" rx="1"></rect><rect x="17" y="3" width="5" height="18" rx="1"></rect></svg>
+            칸반 카드
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <!-- Unit Filter -->
+          <select id="unitSelect" class="filter-select" onchange="renderFilteredList()">
+            <option value="ALL">호기 전체</option>
+            <option value="1">1호기 (#1)</option>
+            <option value="2">2호기 (#2)</option>
+            <option value="COMMON">공용설비</option>
+          </select>
+
+          <!-- LOTO Filter -->
+          <select id="lotoSelect" class="filter-select" onchange="renderFilteredList()">
+            <option value="ALL">LOTO 전체</option>
+            <option value="Y">🔒 LOTO 필요 건만</option>
+            <option value="N">LOTO 불필요</option>
+          </select>
+
+          <!-- PSM Filter -->
+          <select id="psmSelect" class="filter-select" onchange="renderFilteredList()">
+            <option value="ALL">PSM 전체</option>
+            <option value="Y">⚠️ PSM 대상만</option>
+            <option value="N">PSM 비대상</option>
+          </select>
+
+          <!-- Special Risk Filter -->
+          <select id="riskSelect" class="filter-select" onchange="renderFilteredList()">
+            <option value="ALL">위험유형 전체</option>
+            <option value="고소">고소작업</option>
+            <option value="화기">화기작업</option>
+            <option value="정전">정전작업</option>
+            <option value="밀폐">밀폐공간</option>
+            <option value="위험물">유해물질/위험물</option>
+          </select>
+        </div>
+
+        <!-- Search Input -->
+        <div class="search-input-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="작업명, 작업위치, 인원(이민석), 발행번호, 부서 검색..." oninput="renderFilteredList()">
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Area: Table / Kanban -->
+    <section class="content-area">
+      <!-- Table View -->
+      <div id="tableViewContainer" class="table-container">
+        <table class="work-table" id="workTable">
+          <thead>
+            <tr>
+              <th style="width: 76px; text-align: center;" onclick="sortTable('part')">담당 파트 ⬍</th>
+              <th style="width: 68px; text-align: center;" onclick="sortTable('permitNo')">발행번호 ⬍</th>
+              <th style="width: 62px; text-align: center;" onclick="sortTable('status')">상태 ⬍</th>
+              <th style="width: 96px; text-align: center;" onclick="sortTable('totalWorkers')">작업인원 ⬍</th>
+              <th style="width: 58px; text-align: center;" onclick="sortTable('isLoto')">LOTO ⬍</th>
+              <th style="width: 58px; text-align: center;" onclick="sortTable('isPsm')">PSM ⬍</th>
+              <th style="min-width: 420px; text-align: center;" onclick="sortTable('workTitle')">작업명 ⬍</th>
+              <th style="width: 105px; text-align: center;" onclick="sortTable('equipment')">작업위치 ⬍</th>
+              <th style="width: 68px; text-align: center;">위험유형</th>
+              <th style="width: 140px; text-align: center; white-space: nowrap;" onclick="sortTable('startDate')">작업기간 ⬍</th>
+              <th style="width: 36px; text-align: center;">원문</th>
+            </tr>
+          </thead>
+          <tbody id="workTableBody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Kanban View -->
+      <div id="kanbanViewContainer" class="kanban-container" style="display: none;">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state" style="display: none; padding: 60px 20px; text-align: center; color: var(--text-muted);">
+        <div style="font-size: 40px; margin-bottom: 10px;">📋</div>
+        <h3 style="font-size: 16px; margin-bottom: 6px;">선택한 일자/조건에 일치하는 허가서 작업이 없습니다</h3>
+        <p style="font-size: 13px;">상단의 일자를 변경하시거나 [전체 일자 해제]를 눌러보세요.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- DAILY SUMMARY REPORT MODAL -->
+  <div class="modal-overlay" id="reportModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span id="reportModalTitle">당일 안전작업허가서 취합 보고서</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeReportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted);">
+          현재 선택된 일자 기준 파트별 작업 내역 및 <b>투입 인원수, LOTO, PSM 여부</b>가 자동 집계되었습니다.<br>
+          <b>[클립보드 일지 복사]</b> 버튼을 누르면 교대근무 일지나 인수인계 메신저로 바로 붙여넣을 수 있습니다.
+        </p>
+        <div class="report-preview-box" id="reportPreviewText"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" onclick="copyReportText()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          클립보드 일지 복사
+        </button>
+        <button class="btn btn-secondary" onclick="closeReportModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span id="modalPartBadge" class="part-tag">PART</span>
+          <span id="modalPermitNo" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-dim);">121746</span>
+          <span id="modalStatusBadge" class="status-badge">발행완료</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeDetailModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h3 id="modalWorkTitle" style="font-size: 16px; font-weight: 700; line-height: 1.4;">작업명</h3>
+        
+        <!-- Safety Highlights -->
+        <div class="safety-highlight-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <span style="font-size:11.5px; color:var(--text-muted); font-weight:600;">작업인원:</span>
+              <span id="modalWorkerDetail" style="font-weight:700; color:#93c5fd; margin-left:4px; font-size:13px;">이민석 외 38명 (총 39명)</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <span id="modalLotoBadge" class="badge-loto-yes">🔒 LOTO 필요</span>
+              <span id="modalPsmBadge" class="badge-psm-yes">⚠️ PSM 대상</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">작업오더</div>
+            <div class="detail-val" id="modalOrderNo" style="font-family:'JetBrains Mono'; font-weight:700; color:#38bdf8;">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">담당 파트 (자동분류)</div>
+            <div class="detail-val" id="modalPartText">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">발행부서 / 발행자</div>
+            <div class="detail-val" id="modalIssuerDept">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">운전부서</div>
+            <div class="detail-val" id="modalOperDept" style="color:#fbbf24; font-weight:700;">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">작업위치</div>
+            <div class="detail-val" id="modalEquipment" style="color:#38bdf8;">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">설비번호 / 설비명</div>
+            <div class="detail-val" id="modalFacility" style="font-size:12px;">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">허가기간 (시작 ~ 종료)</div>
+            <div class="detail-val" id="modalWorkTime">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">위험작업유형</div>
+            <div class="detail-val" id="modalRisk">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">작업수행 선임자</div>
+            <div class="detail-val" id="modalLeader">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">작업책임자 (시공업체)</div>
+            <div class="detail-val" id="modalManager">-</div>
+          </div>
+          <div class="detail-item full">
+            <div class="detail-label">계통 정보</div>
+            <div class="detail-val" id="modalSystem" style="font-size:12px; color:var(--text-muted); font-weight:normal;">-</div>
+          </div>
+          <div class="detail-item full">
+            <div class="detail-label">작업내용</div>
+            <div class="detail-val" id="modalWorkContent" style="white-space:pre-wrap; font-weight:normal; line-height:1.5; color:#e2e8f0;">-</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="modalOriginLink" onclick="openSafetyDetail(selectedItemId)" class="btn btn-primary" title="사용자 제공 정밀 파라미터 86개를 모두 담아 상세 화면을 바로 띄웁니다">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          ⚡ 원본 상세 원클릭 열기
+        </button>
+        <button class="btn btn-secondary" onclick="copyAndOpenIntranet()" title="보안 차단 발생 시 안전하게 복사 후 목록에서 바로 조회합니다">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+          📋 허가번호 복사 + 인트라넷 열기
+        </button>
+        <button class="btn btn-secondary" onclick="changeCurrentItemPartPrompt()">직무 파트 재지정</button>
+        <button class="btn btn-secondary" onclick="closeDetailModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Modal -->
+  <div class="modal-overlay" id="importModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          안전작업허가서 데이터 가져오기 / 화면 복사
+        </div>
+        <button class="modal-close-btn" onclick="closeImportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- 1. Realtime Auto-Sync Section -->
+        <div style="background: rgba(37, 99, 235, 0.08); border: 1.5px solid rgba(59, 130, 246, 0.4); border-radius: var(--radius-md); padding: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <h4 style="font-size: 14px; font-weight: 700; color: #60a5fa; display: flex; align-items: center; gap: 6px; margin: 0;">
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e;"></span>
+              ⚡ 인트라넷(220.70.136.113) 실시간 무인 자동 동기화
+            </h4>
+            <span id="modalBridgeStatus" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(34, 197, 94, 0.2); color: #4ade80;">로컬 브릿지 연결됨</span>
+          </div>
+          <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+            <a href="http://220.70.136.113/newWoSafetyMstrList.do" target="_blank" style="color: #93c5fd; font-weight: 600; text-decoration: underline;">안전작업허가서 웹 화면</a>을 띄워두고, 아래 <b>[지금 즉시 동기화] 버튼을 누를 때만</b> 목록을 끝까지 자동 스크롤하며 최대 200건을 수집해 반영합니다. (자동 주기 동기화는 사용하지 않습니다)
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <a class="btn btn-primary btn-sm" id="bookmarkletAnchor" href="#" title="브라우저 북마크바(즐겨찾기)로 드래그하여 인트라넷 탭에서 클릭하세요">
+              📑 실시간 자동동기화 북마클릿
+            </a>
+            <button class="btn btn-secondary btn-sm" onclick="copyBookmarkletCode()" title="북마클릿 자바스크립트 코드 복사">
+              코드 복사
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="copyTampermonkeyScript()">
+              📄 Tampermonkey 무인 스크립트 복사
+            </button>
+            <button class="btn btn-accent btn-sm" onclick="triggerManualSync()">
+              🔄 지금 즉시 최신 데이터 확인
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Manual Paste Section -->
+        <div>
+          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 4px;">📋 표 직접 복사 붙여넣기 (Ctrl + V)</h4>
+          <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px;">
+            안전작업허가서 목록 화면이나 상세 화면의 표/텍스트를 마우스로 복사(Ctrl+C)한 후 아래 상자에 붙여넣으세요.
+          </p>
+          <textarea id="pasteTextArea" style="width: 100%; height: 90px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; font-family: monospace; font-size: 11.5px; resize: vertical;" placeholder="웹 화면 표 내용을 여기에 Ctrl + V 로 붙여넣으세요..."></textarea>
+        </div>
+
+        <!-- 3. Sample Data -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background: var(--bg-card); padding: 10px 14px; border-radius: var(--radius-sm);">
+          <div>
+            <div style="font-weight: 700; font-size: 12.5px;">💡 최신 실전 데이터 세트 적용</div>
+            <div style="font-size: 11px; color: var(--text-muted);">19일~22일 작업인원(외 N명), LOTO, PSM 세부정보가 포함된 실제 데이터 복원</div>
+          </div>
+          <button class="btn btn-accent btn-sm" onclick="loadRealSampleData()">실전 데이터 로드</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="parseAndApplyPastedText()">데이터 분석 적용</button>
+        <button class="btn btn-secondary" onclick="closeImportModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-msg">알림 메시지</div>
+
+  <script>
+    /* ==========================================================================
+       1. PART DEFINITIONS & CLASSIFIER
+       ========================================================================== */
+    const PART_DEFS = {
+      'BTG-B1': { code: 'BTG-B1', label: '#1 BTG-B', name: '1호기 보일러', color: 'var(--color-btgb1)', badgeClass: 'btgb1', unit: '1' },
+      'BTG-T1': { code: 'BTG-T1', label: '#1 BTG-T', name: '1호기 터빈',   color: 'var(--color-btgt1)', badgeClass: 'btgt1', unit: '1' },
+      'BTG-B2': { code: 'BTG-B2', label: '#2 BTG-B', name: '2호기 보일러', color: 'var(--color-btgb2)', badgeClass: 'btgb2', unit: '2' },
+      'BTG-T2': { code: 'BTG-T2', label: '#2 BTG-T', name: '2호기 터빈',   color: 'var(--color-btgt2)', badgeClass: 'btgt2', unit: '2' },
+      'SBO':    { code: 'SBO',    label: 'SBO',      name: '전기/스위치야드', color: 'var(--color-sbo)', badgeClass: 'sbo',   unit: 'COMMON' },
+      'CHS':    { code: 'CHS',    label: 'CHS',      name: '연료설비',     color: 'var(--color-chs)',   badgeClass: 'chs',   unit: 'COMMON' },
+      'EP':     { code: 'EP',     label: 'EP',       name: '회처리설비',   color: 'var(--color-ep)',    badgeClass: 'ep',    unit: 'COMMON' },
+      'FGD':    { code: 'FGD',    label: 'FGD',      name: '탈황설비',     color: 'var(--color-fgd)',   badgeClass: 'fgd',   unit: 'COMMON' },
+      'WWT':    { code: 'WWT',    label: '수처리',    name: '수폐수설비',   color: 'var(--color-wwt)',   badgeClass: 'wwt',   unit: 'COMMON' },
+      'CCR':    { code: 'CCR',    label: 'CCR',      name: '발전파트',     color: 'var(--color-ccr)',   badgeClass: 'ccr',   unit: 'COMMON' },
+      'ETC':    { code: 'ETC',    label: '기타',      name: '기타공용',     color: 'var(--color-etc)',   badgeClass: 'etc',   unit: 'COMMON' }
+    };
+
+    /**
+     * [담당 파트 자동 분류 엔진]
+     * 1. 운전부서 문구 기반 우선 판별:
+     *    - '연료설비' 문구 ➡️ CHS
+     *    - '회처리' 문구 ➡️ EP
+     *    - '탈황' 문구 ➡️ FGD
+     *    - '수폐수'/'수처리' 문구 ➡️ 수처리 (WWT)
+     * 2. 전기 계통 ➡️ SBO
+     * 3. 발전 파트 (발전 1,2,3,4파트 / CCR / EES) ➡️ #1 BTG-B, #1 BTG-T, #2 BTG-B, #2 BTG-T 세부 판별
+     */
+    function classifyPart(item) {
+      const oper = (item.operDept || '').trim();
+      const loc = (item.equipment || '').toLowerCase();
+      const title = (item.workTitle || '').toLowerCase();
+      const dept = (item.dept || '').toLowerCase();
+      const text = `${oper} ${dept} ${title} ${loc}`.toLowerCase();
+
+      const locUnit1 = loc.includes('#1') || loc.includes('1호기');
+      const locUnit2 = loc.includes('#2') || loc.includes('2호기');
+      const locIsBoilerCode = loc.includes('blr') || loc.includes('pulv') || loc.includes('pa fan') || loc.includes('mill') || loc.includes('보일러');
+      const locIsTurbineCode = loc.includes('tbn') || loc.includes('msv') || loc.includes('터빈');
+      if (locIsBoilerCode || locIsTurbineCode) {
+        if (locUnit1 && locIsBoilerCode) return 'BTG-B1';
+        if (locUnit1 && locIsTurbineCode) return 'BTG-T1';
+        if (locUnit2 && locIsBoilerCode) return 'BTG-B2';
+        if (locUnit2 && locIsTurbineCode) return 'BTG-T2';
+      }
+
+      if (
+        oper.includes('회처리') || text.includes('회처리') || text.includes('fly ash') ||
+        text.includes('bottom ash') || text.includes('집진기') || text.includes('비회설비')
+      ) {
+        return 'EP';
+      }
+      if (oper.includes('탈황') || text.includes('탈황') || text.includes('fgd') || text.includes('석회석') || text.includes('흡수탑')) {
+        return 'FGD';
+      }
+      if (
+        oper.includes('연료설비') || text.includes('연료설비') || text.includes('석탄취급') ||
+        text.includes('chs') || text.includes('coal') ||
+        text.includes('저탄장') || text.includes('저탄') || text.includes('하역') ||
+        text.includes('부두') || text.includes('상탄') || text.includes('벨트') ||
+        text.includes('컨베이어') || text.includes('트리퍼') || text.includes('스태커') ||
+        text.includes('리클레이머') || text.includes('낙탄') ||
+        ((text.includes('silo') || text.includes('사일로')) && (text.includes('coal') || text.includes('석탄') || text.includes('연료')))
+      ) {
+        return 'CHS';
+      }
+      if (
+        oper.includes('수폐수') || oper.includes('수처리') || text.includes('수폐수') ||
+        text.includes('수처리') || text.includes('순수제조') || text.includes('폐수') ||
+        text.includes('cpp')
+      ) {
+        return 'WWT';
+      }
+
+      if (text.includes('sbo') || loc.includes('345kv') || loc.includes('전기실') || loc.includes('ups') || text.includes('gis') || text.includes('switchgear') || text.includes('차단기') || text.includes('변압기') || text.includes('edg') || text.includes('전기팀') || text.includes('스위치야드') || text.includes('전동기')) {
+        return 'SBO';
+      }
+
+      const explicitUnit1 = locUnit1 || title.includes('#1') || title.includes('1호기');
+      const explicitUnit2 = locUnit2 || title.includes('#2') || title.includes('2호기');
+
+      let isUnit1, isUnit2;
+      if (explicitUnit1 || explicitUnit2) {
+        isUnit1 = explicitUnit1;
+        isUnit2 = explicitUnit2 && !explicitUnit1;
+      } else {
+        isUnit1 = oper.includes('발전1파트') || oper.includes('발전3파트');
+        isUnit2 = oper.includes('발전2파트') || oper.includes('발전4파트');
+      }
+
+      const isBoiler = loc.includes('blr') || loc.includes('pulv') || loc.includes('pa fan') || loc.includes('보일러') || title.includes('보일러') || title.includes('미분기') || title.includes('soot blower') || text.includes('pulverizer') || text.includes('통풍') || dept.includes('보일러');
+      const isTurbine = loc.includes('tbn') || loc.includes('msv') || loc.includes('발전기') || loc.includes('cwp') || title.includes('터빈') || title.includes('발전기') || text.includes('crane') || text.includes('급수') || text.includes('복수') || text.includes('cwp') || dept.includes('터빈');
+
+      if (isUnit1) {
+        if (isBoiler && !isTurbine) return 'BTG-B1';
+        if (isTurbine) return 'BTG-T1';
+        return 'CCR';
+      }
+
+      if (isUnit2) {
+        if (isBoiler && !isTurbine) return 'BTG-B2';
+        if (isTurbine) return 'BTG-T2';
+        return 'CCR';
+      }
+
+      if (isBoiler || isTurbine) return 'CCR';
+      return 'ETC';
+    }
+
+    /* ==========================================================================
+       2. REALISTIC COMPREHENSIVE DATASET (인트라넷 상세 화면 100% 실제 데이터 반영)
+       ========================================================================== */
+    const REAL_SCREENSHOT_DATA = [
+      {
+        permitNo: '121729',
+        status: '발행완료',
+        orderNo: '119201',
+        workTitle: '#1 HH-LCV-12A(HP HTR8A -> HP HTR7A) Cascade Line Drain Valve 용접부에서 Steam 누설 발생',
+        workContent: '#1 HH-LCV-12A(HP HTR8A -> HP HTR7A) Cascade Line Drain Valve 용접부에서 Steam 누설 발생',
+        equipment: '1호기 Operating Floor HP HTR-7A 부근',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'EES 터빈팀',
+        operDept: 'EES 발전2파트',
+        issuer: '이병영',
+        leader: '이병영',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'EES 터빈팀',
+        manager: '이병영',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['화기'],
+        systemCategory: 'EES 발전2파트 > 1호기 Operating Floor HP HTR-7A 부근',
+        part: 'BTG-T1'
+      },
+      {
+        permitNo: '121524',
+        status: '발행완료',
+        orderNo: '114326',
+        workTitle: '#1,2 BAS BA 반출 작업을 위한 설비 운전 (\'26.04~12)',
+        workContent: '#1,2 BAS BA 반출 작업을 위한 설비 운전 (\'26.04~12)',
+        equipment: '#1,2  BOTTOM ASH SILO',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'KEPS 환경운영팀',
+        operDept: '회처리설비운전',
+        issuer: '김상용',
+        leader: '김상용',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'KEPS 환경운영팀',
+        manager: '김상용',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: '회처리설비운전 > #1,2  BOTTOM ASH SILO',
+        part: 'EP'
+      },
+      {
+        permitNo: '121712',
+        status: '발행완료',
+        orderNo: '119101',
+        workTitle: '\'26년 21항차 연료탄 하역작업',
+        workContent: '\'26년 21항차 연료탄 하역작업',
+        equipment: '하역부두',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: '세방',
+        operDept: '세방',
+        issuer: '세방',
+        leader: '세방',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: '세방',
+        manager: '세방',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: '세방 > 하역부두',
+        part: 'CHS'
+      },
+      {
+        permitNo: '121090',
+        status: '발행완료',
+        orderNo: '116732',
+        workTitle: '\'26년 상탄라인 낙탄처리 운영 3/4분기',
+        workContent: '\'26년 상탄라인 낙탄처리 운영 3/4분기',
+        equipment: 'CHS 부지내 상탄라인',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'KEPS 연료운영팀',
+        operDept: 'KEPS 연료운영팀',
+        issuer: '김태근',
+        leader: '김태근',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'KEPS 연료운영팀',
+        manager: '김태근',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: 'KEPS 연료운영팀 > CHS 부지내 상탄라인',
+        part: 'CHS'
+      },
+      {
+        permitNo: '121414',
+        status: '발행완료',
+        orderNo: '117754',
+        workTitle: '\'26년 중장비(로더) 운영 3/4분기',
+        workContent: '\'26년 중장비(로더) 운영 3/4분기',
+        equipment: '저탄장/비회설비/탈황설비/보일러',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'KEPS 연료운영팀',
+        operDept: 'KEPS 연료운영팀',
+        issuer: '이상복',
+        leader: '이상복',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'KEPS 연료운영팀',
+        manager: '이상복',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: 'KEPS 연료운영팀 > 저탄장/비회설비/탈황설비/보일러',
+        part: 'CHS'
+      },
+      {
+        permitNo: '121432',
+        status: '발행완료',
+        orderNo: '117756',
+        workTitle: '\'26년 중장비(습식 진공차) 운영 3/4분기',
+        workContent: '\'26년 중장비(습식 진공차) 운영 3/4분기',
+        equipment: '저탄장/비회설비/탈황설비/보일러/항만',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'KEPS 연료운영팀',
+        operDept: 'KEPS 연료운영팀',
+        issuer: '이상복',
+        leader: '이상복',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'KEPS 연료운영팀',
+        manager: '이상복',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: 'KEPS 연료운영팀 > 저탄장/비회설비/탈황설비/보일러/항만',
+        part: 'CHS'
+      },
+      {
+        permitNo: '121092',
+        status: '발행완료',
+        orderNo: '116731',
+        workTitle: '\'26년 하역라인 낙탄처리 운영 3/4분기',
+        workContent: '\'26년 하역라인 낙탄처리 운영 3/4분기',
+        equipment: 'CHS 부지내 하역라인',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'KEPS 연료운영팀',
+        operDept: 'KEPS 연료운영팀',
+        issuer: '김태근',
+        leader: '김태근',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'KEPS 연료운영팀',
+        manager: '김태근',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: 'KEPS 연료운영팀 > CHS 부지내 하역라인',
+        part: 'CHS'
+      },
+      {
+        permitNo: '121738',
+        status: '발행완료',
+        orderNo: '119208',
+        workTitle: '1호기 및 2호기 수소 입고 작업',
+        workContent: '1호기 및 2호기 수소 입고 작업',
+        equipment: '2호기 수소 저장고',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'EES 발전운영팀',
+        operDept: 'EES 발전3파트',
+        issuer: '이주형',
+        leader: '이주형',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'EES 발전운영팀',
+        manager: '이주형',
+        isLoto: false,
+        isPsm: true,
+        riskTags: ['일반'],
+        systemCategory: 'EES 발전3파트 > 2호기 수소 저장고',
+        part: 'BTG-T1'
+      },
+      {
+        permitNo: '121746',
+        status: '발행완료',
+        orderNo: '118625',
+        workTitle: '2호기 법정검사 관련 터빈설비 비계 설치 및 해체 공사',
+        workContent: '2호기 법정검사 관련 터빈설비 비계 설치 및 해체 공사',
+        equipment: 'TBN BLDG',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'EES 터빈팀',
+        operDept: 'EES 발전4파트',
+        issuer: '이병영',
+        leader: '이병영',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'EES 터빈팀',
+        manager: '이병영',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['고소'],
+        systemCategory: 'EES 발전4파트 > TBN BLDG',
+        part: 'BTG-T2'
+      },
+      {
+        permitNo: '121516',
+        status: '발행완료',
+        orderNo: '114325',
+        workTitle: 'FAS-A/B FA 반출 작업을 위한 Valve 조작 [\'26.04~12]',
+        workContent: 'FAS-A/B FA 반출 작업을 위한 Valve 조작 [\'26.04~12]',
+        equipment: '#1,2 FLY ASH SILO A001',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'KEPS 환경운영팀',
+        operDept: '회처리설비운전',
+        issuer: '김상용',
+        leader: '김상용',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'KEPS 환경운영팀',
+        manager: '김상용',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: '회처리설비운전 > #1,2 FLY ASH SILO A001',
+        part: 'EP'
+      },
+      {
+        permitNo: '121704',
+        status: '작성중',
+        orderNo: '118364',
+        workTitle: 'FGD #1 Absorber Filtrate Water Inlet Valve [1AX-FV-01] 유량 저하 현상 발생(주말작업)',
+        workContent: 'FGD #1 Absorber Filtrate Water Inlet Valve [1AX-FV-01] 유량 저하 현상 발생(주말작업)',
+        equipment: '#1 Absorber',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'HPS 연료탈황팀',
+        operDept: '탈황설비운전 3과',
+        issuer: '이성훈',
+        leader: '이성훈',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'HPS 연료탈황팀',
+        manager: '이성훈',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: '탈황설비운전 3과 > #1 Absorber',
+        part: 'FGD'
+      },
+      {
+        permitNo: '115864',
+        status: '발행완료',
+        orderNo: '115725',
+        workTitle: 'FGD #2 Mist Eliminator Washing Water Spray Valve 불량 개소 점검 필요',
+        workContent: 'FGD #2 Mist Eliminator Washing Water Spray Valve 불량 개소 점검 필요',
+        equipment: '#2 ABSORBER & GGH REHEATER AREA EL.+114,670',
+        startDate: '2026-07-06',
+        endDate: '2026-10-31',
+        workTime: '08:00 ~ 17:00',
+        dept: 'HPS 계측제어팀',
+        operDept: '탈황설비운전 1과',
+        issuer: '황현준',
+        leader: '황현준',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'HPS 계측제어팀',
+        manager: '황현준',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: '탈황설비운전 1과 > #2 ABSORBER & GGH REHEATER AREA EL.+114,670',
+        part: 'EP'
+      },
+      {
+        permitNo: '121699',
+        status: '작성중',
+        orderNo: '119153',
+        workTitle: 'FGD #공용 Limestone Slurry Return Line Bypass Valve 고착 해소(1호기 정지 작업)',
+        workContent: 'FGD #공용 Limestone Slurry Return Line Bypass Valve 고착 해소(1호기 정지 작업)',
+        equipment: 'Limestone Slurry Tank 상부',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'HPS 연료탈황팀',
+        operDept: '탈황설비운전',
+        issuer: '서장원',
+        leader: '서장원',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'HPS 연료탈황팀',
+        manager: '서장원',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: '탈황설비운전 > Limestone Slurry Tank 상부',
+        part: 'FGD'
+      },
+      {
+        permitNo: '121648',
+        status: '발행완료',
+        orderNo: '118472',
+        workTitle: '[별도공사] #2 보일러 수압시험 대비 비계 설치/해체 공사',
+        workContent: '[별도공사] #2 보일러 수압시험 대비 비계 설치/해체 공사',
+        equipment: '#2 보일러',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: 'EES 보일러팀',
+        operDept: 'EES 발전1파트',
+        issuer: '정승훈',
+        leader: '정승훈',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: 'EES 보일러팀',
+        manager: '정승훈',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['고소'],
+        systemCategory: 'EES 발전1파트 > #2 보일러',
+        part: 'BTG-B2'
+      },
+      {
+        permitNo: '121650',
+        status: '발행완료',
+        orderNo: '118027',
+        workTitle: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
+        workContent: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
+        equipment: 'STT',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: '플랜텍',
+        operDept: '연료설비운전 1과',
+        issuer: '플랜텍',
+        leader: '플랜텍',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: '플랜텍',
+        manager: '플랜텍',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: '연료설비운전 1과 > STT',
+        part: 'CHS'
+      },
+      {
+        permitNo: '121649',
+        status: '발행완료',
+        orderNo: '118027',
+        workTitle: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
+        workContent: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
+        equipment: 'BBB,SCB',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: '플랜텍',
+        operDept: '연료설비운전 1과',
+        issuer: '플랜텍',
+        leader: '플랜텍',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: '플랜텍',
+        manager: '플랜텍',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['화기'],
+        systemCategory: '연료설비운전 1과 > BBB,SCB',
+        part: 'CHS'
+      },
+      {
+        permitNo: '121646',
+        status: '발행완료',
+        orderNo: '118027',
+        workTitle: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
+        workContent: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
+        equipment: 'TT-05,06,07',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: '플랜텍',
+        operDept: '연료설비운전 1과',
+        issuer: '플랜텍',
+        leader: '플랜텍',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: '플랜텍',
+        manager: '플랜텍',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['화기'],
+        systemCategory: '연료설비운전 1과 > TT-05,06,07',
+        part: 'CHS'
+      },
+      {
+        permitNo: '121643',
+        status: '발행완료',
+        orderNo: '118027',
+        workTitle: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
+        workContent: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
+        equipment: 'S.P#1',
+        startDate: '2026-09-19',
+        endDate: '2026-09-19',
+        workTime: '08:00 ~ 17:00',
+        dept: '플랜텍',
+        operDept: '연료설비운전 1과',
+        issuer: '플랜텍',
+        leader: '플랜텍',
+        extraWorkers: 0,
+        totalWorkers: 1,
+        contractor: '플랜텍',
+        manager: '플랜텍',
+        isLoto: false,
+        isPsm: false,
+        riskTags: ['일반'],
+        systemCategory: '연료설비운전 1과 > S.P#1',
+        part: 'CHS'
+      }
+    ];
+
+    /* ==========================================================================
+       3. APPLICATION STATE & INITIALIZATION
+       ========================================================================== */
+    let workItems = [];
+    function getLocalDateString(offsetDays = 0) {
+      const date = new Date();
+      date.setHours(12, 0, 0, 0);
+      date.setDate(date.getDate() + offsetDays);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+    function getLocalTodayString() { return getLocalDateString(0); }
+    let currentTargetDate = getLocalTodayString(); // 기본 오늘 일자(19일) - 121648번 작업 즉시 표시
+    let isDateFilterActive = true;
+    let currentPartFilter = 'ALL';
+    let currentViewMode = 'table';
+    let sortColumn = 'totalWorkers';
+    let sortAsc = false;
+    let selectedItemId = null;
+
+    const STORAGE_KEY = 'SBO_SAFETY_ITEMS_V37_EXACT_SYNC';
+    const THEME_KEY = 'SBO_THEME_PREF';
+
+    function initApp() {
+      // 구버전 캐시 데이터 청소 (오염된 데이터 완벽 제거 및 신규 스키마 강제 동기화)
+      ['SBO_SAFETY_ITEMS_V30', 'SBO_SAFETY_ITEMS_V31', 'SBO_SAFETY_ITEMS_V32_ALL9PARTS', 'SBO_SAFETY_ITEMS_V33_EXACT_INTRANET', 'SBO_SAFETY_ITEMS_V34', 'SBO_SAFETY_ITEMS_V35_EXACT_INTRANET', 'SBO_SAFETY_ITEMS_V36_PERFECT_DETAIL'].forEach(oldKey => {
+        try { localStorage.removeItem(oldKey); } catch(e) {}
+      });
+      try { localStorage.removeItem('sbo_last_sync_time'); } catch(e) {}
+
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        document.getElementById('themeToggleBtn').textContent = '☀️';
+      }
+
+      document.getElementById('targetDateInput').value = currentTargetDate;
+      updateDatePresetButtonLabels();
+
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          workItems = JSON.parse(stored);
+        } catch(e) {
+          workItems = [...REAL_SCREENSHOT_DATA];
+        }
+      } else {
+        workItems = [...REAL_SCREENSHOT_DATA];
+        saveToStorage();
+      }
+
+    function sanitizePermitItem(item) {
+      if (!item) return item;
+
+      // ── 특정 허가서 자동 교정 (121704 작성중, 121699 작성중) ──
+      if (item.permitNo === '121704') {
+        item.status = '작성중';
+        if (!item.equipment || item.equipment === '-') item.equipment = '#1 Absorber';
+      } else if (item.permitNo === '121699') {
+        item.status = '작성중';
+        if (!item.equipment || item.equipment === '-') item.equipment = 'Limestone Slurry Tank 상부';
+      }
+
+      // ── equipment (작업위치) 정제 ──────────────────────────────────────────
+      if (item.equipment !== undefined) {
+        let eq = String(item.equipment || '');
+        // 오염 조건: 개행/탭 포함, 60자 초과, 발행관련 키워드, 순수 숫자(오더번호), 날짜 패턴
+        const isCorrupt =
+          eq.includes('\n') || eq.includes('\t') ||
+          eq.length > 60 ||
+          eq.includes('발행완료') || eq.includes('작업오더') || eq.includes('허가서') ||
+          /^\d{5,}$/.test(eq.trim()) ||
+          /^\d{4}-\d{2}-\d{2}/.test(eq.trim()) ||
+          /\d{4}-\d{2}-\d{2}.*\d{4}-\d{2}-\d{2}/.test(eq);
+        if (isCorrupt) {
+          // 알려진 설비명 패턴으로 구출 시도
+          const m = eq.match(/(TBN\s*BLDG|#?[12]\s*BLR|#?[12]\s*TBN|CPP|GIS|345\s*kV|SWITCHYARD|Absorber|SILO|CWP|STT|Operating\s*Floor|저장고|하역|저탄|수소|석탄사일로)/i);
+          item.equipment = m ? m[1].trim() : '';
+        }
+        // 깨끗하더라도 60자 초과면 잘라내기
+        if (item.equipment && String(item.equipment).length > 60) {
+          item.equipment = String(item.equipment).substring(0, 58) + '…';
+        }
+      }
+
+      // ── operDept 정제 ──────────────────────────────────────────────────────
+      if (item.operDept) {
+        let od = String(item.operDept);
+        if (od.includes('\n') || od.includes('\t') || od.length > 40 || od.includes('발행완료') || od.includes('작업오더')) {
+          const m = od.match(/(발전\s*[1-4]파트|연료설비[^\r\n\t]{0,15}|회처리[^\r\n\t]{0,15}|탈황[^\r\n\t]{0,15}|수처리[^\r\n\t]{0,15}|수폐수[^\r\n\t]{0,15})/);
+          item.operDept = m ? m[1].trim() : '운전팀';
+        }
+        if (item.operDept.length > 40) item.operDept = item.operDept.substring(0, 39) + '…';
+      }
+
+      // ── dept 정제 ─────────────────────────────────────────────────────────
+      if (item.dept) {
+        let dp = String(item.dept);
+        if (dp.includes('\n') || dp.includes('\t') || dp.length > 40) {
+          const m = dp.match(/([가-힣a-zA-Z0-9\s]+팀|[가-힣a-zA-Z0-9\s]+과|[가-힣a-zA-Z0-9\s]+사)/);
+          item.dept = m ? m[1].trim() : '협력사';
+        }
+        if (item.dept.length > 40) item.dept = item.dept.substring(0, 39) + '…';
+      }
+
+      // ── contractor 정제 ───────────────────────────────────────────────────
+      if (item.contractor) {
+        let ct = String(item.contractor);
+        if (ct.includes('\n') || ct.includes('\t') || ct.length > 40) {
+          item.contractor = item.dept || '협력사';
+        }
+      }
+
+      // ── workTitle 정제 ────────────────────────────────────────────────────
+      if (item.workTitle) {
+        let wt = String(item.workTitle);
+        if (wt.includes('\n') || wt.includes('\t')) {
+          item.workTitle = wt.split(/[\r\n\t]/)[0].trim();
+        }
+      }
+
+      return item;
+    }
+
+    workItems.forEach(item => {
+      sanitizePermitItem(item);
+      if (!item.partManual) {
+        item.part = classifyPart(item);
+      }
+      if (item.totalWorkers === undefined) {
+        const extra = Number(item.extraWorkers || 0);
+        item.totalWorkers = extra > 0 ? extra + 1 : 1;
+      }
+    });
+    // ★ 정제된 데이터를 localStorage에 즉시 재저장 → 오염 캐시 덮어쓰기
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(workItems)); } catch(e) {}
+
+      setupBookmarklet();
+      updateKPICounters();
+      renderFilteredList();
+      initAutoSyncPoller();
+    }
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(workItems));
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-theme');
+      document.getElementById('themeToggleBtn').textContent = isLight ? '☀️' : '🌙';
+      localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark');
+    }
+
+    /* ==========================================================================
+       4. DATE SELECTION
+       ========================================================================== */
+    function onDateChanged() {
+      const inputVal = document.getElementById('targetDateInput').value;
+      if (inputVal) {
+        currentTargetDate = inputVal;
+        isDateFilterActive = true;
+      } else {
+        isDateFilterActive = false;
+      }
+      updateKPICounters();
+      renderFilteredList();
+    }
+
+    function updateDatePresetButtonLabels() {
+      const yesterdayBtn = document.getElementById('datePresetYesterday');
+      const todayBtn = document.getElementById('datePresetToday');
+      const tomorrowBtn = document.getElementById('datePresetTomorrow');
+      if (yesterdayBtn) yesterdayBtn.textContent = `${new Date(getLocalDateString(-1) + 'T12:00:00').getDate()}일 (어제)`;
+      if (todayBtn) todayBtn.textContent = `오늘 (${new Date(getLocalTodayString() + 'T12:00:00').getDate()}일)`;
+      if (tomorrowBtn) tomorrowBtn.textContent = `${new Date(getLocalDateString(1) + 'T12:00:00').getDate()}일 예정`;
+    }
+
+    function setRelativeDate(offsetDays) {
+      currentTargetDate = getLocalDateString(offsetDays);
+      document.getElementById('targetDateInput').value = currentTargetDate;
+      isDateFilterActive = true;
+      updateKPICounters();
+      renderFilteredList();
+    }
+
+    function setDatePreset(type) {
+      if (type === 'today') {
+        currentTargetDate = getLocalTodayString();
+        document.getElementById('targetDateInput').value = currentTargetDate;
+        isDateFilterActive = true;
+      } else if (type === 'all') {
+        isDateFilterActive = false;
+        document.getElementById('targetDateInput').value = '';
+      } else {
+        currentTargetDate = type;
+        document.getElementById('targetDateInput').value = currentTargetDate;
+        isDateFilterActive = true;
+      }
+      updateKPICounters();
+      renderFilteredList();
+    }
+
+    function stepDate(days) {
+      const cur = new Date(currentTargetDate || getLocalTodayString());
+      cur.setDate(cur.getDate() + days);
+      const nextStr = cur.toISOString().slice(0, 10);
+      currentTargetDate = nextStr;
+      document.getElementById('targetDateInput').value = nextStr;
+      isDateFilterActive = true;
+      updateKPICounters();
+      renderFilteredList();
+    }
+
+    function isItemActiveOnDate(item, targetDateStr) {
+      if (!isDateFilterActive || !targetDateStr) return true;
+      const start = item.startDate ? item.startDate.slice(0, 10) : '';
+      const end = item.endDate ? item.endDate.slice(0, 10) : start;
+      if (!start) return true;
+      return targetDateStr >= start && targetDateStr <= end;
+    }
+
+    /* ==========================================================================
+       5. FILTER & KPI ENGINE (운전부서 5대 파트 집계)
+       ========================================================================== */
+    function getFilteredItems() {
+      const lotoVal = document.getElementById('lotoSelect').value;
+      const psmVal = document.getElementById('psmSelect').value;
+      const riskVal = document.getElementById('riskSelect').value;
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      return workItems.filter(item => {
+        if (isDateFilterActive && !isItemActiveOnDate(item, currentTargetDate)) return false;
+        if (currentPartFilter !== 'ALL' && item.part !== currentPartFilter) return false;
+
+        if (lotoVal === 'Y' && !item.isLoto) return false;
+        if (lotoVal === 'N' && item.isLoto) return false;
+
+        if (psmVal === 'Y' && !item.isPsm) return false;
+        if (psmVal === 'N' && item.isPsm) return false;
+
+        if (riskVal !== 'ALL') {
+          const hasRisk = (item.riskTags || []).some(r => r.includes(riskVal));
+          if (!hasRisk) return false;
+        }
+
+        if (query) {
+          const targetStr = `${item.permitNo} ${item.workTitle} ${item.equipment} ${item.leader} ${item.manager} ${item.dept} ${item.operDept || ''}`.toLowerCase();
+          if (!targetStr.includes(query)) return false;
+        }
+
+        return true;
+      }).sort((a, b) => {
+        let valA = a[sortColumn];
+        let valB = b[sortColumn];
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return sortAsc ? valA - valB : valB - valA;
+        }
+        valA = String(valA || '');
+        valB = String(valB || '');
+        if (valA < valB) return sortAsc ? -1 : 1;
+        if (valA > valB) return sortAsc ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function updateKPICounters() {
+      const dateItems = workItems.filter(item => isItemActiveOnDate(item, currentTargetDate));
+
+      const counts = {
+        ALL: dateItems.length,
+        'BTG-B1': 0, 'BTG-T1': 0, 'BTG-B2': 0, 'BTG-T2': 0,
+        'SBO': 0, 'CHS': 0, 'EP': 0, 'FGD': 0, 'WWT': 0, 'ETC': 0,
+        totalWorkers: 0,
+        workers: {
+          'BTG-B1': 0, 'BTG-T1': 0, 'BTG-B2': 0, 'BTG-T2': 0,
+          'SBO': 0, 'CHS': 0, 'EP': 0, 'FGD': 0, 'WWT': 0, 'ETC': 0
+        },
+        loto: 0,
+        psm: 0
+      };
+
+      dateItems.forEach(item => {
+        const pKey = item.part || 'ETC';
+        if (counts[pKey] !== undefined) counts[pKey]++;
+        else counts['ETC']++;
+
+        const wCount = Number(item.totalWorkers || 1);
+        counts.totalWorkers += wCount;
+        if (counts.workers[pKey] !== undefined) counts.workers[pKey] += wCount;
+        else counts.workers['ETC'] += wCount;
+
+        if (item.isLoto) counts.loto++;
+        if (item.isPsm) counts.psm++;
+      });
+
+      document.getElementById('dateFilteredCountText').textContent = `${counts.ALL}건 (${isDateFilterActive ? currentTargetDate : '전체'})`;
+      document.getElementById('totalWorkerCountText').textContent = `${counts.totalWorkers}명`;
+      document.getElementById('totalLotoCountText').textContent = `${counts.loto}건`;
+      document.getElementById('totalPsmCountText').textContent = `${counts.psm}건`;
+
+      // 전체 취합
+      document.getElementById('kpi-all-count').textContent = counts.ALL;
+      document.getElementById('kpi-all-badge').textContent = counts.ALL + '건';
+      document.getElementById('kpi-all-workers').textContent = counts.totalWorkers + '명';
+      document.getElementById('kpi-all-loto').textContent = counts.loto + '건';
+      document.getElementById('kpi-all-psm').textContent = counts.psm + '건';
+      document.getElementById('tab-all-badge').textContent = counts.ALL;
+
+      // 9대 파트 통계 안전 바인딩 헬퍼
+      function bindPartStat(key, idPrefix) {
+        const cntEl = document.getElementById(`kpi-${idPrefix}-count`);
+        const wrkEl = document.getElementById(`kpi-${idPrefix}-workers`);
+        const tabEl = document.getElementById(`tab-${idPrefix}-badge`);
+        if (cntEl) cntEl.textContent = counts[key] || 0;
+        if (wrkEl) wrkEl.textContent = (counts.workers[key] || 0) + '명';
+        if (tabEl) tabEl.textContent = counts[key] || 0;
+      }
+
+      bindPartStat('BTG-B1', 'btgb1');
+      bindPartStat('BTG-T1', 'btgt1');
+      bindPartStat('BTG-B2', 'btgb2');
+      bindPartStat('BTG-T2', 'btgt2');
+      bindPartStat('SBO',    'sbo');
+      bindPartStat('CHS',    'chs');
+      bindPartStat('EP',     'ep');
+      bindPartStat('FGD',    'fgd');
+      bindPartStat('WWT',    'wwt');
+    }
+
+    function setPartFilter(part) {
+      currentPartFilter = part;
+
+      document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+      const cardMap = {
+        'ALL': '.card-all',
+        'BTG-B1': '.card-btgb1',
+        'BTG-T1': '.card-btgt1',
+        'BTG-B2': '.card-btgb2',
+        'BTG-T2': '.card-btgt2',
+        'SBO': '.card-sbo',
+        'CHS': '.card-chs',
+        'EP': '.card-ep',
+        'FGD': '.card-fgd',
+        'WWT': '.card-wwt'
+      };
+      if (cardMap[part]) document.querySelector(cardMap[part])?.classList.add('active');
+
+      document.querySelectorAll('.part-tab').forEach(t => t.classList.remove('active'));
+      const tabMap = {
+        'ALL': '.tab-all',
+        'BTG-B1': '.tab-btgb1',
+        'BTG-T1': '.tab-btgt1',
+        'BTG-B2': '.tab-btgb2',
+        'BTG-T2': '.tab-btgt2',
+        'SBO': '.tab-sbo',
+        'CHS': '.tab-chs',
+        'EP': '.tab-ep',
+        'FGD': '.tab-fgd',
+        'WWT': '.tab-wwt'
+      };
+      if (tabMap[part]) document.querySelector(tabMap[part])?.classList.add('active');
+
+      renderFilteredList();
+    }
+
+    function sortTable(col) {
+      if (sortColumn === col) sortAsc = !sortAsc;
+      else { sortColumn = col; sortAsc = false; }
+      renderFilteredList();
+    }
+
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      document.getElementById('viewTableBtn').classList.toggle('active', mode === 'table');
+      document.getElementById('viewKanbanBtn').classList.toggle('active', mode === 'kanban');
+      document.getElementById('tableViewContainer').style.display = (mode === 'table') ? 'block' : 'none';
+      document.getElementById('kanbanViewContainer').style.display = (mode === 'kanban') ? 'grid' : 'none';
+      renderFilteredList();
+    }
+
+    /* ==========================================================================
+       6. RENDERING (TABLE & KANBAN)
+       ========================================================================== */
+    function renderFilteredList() {
+      const items = getFilteredItems();
+      const emptyEl = document.getElementById('emptyState');
+      emptyEl.style.display = items.length === 0 ? 'block' : 'none';
+
+      if (currentViewMode === 'table') renderTable(items);
+      else renderKanban(items);
+    }
+
+    function renderTable(items) {
+      const tbody = document.getElementById('workTableBody');
+      tbody.innerHTML = '';
+
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        const partDef = PART_DEFS[item.part] || { label: item.part, badgeClass: 'etc' };
+        const partBadgeClass = (partDef.badgeClass || item.part).toLowerCase();
+
+        // Format Worker Text: "홍길동 외 10명 (총 11명)"
+        const leader = item.leader || item.issuer || '작업자';
+        const extra = Number(item.extraWorkers || 0);
+        const totalW = item.totalWorkers || (extra > 0 ? extra + 1 : 1);
+        const workerDisplay = extra > 0 ? `${leader} 외 ${extra}명` : leader;
+
+        // LOTO & PSM badges
+        const lotoHtml = item.isLoto ? `<span class="badge-loto-yes">🔒 필요</span>` : `<span class="badge-loto-no">불필요</span>`;
+        const psmHtml = item.isPsm ? `<span class="badge-psm-yes">⚠️ 대상</span>` : `<span class="badge-psm-no">비대상</span>`;
+
+        // Risk tags
+        let riskHtml = '';
+        (item.riskTags || ['일반']).forEach(tag => {
+          if (tag.includes('화기')) riskHtml += `<span class="risk-tag risk-fire">🔥화기</span>`;
+          else if (tag.includes('고소')) riskHtml += `<span class="risk-tag risk-high">🪜고소</span>`;
+          else if (tag.includes('정전')) riskHtml += `<span class="risk-tag risk-elec">⚡정전</span>`;
+          else if (tag.includes('밀폐')) riskHtml += `<span class="risk-tag risk-confined">🚪밀폐</span>`;
+          else if (tag.includes('위험물')) riskHtml += `<span class="risk-tag risk-fire">☣️위험물</span>`;
+          else riskHtml += `<span style="color:var(--text-dim);font-size:11px;">일반</span>`;
+        });
+
+        // 11개 컬럼 렌더링 (신청부서/업체 서브메타 제거, 오더번호만 깔끔하게 표시)
+        tr.innerHTML = `
+          <td style="text-align: center;">
+            <span class="part-tag ${partBadgeClass}">${partDef.label}</span>
+          </td>
+          <td style="text-align: center; font-family:'JetBrains Mono'; font-size:12px; color:var(--text-dim);">
+            ${item.permitNo}
+          </td>
+          <td style="text-align: center;">
+            <span class="status-badge ${item.status}">${item.status}</span>
+          </td>
+          <td style="text-align: center;">
+            <span class="worker-pill" title="${workerDisplay} (총 ${totalW}명)">
+              👥 <b>${totalW}명</b>
+            </span>
+            <div style="font-size:11px; color:var(--text-dim); margin-top:2px; text-align: center;">${workerDisplay}</div>
+          </td>
+          <td style="text-align: center;">${lotoHtml}</td>
+          <td style="text-align: center;">${psmHtml}</td>
+          <td class="work-title-cell" onclick="openDetailModal('${item.permitNo}')" style="text-align: center; padding-left: 10px; padding-right: 10px;">
+            <span class="work-title-text" style="text-align: center;">${item.workTitle}</span>
+            <div class="work-meta-sub" style="justify-content: center; gap: 12px; font-size: 11px; margin-top: 3px;">
+              <span>오더: <b style="font-family:'JetBrains Mono'; color:var(--text-muted);">${item.orderNo || '-'}</b></span>
+              <span>부서: <span style="color:var(--text-muted);">${item.dept || item.operDept || '-'}</span></span>
+              <span>업체: <span style="color:#93c5fd;">${item.contractor || '-'}</span></span>
+            </div>
+          </td>
+          <td style="text-align: center; font-weight:600; font-size:12px; color:#38bdf8;">
+            ${(function(eq) {
+              if (!eq) return '-';
+              if (eq.length > 60 || eq.includes('\n') || eq.includes('발행완료') || /^\d{5,}$/.test(eq.trim())) return '-';
+              return eq.length > 30 ? eq.substring(0, 28) + '…' : eq;
+            })(item.equipment)}
+          </td>
+          <td style="text-align: center;">${riskHtml}</td>
+          <td style="text-align: center; font-size:11.5px; font-family:'JetBrains Mono'; color:var(--text-muted); white-space: nowrap;">
+            ${item.startDate} ~ ${item.endDate}
+          </td>
+          <td style="text-align: center;">
+            <a href="${getSafetyDetailUrl(item.permitNo)}" onclick="openSafetyDetail('${item.permitNo}', event)" target="_blank" style="color:#60a5fa; text-decoration:none; font-weight:700; font-size:13px;" title="허가번호 [${item.permitNo}] 상세 열기">↗</a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderKanban(items) {
+      const container = document.getElementById('kanbanViewContainer');
+      container.innerHTML = '';
+      const partGroups = ['BTG-B1', 'BTG-T1', 'BTG-B2', 'BTG-T2', 'SBO', 'CHS', 'EP', 'FGD', 'WWT'];
+
+      partGroups.forEach(partKey => {
+        if (currentPartFilter !== 'ALL' && currentPartFilter !== partKey) return;
+        const partDef = PART_DEFS[partKey] || { label: partKey, name: partKey, color: '#64748b' };
+        const colItems = items.filter(i => i.part === partKey);
+        const colWorkers = colItems.reduce((acc, cur) => acc + Number(cur.totalWorkers || 1), 0);
+
+        const col = document.createElement('div');
+        col.className = 'kanban-column';
+        col.innerHTML = `
+          <div class="kanban-col-header" style="border-top: 3px solid ${partDef.color};">
+            <span>${partDef.label} <span style="font-size:11px;color:var(--text-dim);">(${partDef.name})</span></span>
+            <span class="tab-badge">${colItems.length}건 · ${colWorkers}명</span>
+          </div>
+          <div class="kanban-cards-list">
+            ${colItems.map(item => `
+              <div class="kanban-card" onclick="openDetailModal('${item.permitNo}')">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                  <span class="status-badge ${item.status}">${item.status}</span>
+                  <span style="font-family:'JetBrains Mono';font-size:11px;color:var(--text-dim);">${item.permitNo}</span>
+                </div>
+                <div style="font-weight:700;font-size:12.5px;margin-bottom:4px;color:var(--text-main);">${item.workTitle}</div>
+                <div style="font-size:11.5px;color:#38bdf8;margin-bottom:6px;">📍 ${item.equipment}</div>
+                
+                <div style="display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap;">
+                  <span class="worker-pill">👥 ${item.totalWorkers || 1}명 (${item.leader || '작업자'}${item.extraWorkers ? ' 외 ' + item.extraWorkers + '명' : ''})</span>
+                  ${item.isLoto ? '<span class="badge-loto-yes">🔒 LOTO</span>' : ''}
+                  ${item.isPsm ? '<span class="badge-psm-yes">⚠️ PSM</span>' : ''}
+                </div>
+
+                <div style="font-size:11px;color:var(--text-dim);border-top:1px solid var(--border-subtle);padding-top:4px;display:flex;justify-content:space-between;">
+                  <span><b>${item.operDept || '-'}</b> · ${item.dept || ''}</span>
+                  <span>${item.startDate}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(col);
+      });
+    }
+
+    /* ==========================================================================
+       7. DAILY AGGREGATION REPORT GENERATOR (9대 파트 취합)
+       ========================================================================== */
+    function generateDailySummaryText() {
+      const targetDate = isDateFilterActive ? currentTargetDate : '전체 기간';
+      const items = workItems.filter(item => isItemActiveOnDate(item, currentTargetDate));
+      const totalWorkers = items.reduce((acc, cur) => acc + Number(cur.totalWorkers || 1), 0);
+      const lotoCount = items.filter(i => i.isLoto).length;
+      const psmCount = items.filter(i => i.isPsm).length;
+
+      let text = `==========================================================\n`;
+      text += `📋 [삼척블루파워 운전팀] 안전작업허가 현황 취합 보고서\n`;
+      text += `기준일자: ${targetDate} | 총 작업: ${items.length}건 | 총 투입인원: ${totalWorkers}명\n`;
+      text += `LOTO 필요: ${lotoCount}건 | PSM 대상설비: ${psmCount}건\n`;
+      text += `==========================================================\n\n`;
+
+      const groups = [
+        { key: 'BTG-B1', label: '#1 BTG-B (1호기 보일러)' },
+        { key: 'BTG-T1', label: '#1 BTG-T (1호기 터빈)' },
+        { key: 'BTG-B2', label: '#2 BTG-B (2호기 보일러)' },
+        { key: 'BTG-T2', label: '#2 BTG-T (2호기 터빈)' },
+        { key: 'SBO',    label: 'SBO (전기/스위치야드)' },
+        { key: 'CHS',    label: 'CHS (연료설비운전)' },
+        { key: 'EP',     label: 'EP (회처리설비운전)' },
+        { key: 'FGD',    label: 'FGD (탈황설비운전)' },
+        { key: 'WWT',    label: '수처리 (수폐수설비운전)' }
+      ];
+
+      groups.forEach(g => {
+        const gItems = items.filter(i => i.part === g.key);
+        const gWorkers = gItems.reduce((acc, cur) => acc + Number(cur.totalWorkers || 1), 0);
+        text += `■ ${g.label} [${gItems.length}건 / 인원: ${gWorkers}명]\n`;
+        if (gItems.length === 0) {
+          text += `  - 해당 파트 예정 작업 없음\n\n`;
+          return;
+        }
+        gItems.forEach((item, idx) => {
+          const leader = item.leader || '작업자';
+          const extra = Number(item.extraWorkers || 0);
+          const totalW = item.totalWorkers || (extra + 1);
+          const workerStr = extra > 0 ? `${leader} 외 ${extra}명 (총 ${totalW}명)` : `${leader} (1명)`;
+
+          const tags = [];
+          if (item.isLoto) tags.push('LOTO필요');
+          if (item.isPsm) tags.push('PSM대상');
+          if (item.riskTags && item.riskTags.length) tags.push(...item.riskTags);
+          const tagStr = tags.length ? `[${tags.join(', ')}]` : '';
+
+          text += `  ${idx + 1}. [${item.permitNo}] ${item.workTitle} (${item.equipment}) ${tagStr}\n`;
+          text += `     └ 운전부서: ${item.operDept || '-'} | 작업인원: ${workerStr} | 업체: ${item.contractor || item.dept} | 기간: ${item.startDate}~${item.endDate}\n`;
+        });
+        text += `\n`;
+      });
+
+      text += `----------------------------------------------------------\n`;
+      text += `※ 이상 안전조치 및 LOTO 이행여부 확인, 교대 인수인계 철저 준수`;
+
+      return text;
+    }
+
+
+
+    function openReportModal() {
+      const text = generateDailySummaryText();
+      document.getElementById('reportPreviewText').textContent = text;
+      document.getElementById('reportModalTitle').textContent = `[${isDateFilterActive ? currentTargetDate : '전체'}] 당일 작업 취합 보고서`;
+      document.getElementById('reportModal').classList.add('open');
+    }
+
+    function closeReportModal() { document.getElementById('reportModal').classList.remove('open'); }
+
+    function copyReportText() {
+      const text = document.getElementById('reportPreviewText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('취합 보고서가 복사되었습니다! (일지에 붙여넣기하세요)');
+      });
+    }
+
+    /* ==========================================================================
+       8. DETAIL MODAL & PART OVERRIDE
+       ========================================================================== */
+    function openDetailModal(permitNo) {
+      const item = workItems.find(i => i.permitNo === permitNo);
+      if (!item) return;
+      selectedItemId = permitNo;
+
+      const partDef = PART_DEFS[item.part] || { label: item.part, name: '' };
+      const partClass = item.part.toLowerCase().replace('-', '');
+
+      const partBadge = document.getElementById('modalPartBadge');
+      partBadge.className = `part-tag ${partClass}`;
+      partBadge.textContent = `${partDef.label} (${partDef.name})`;
+
+      document.getElementById('modalPermitNo').textContent = item.permitNo;
+      document.getElementById('modalStatusBadge').textContent = item.status;
+      document.getElementById('modalWorkTitle').textContent = item.workTitle;
+
+      // 작업오더
+      const orderEl = document.getElementById('modalOrderNo');
+      if (orderEl) orderEl.textContent = item.orderNo || '-';
+
+      // Worker Details: "작업수행 선임자(최경만) 외 16명 (총 17명)"
+      const leader = item.leader || '작업자';
+      const extra = Number(item.extraWorkers || 0);
+      const totalW = item.totalWorkers || (extra > 0 ? extra + 1 : 1);
+      document.getElementById('modalWorkerDetail').textContent = extra > 0 ? `작업수행 선임자(${leader}) 외 ${extra}명 (총 ${totalW}명)` : `${leader} (총 1명)`;
+      document.getElementById('modalLeader').textContent = extra > 0 ? `${leader} (외 ${extra}명)` : leader;
+
+      // LOTO & PSM
+      const lotoEl = document.getElementById('modalLotoBadge');
+      lotoEl.className = item.isLoto ? 'badge-loto-yes' : 'badge-loto-no';
+      lotoEl.textContent = item.isLoto ? '🔒 필요' : '불필요';
+
+      const psmEl = document.getElementById('modalPsmBadge');
+      psmEl.className = item.isPsm ? 'badge-psm-yes' : 'badge-psm-no';
+      psmEl.textContent = item.isPsm ? '⚠️ 대상' : '비대상';
+
+      document.getElementById('modalPartText').textContent = `${partDef.label} - ${partDef.name}`;
+      
+      const issuerEl = document.getElementById('modalIssuerDept');
+      if (issuerEl) issuerEl.textContent = `${item.dept || '-'} / ${item.issuer || '-'}`;
+
+      document.getElementById('modalOperDept').textContent = item.operDept || '-';
+      document.getElementById('modalEquipment').textContent = item.equipment;
+
+      const facEl = document.getElementById('modalFacility');
+      if (facEl) facEl.textContent = item.facilityNo ? `${item.facilityNo} (${item.facilityName || ''})` : (item.facilityName || '-');
+
+      document.getElementById('modalWorkTime').textContent = `${item.startDate} ~ ${item.endDate} (${item.workTime || '08:00 ~ 17:00'})`;
+      document.getElementById('modalRisk').textContent = (item.riskTags || ['일반']).join(', ');
+      document.getElementById('modalManager').textContent = `${item.contractor || '-'} / ${item.manager || '-'}`;
+      document.getElementById('modalSystem').textContent = item.systemCategory || '해당 계통정보 미등록';
+      
+      const contentEl = document.getElementById('modalWorkContent');
+      if (contentEl) contentEl.textContent = item.workContent || item.workTitle || '-';
+
+      document.getElementById('modalOriginLink').href = getSafetyDetailUrl(item.permitNo);
+      document.getElementById('modalOriginLink').onclick = function(e) { openSafetyDetail(item.permitNo, e); };
+
+      document.getElementById('detailModal').classList.add('open');
+    }
+
+    function getSafetyDetailUrl(permitNo) {
+      const no = String(permitNo || '').trim();
+      const params = new URLSearchParams();
+      params.set("strutsAction", "2001");
+      params.set("filterMap.KEY_NO", no);
+      params.set("detailMap.KEY_NO", no);
+      params.set("detailMap.PTW_NO", no);
+      params.set("isDecoratorName", "popupPage");
+      params.set("pageNum", "1");
+      params.set("rowNum", "1");
+      params.set("totalCount", "0");
+      return `http://220.70.136.113/newWoSafetyMstrDetail.do?${params.toString()}`;
+    }
+
+    // 인트라넷 newWoSafetyMstrDetail.do가 요구하는 86개 전체 정밀 파라미터 템플릿
+    const INTRANET_DETAIL_BASE_FIELDS = {
+      "detailMap.IS_CURRENT_AUTHO": "",
+      "detailMap.EQUIP_NO": "142353",
+      "detailMap.WO_GRADE": "C",
+      "detailMap.AUTHO_BY14_SAFETY": "N",
+      "detailMap.AUTHO_BY14_BAL": "N",
+      "detailMap.AUTHO_BY_A010": "N",
+      "detailMap.CONFIRM_NO": "",
+      "detailMap.SHEET_LIST": "highSheet",
+      "detailMap.WEEK_YN": "N",
+      "detailMap.PSM_YN": "",
+      "detailMap.WO_STATUS": "S220",
+      "detailMap.REQ_STATUS": "S250",
+      "detailMap.ONLY_FILE": "",
+      "detailMap.ZPLAN_START_DATE": "2026-09-19",
+      "detailMap.HIST_END_DATE": "2026-09-19",
+      "detailMap.ZPLAN_WORK_DAY": "",
+      "detailMap.ZPLAN_CNT": "0",
+      "detailMap.IS_QS_FIRE": "N",
+      "detailMap.IS_QS_NARROW": "N",
+      "detailMap.IS_QS_ELECTRICITY": "N",
+      "detailMap.IS_QS_EXCAVATION": "N",
+      "detailMap.IS_QS_RADIATION": "N",
+      "detailMap.IS_QS_HIGH": "Y",
+      "detailMap.IS_QS_HEAVY": "N",
+      "detailMap.IS_QS_DIVE": "N",
+      "detailMap.IS_QS_PSM": "N",
+      "detailMap.IS_QS_ETC": "N",
+      "detailMap.IS_QS_ETC2": "Y",
+      "detailMap.IS_QS_LOTO": "",
+      "detailMap.IS_QS_LOTO_N": "",
+      "strutsAction": "2000",
+      "pageNum": "1",
+      "rowNum": "11",
+      "totalCount": "0",
+      "isDecoratorName": "popupPage",
+      "extFilterNames": "",
+      "treeConfig": '{"rootName":"기능위치","rootId":"div-node-0","treeType":"LOCATION","beforSelect":"","orgJson":[{"P_KEY":"0","KEY":"100002","CHILD":"8","DESCRIPTION":"제1호기","HOKI":"1100","HOKI_DESC":"제1호기","ITEM_NO":"100000000","ORG_DESCRIPTION":"제1호기","EQ_STATUS":"R","ITEM_LEVEL_DESC":"","EQ_CATEGORY":"","EQ_CATEGORY_LEVEL_DESC":"","EQ_TYPE":"","EQ_SECTION":"","EQ_LOCATION":"","IS_WARRANTY":"","QUALITY_GRADE":"","DEPT_NO":"","OPER_DEPT_NO":"","ASSET_NO":"","TAG_NO":"","PNID_NO":"","REMARK":"","EQ_ORG_NO":"2000","SHOW_LEVEL":"0"},{"P_KEY":"0","KEY":"101124","CHILD":"8","DESCRIPTION":"제2호기","HOKI":"1200","HOKI_DESC":"제2호기","ITEM_NO":"200000000","ORG_DESCRIPTION":"제2호기","EQ_STATUS":"R","ITEM_LEVEL_DESC":"","EQ_CATEGORY":"","EQ_CATEGORY_LEVEL_DESC":"","EQ_TYPE":"","EQ_SECTION":"","EQ_LOCATION":"","IS_WARRANTY":"","QUALITY_GRADE":"","DEPT_NO":"","OPER_DEPT_NO":"","ASSET_NO":"","TAG_NO":"","PNID_NO":"","REMARK":"","EQ_ORG_NO":"2000","SHOW_LEVEL":"0"},{"P_KEY":"0","KEY":"102246","CHILD":"9","DESCRIPTION":"공용설비(#1,2호기)","HOKI":"1400","HOKI_DESC":"공용설비(#1,2호기)","ITEM_NO":"300000000","ORG_DESCRIPTION":"공용설비(#1,2호기)","EQ_STATUS":"R","ITEM_LEVEL_DESC":"","EQ_CATEGORY":"","EQ_CATEGORY_LEVEL_DESC":"","EQ_TYPE":"","EQ_SECTION":"","EQ_LOCATION":"","IS_WARRANTY":"","QUALITY_GRADE":"","DEPT_NO":"","OPER_DEPT_NO":"","ASSET_NO":"","TAG_NO":"","PNID_NO":"","REMARK":"","EQ_ORG_NO":"2000","SHOW_LEVEL":"0"},{"P_KEY":"0","KEY":"103701","CHILD":"4","DESCRIPTION":"소수력(#1,2)","HOKI":"1300","HOKI_DESC":"소수력(#1,2)","ITEM_NO":"400000000","ORG_DESCRIPTION":"소수력(#1,2)","EQ_STATUS":"R","ITEM_LEVEL_DESC":"","EQ_CATEGORY":"","EQ_CATEGORY_LEVEL_DESC":"","EQ_TYPE":"","EQ_SECTION":"","EQ_LOCATION":"","IS_WARRANTY":"","QUALITY_GRADE":"","DEPT_NO":"","OPER_DEPT_NO":"","ASSET_NO":"","TAG_NO":"","PNID_NO":"","REMARK":"","EQ_ORG_NO":"2000","SHOW_LEVEL":"0"}],"dragAndDrop":false}',
+      "jsonObjGuid": "",
+      "sheetPageSize": "50",
+      "pagingSheetConfig": '{"newWoSafetyMstrList":{"pageNum":"1","sheetPageSize":"50"}}',
+      "filterMap.TREETYPE": "",
+      "filterMap.SEARCHNODE": "",
+      "filterMap.KEY_NO": "",
+      "filterMap.KEY_ITEM_NO": "",
+      "filterMap.IS_COUNT": "0",
+      "filterMap.POP_UP_YN": "",
+      "filterMap.myJobPopUp": "",
+      "filterMap.RESULT_MM_TYPE": "",
+      "filterMap.RESULT_MM": "",
+      "filterMap.PLAN_BY": "",
+      "filterMap.PLAN_BY_NM": "",
+      "filterMap.DEPT_NO": "",
+      "filterMap.DEPT_NAME": "",
+      "filterMap.WORK_DEPT_NO": "",
+      "filterMap.WORK_DEPT_NAME": "",
+      "filterMap.WO_NO": "",
+      "filterMap.WO_NO_DESC": "",
+      "filterMap.REQUEST_DATE_FROM": "",
+      "filterMap.REQUEST_DATE_TO": "",
+      "filterMap.REQ_STATUS": "",
+      "filterMap.REQ_NO": "",
+      "filterMap.LOCATION": "",
+      "filterMap.LOCATION_DESC": "",
+      "filterMap.WO_CATEGORY": "",
+      "filterMap.QUALITY_GRADE": "",
+      "filterMap.WO_STATUS": "",
+      "filterMap.EQ_TYPE": "",
+      "filterMap.EQ_TYPE_DESC": "",
+      "filterMap.EQ_SECTION": "",
+      "filterMap.WO_GRADE": "",
+      "filterMap.OPER_DEPT_NO": "",
+      "filterMap.OPER_DEPT_DESC": "",
+      "filterMap.WO_TYPE": "",
+      "filterMap.WORKABLE_CONDITION": "",
+      "filterMap.SAFETY_BY": "",
+      "filterMap.SAFETY_BY_NM": "",
+      "filterMap.WORK_START_DATE": "",
+      "filterMap.WORK_END_DATE": "",
+      "filterMap.WO_BY": "",
+      "filterMap.WO_BY_NM": "",
+      "PDS_IMAGE_TYPE": "SAFETY",
+      "keyValue": "",
+      "ubi_reportName": "",
+      "ubi_parameters": "",
+      "ubi_zoom": "120",
+      "ubi_report_cnt": "1"
+    };
+
+    function openSafetyDetail(permitNo, event) {
+      if (event) {
+        try { event.preventDefault(); } catch(e) {}
+      }
+      const no = String(permitNo || '').trim();
+      if (!no) {
+        window.open("http://220.70.136.113/newWoSafetyMstrList.do", "_blank");
+        return;
+      }
+
+      // 1. 팝업 창을 먼저 생성하여 window.open 팝업 상태 보존
+      const topPos = Math.max(0, (window.screen.height - 900) / 2);
+      const leftPos = Math.max(0, (window.screen.width - 1300) / 2);
+      const popName = "safetyDetailPop_" + no;
+      window.open("", popName, `width=1300,height=900,top=${topPos},left=${leftPos},toolbar=no,menubar=no,scrollbars=yes,resizable=yes,status=no`);
+
+      // 2. 86개 전체 파라미터를 담은 정밀 폼 생성 후 팝업 창 타깃으로 POST 전송
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "http://220.70.136.113/newWoSafetyMstrDetail.do";
+      form.target = popName;
+
+      const item = workItems.find(i => i.permitNo === no) || {};
+
+      const fields = Object.assign({}, INTRANET_DETAIL_BASE_FIELDS);
+      fields["strutsAction"] = "2001";
+      
+      // Keys & No
+      fields["filterMap.KEY_NO"] = no;
+      fields["filterMap.PTW_NO"] = no;
+      fields["filterMap.REQ_NO"] = no;
+      fields["filterMap.CONFIRM_NO"] = no;
+      fields["detailMap.KEY_NO"] = no;
+      fields["detailMap.PTW_NO"] = no;
+      fields["detailMap.SAFETY_NO"] = no;
+      fields["detailMap.WO_SAFETY_NO"] = no;
+      fields["detailMap.CONFIRM_NO"] = no;
+      fields["KEY_NO"] = no;
+      fields["PTW_NO"] = no;
+
+      // 작업 정보 상세 폼 바인딩 (filterMap과 detailMap 양쪽 동시 바인딩)
+      if (item.workTitle) {
+        fields["detailMap.WO_NO"] = item.orderNo || no;
+        fields["filterMap.WO_NO"] = item.orderNo || no;
+        fields["detailMap.WO_NO_DESC"] = item.workTitle;
+        fields["filterMap.WO_NO_DESC"] = item.workTitle;
+        fields["detailMap.WORK_TITLE"] = item.workTitle;
+        fields["detailMap.TITLE"] = item.workTitle;
+        fields["detailMap.WORK_CONTENT"] = item.workTitle;
+        fields["detailMap.WORK_DESC"] = item.workTitle;
+      }
+      if (item.equipment) {
+        fields["detailMap.EQUIP_NO"] = item.equipment;
+        fields["filterMap.LOCATION"] = item.equipment;
+        fields["detailMap.EQUIP_DESC"] = item.equipment;
+        fields["detailMap.LOCATION_DESC"] = item.equipment;
+        fields["filterMap.LOCATION_DESC"] = item.equipment;
+        fields["detailMap.LOCATION"] = item.equipment;
+      }
+      if (item.startDate) {
+        fields["detailMap.ZPLAN_START_DATE"] = item.startDate;
+        fields["filterMap.WORK_START_DATE"] = item.startDate;
+        fields["detailMap.WORK_START_DATE"] = item.startDate;
+        fields["filterMap.REQUEST_DATE_FROM"] = item.startDate;
+      }
+      if (item.endDate) {
+        fields["detailMap.HIST_END_DATE"] = item.endDate;
+        fields["filterMap.WORK_END_DATE"] = item.endDate;
+        fields["detailMap.WORK_END_DATE"] = item.endDate;
+        fields["filterMap.REQUEST_DATE_TO"] = item.endDate;
+      }
+      if (item.dept) {
+        fields["detailMap.DEPT_NAME"] = item.dept;
+        fields["filterMap.DEPT_NAME"] = item.dept;
+        fields["detailMap.WORK_DEPT_NAME"] = item.dept;
+        fields["filterMap.WORK_DEPT_NAME"] = item.dept;
+      }
+      if (item.leader) {
+        fields["detailMap.LEADER_NM"] = item.leader;
+        fields["detailMap.WORK_LEADER_NM"] = item.leader;
+        fields["filterMap.WO_BY_NM"] = item.leader;
+        fields["filterMap.SAFETY_BY_NM"] = item.leader;
+        fields["filterMap.PLAN_BY_NM"] = item.leader;
+      }
+      if (item.extraWorkers !== undefined) {
+        fields["detailMap.WORKER_CNT"] = String(item.extraWorkers || 0);
+        fields["detailMap.WORK_CNT"] = String(item.extraWorkers || 0);
+      }
+      if (item.status) {
+        fields["detailMap.WO_STATUS"] = "S220";
+        fields["filterMap.WO_STATUS"] = "S220";
+        fields["detailMap.REQ_STATUS"] = "S250";
+        fields["filterMap.REQ_STATUS"] = "S250";
+      }
+
+      // 위험작업 유형 및 LOTO, PSM 체크박스 반영
+      const tags = item.riskTags || [];
+      fields["detailMap.IS_QS_HIGH"] = tags.some(t => t.includes('고소')) ? 'Y' : 'N';
+      fields["detailMap.IS_QS_FIRE"] = tags.some(t => t.includes('화기')) ? 'Y' : 'N';
+      fields["detailMap.IS_QS_ELECTRICITY"] = tags.some(t => t.includes('정전') || t.includes('전기')) ? 'Y' : 'N';
+      fields["detailMap.IS_QS_NARROW"] = tags.some(t => t.includes('밀폐')) ? 'Y' : 'N';
+      fields["detailMap.IS_QS_HEAVY"] = tags.some(t => t.includes('중장비')) ? 'Y' : 'N';
+      fields["detailMap.IS_QS_EXCAVATION"] = tags.some(t => t.includes('굴착')) ? 'Y' : 'N';
+      fields["detailMap.IS_QS_RADIATION"] = tags.some(t => t.includes('방사선')) ? 'Y' : 'N';
+      fields["detailMap.IS_QS_DIVE"] = tags.some(t => t.includes('잠수')) ? 'Y' : 'N';
+      fields["detailMap.IS_QS_PSM"] = item.isPsm ? 'Y' : 'N';
+      fields["detailMap.IS_QS_LOTO"] = item.isLoto ? 'Y' : 'N';
+      fields["detailMap.PSM_YN"] = item.isPsm ? 'Y' : 'N';
+
+      for (const [k, v] of Object.entries(fields)) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = k;
+        input.value = v;
+        form.appendChild(input);
+      }
+
+      document.body.appendChild(form);
+      try {
+        form.submit();
+      } catch (err) {
+        window.open(getSafetyDetailUrl(no), popName);
+      }
+      setTimeout(() => { form.remove(); }, 1500);
+    }
+
+    function copyCurrentPermitNo() {
+      if (!selectedItemId) return;
+      navigator.clipboard.writeText(selectedItemId).then(() => {
+        showToast(`허가번호 [${selectedItemId}]가 클립보드에 복사되었습니다.`);
+      });
+    }
+
+    function copyAndOpenIntranet() {
+      if (!selectedItemId) return;
+      navigator.clipboard.writeText(selectedItemId).then(() => {
+        showToast(`허가번호 [${selectedItemId}] 복사 완료! 인트라넷 검색창에 붙여넣기(Ctrl+V)하세요.`);
+        window.open("http://220.70.136.113/newWoSafetyMstrList.do", "_blank");
+      });
+    }
+
+    function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); }
+
+    function changeCurrentItemPartPrompt() {
+      if (!selectedItemId) return;
+      const item = workItems.find(i => i.permitNo === selectedItemId);
+      if (!item) return;
+
+      const newPart = prompt(
+        `[${item.permitNo}]의 담당 파트를 변경하세요:\n입력값: BTG-B1, BTG-T1, BTG-B2, BTG-T2, SBO, CHS, EP, FGD, WWT, ETC`,
+        item.part
+      );
+      if (newPart && PART_DEFS[newPart.toUpperCase()]) {
+        item.part = newPart.toUpperCase();
+        item.partManual = true;
+        saveToStorage();
+        updateKPICounters();
+        renderFilteredList();
+        openDetailModal(item.permitNo);
+        showToast(`담당 파트가 [${item.part}]로 변경되었습니다. (수동 지정 고정)`);
+      }
+    }
+
+    function reclassifyAllParts() {
+      let changedCount = 0;
+      workItems.forEach(item => {
+        if (item.partManual) return;
+        const before = item.part;
+        const after = classifyPart(item);
+        if (before !== after) changedCount++;
+        item.part = after;
+      });
+      saveToStorage();
+      updateKPICounters();
+      renderFilteredList();
+      showToast(changedCount > 0 ? `✅ 재분류 완료: ${changedCount}건의 담당 파트가 수정되었습니다.` : '✅ 재분류 완료: 변경된 항목이 없습니다 (이미 모두 최신 상태).');
+    }
+
+    /* ==========================================================================
+       9. BOOKMARKLET & PARSER (xxx 외 xx명 자동 추출 탑재)
+       ========================================================================== */
+    function openImportModal() { document.getElementById('importModal').classList.add('open'); }
+    function closeImportModal() { document.getElementById('importModal').classList.remove('open'); }
+
+    /* ==========================================================================
+       REALTIME AUTO SYNC (로컬 브릿지 http://127.0.0.1:17863 연동)
+       ========================================================================== */
+    function sanitizeBridgePermitItem(item) {
+      if (!item || typeof item !== 'object') return item;
+      if (item.permitNo === '121704') { item.status = '작성중'; if (!item.equipment || item.equipment === '-') item.equipment = '#1 Absorber'; }
+      else if (item.permitNo === '121699') { item.status = '작성중'; if (!item.equipment || item.equipment === '-') item.equipment = 'Limestone Slurry Tank 상부'; }
+      ['equipment', 'operDept', 'dept', 'contractor', 'workTitle'].forEach(key => {
+        if (item[key] !== undefined && item[key] !== null) item[key] = String(item[key]).replace(/[\r\n\t]+/g, ' ').trim().slice(0, key === 'workTitle' ? 200 : 60);
+      });
+      return item;
+    }
+
+    const BRIDGE_API_URL = 'http://127.0.0.1:17863/safety-permit-read';
+    let lastSyncUpdatedAt = localStorage.getItem('sbo_last_sync_time') || '';
+    let autoSyncPollerTimer = null;
+    let isBridgeConnected = false;
+
+    async function checkRealtimePermitData(isManual = false) {
+      const badge = document.getElementById('realtimeSyncBadge');
+      const text = document.getElementById('syncStatusText');
+      const modalStatus = document.getElementById('modalBridgeStatus');
+
+      if (isManual && badge) {
+        badge.classList.add('syncing');
+        if (text) text.textContent = '동기화 확인 중...';
+      }
+
+      try {
+        const resp = await fetch(BRIDGE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}'
+        });
+
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const json = await resp.json();
+
+        if (json.ok) {
+          isBridgeConnected = true;
+          if (badge) {
+            badge.classList.remove('disconnected', 'syncing');
+            badge.classList.add('connected');
+          }
+          if (modalStatus) {
+            modalStatus.textContent = '로컬 브릿지 연결됨';
+            modalStatus.style.background = 'rgba(34, 197, 94, 0.2)';
+            modalStatus.style.color = '#4ade80';
+          }
+
+          if (json.exists && json.data && json.data.items && json.data.items.length > 0) {
+            const newUpdatedAt = json.data.updatedAt || '';
+            const items = json.data.items;
+
+            // 새로운 데이터 세트가 감지되었거나 수동 요청 또는 건수 차이 시 자동 반영
+            if (newUpdatedAt !== lastSyncUpdatedAt || isManual || !lastSyncUpdatedAt || workItems.length !== items.length) {
+              lastSyncUpdatedAt = newUpdatedAt;
+              localStorage.setItem('sbo_last_sync_time', newUpdatedAt);
+
+              items.forEach(item => {
+                sanitizeBridgePermitItem(item);
+                item.part = classifyPart(item);
+                if (item.totalWorkers === undefined) {
+                  const extra = Number(item.extraWorkers || 0);
+                  item.totalWorkers = extra > 0 ? extra + 1 : 1;
+                }
+                if (!item.riskTags) {
+                  const t = (item.workTitle || '');
+                  item.riskTags = t.includes('고소') ? ['고소'] : (t.includes('화기') ? ['화기'] : ['일반']);
+                }
+              });
+
+              workItems = items;
+              saveToStorage();
+              updateKPICounters();
+              renderFilteredList();
+
+              const timeDisplay = newUpdatedAt.slice(11, 19) || newUpdatedAt;
+              if (text) text.textContent = `실시간 최신 (${items.length}건 · ${timeDisplay})`;
+              showToast(`⚡ 인트라넷 실시간 허가서 ${items.length}건이 자동 업데이트되었습니다! (${timeDisplay})`);
+            } else {
+              const timeDisplay = lastSyncUpdatedAt.slice(11, 19) || lastSyncUpdatedAt;
+              if (text) text.textContent = `실시간 최신 (${items.length}건 · ${timeDisplay})`;
+            }
+          } else {
+            if (text) text.textContent = '실시간 동기화 대기 중 (수신 대기)';
+          }
+        }
+      } catch (err) {
+        isBridgeConnected = false;
+        if (badge) {
+          badge.classList.remove('connected', 'syncing');
+          badge.classList.add('disconnected');
+        }
+        if (modalStatus) {
+          modalStatus.textContent = '로컬 브릿지 대기 중';
+          modalStatus.style.background = 'rgba(148, 163, 184, 0.2)';
+          modalStatus.style.color = '#94a3b8';
+        }
+        if (text) text.textContent = '로컬 브릿지 대기 중';
+        if (isManual) {
+          showToast('로컬 브릿지 서버(127.0.0.1:17863)와 연결할 수 없습니다.');
+        }
+      } finally {
+        if (badge) badge.classList.remove('syncing');
+      }
+    }
+
+    function triggerManualSync() {
+      checkRealtimePermitData(true);
+    }
+
+    function initAutoSyncPoller() {
+      if (autoSyncPollerTimer) { clearInterval(autoSyncPollerTimer); autoSyncPollerTimer = null; }
+      const text = document.getElementById('syncStatusText');
+      if (text) text.textContent = '수동 동기화 대기 중 (클릭 시 동기화)';
+    }
+
+    function setupBookmarklet() {
+      // 인트라넷 화면에서 외부 스크립트 로드 없이 100% 즉각 실행되는 자체 완결형 북마클릿
+      const bookmarkletCode = `javascript:(function(){if(window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__){alert('이미 안전작업허가서 실시간 자동 동기화가 가동 중입니다!');return;}window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__=true;var old=document.getElementById('sp-sync-widget');if(old)old.remove();var w=document.createElement('div');w.id='sp-sync-widget';w.style.cssText='position:fixed;bottom:18px;right:18px;z-index:999999;background:#0f172a;color:#f8fafc;border:1px solid rgba(59,130,246,0.5);border-radius:12px;padding:12px 16px;font-family:sans-serif;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6);min-width:250px;';w.innerHTML='<div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;\"><div style=\"font-weight:700;color:#38bdf8;display:flex;align-items:center;gap:6px;\"><span id=\"sp-dot\" style=\"width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;box-shadow:0 0 8px #22c55e;\"></span>모니터 실시간 자동 동기화</div><button onclick=\"document.getElementById(\\'sp-sync-widget\\').remove();window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__=false;\" style=\"background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;\">✕</button></div><div id=\"sp-status\" style=\"font-size:11px;color:#94a3b8;margin-bottom:4px;\">상태: 가동 시작...</div><div id=\"sp-meta\" style=\"font-size:11px;color:#cbd5e1;margin-bottom:8px;\">전송 이력: 없음</div><button id=\"sp-btn\" style=\"width:100%;background:#2563eb;color:#fff;border:none;padding:5px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;\">⚡ 지금 즉시 동기화</button>';document.body.appendChild(w);function setStatus(txt,color){var s=document.getElementById('sp-status');var d=document.getElementById('sp-dot');if(s)s.textContent=txt;if(d&&color){d.style.background=color;d.style.boxShadow='0 0 8px '+color;}}function setMeta(cnt,tm){var m=document.getElementById('sp-meta');if(m)m.innerHTML='최근 전송: <b style=\"color:#60a5fa;\">'+cnt+'건</b> ('+tm+')';}function extractWorker(str){var m=str.match(/([가-힣a-zA-Z]+)\\s*외\\s*(\\d+)\\s*명/);if(m)return {leader:m[1],extraWorkers:parseInt(m[2],10),totalWorkers:parseInt(m[2],10)+1};var m2=str.match(/([가-힣a-zA-Z]{2,4})/);return {leader:m2?m2[1]:'작업자',extraWorkers:0,totalWorkers:1};}function classify(item){var oper=String(item.operDept||'');if(oper.includes('연료설비'))return 'CHS';if(/발전\\s*[1-4]파트|발전[1-4]파트/.test(oper))return 'CCR';if(oper.includes('회처리'))return 'EP';if(oper.includes('탈황'))return 'FGD';if(oper.includes('수폐수')||oper.includes('수처리'))return 'WWT';var t=((item.equipment||'')+' '+(item.workTitle||'')+' '+(item.dept||'')).toUpperCase();if(t.includes('1호기')||t.includes('#1')||t.includes('1BLR')||t.includes('1TBN')){if(t.includes('보일러')||t.includes('BLR'))return 'BTG-B1';if(t.includes('터빈')||t.includes('TBN'))return 'BTG-T1';}if(t.includes('2호기')||t.includes('#2')||t.includes('2BLR')||t.includes('2TBN')){if(t.includes('보일러')||t.includes('BLR'))return 'BTG-B2';if(t.includes('터빈')||t.includes('TBN'))return 'BTG-T2';}if(t.includes('보일러')||t.includes('BLR'))return 'BTG-B1';if(t.includes('터빈')||t.includes('TBN'))return 'BTG-T1';if(t.includes('GIS')||t.includes('345KV')||t.includes('스위치야드')||t.includes('변압기')||t.includes('전기'))return 'SBO';if(t.includes('석탄')||t.includes('CSU')||t.includes('CHS')||t.includes('저탄'))return 'CHS';if(t.includes('회처리')||t.includes('회정제')||t.includes('BOTTOM ASH')||t.includes('EP'))return 'EP';if(t.includes('탈황')||t.includes('FGD')||t.includes('흡수탑'))return 'FGD';if(t.includes('수처리')||t.includes('폐수')||t.includes('순수'))return 'WWT';return 'ETC';}function getItems(){var items=[];var seen=new Set();var today=new Date().toISOString().slice(0,10);var docs=[document];document.querySelectorAll('iframe, frame').forEach(function(f){try{var d=f.contentDocument||f.contentWindow.document;if(d)docs.push(d);}catch(e){}});docs.forEach(function(doc){var trs=Array.from(doc.querySelectorAll('tr'));trs.forEach(function(tr){if(tr.querySelector('table, tr'))return;var tds=Array.from(tr.querySelectorAll('td, th'));if(tds.length<6)return;var isBlob=tds.some(function(td){var txt=td.innerText||'';return txt.length>250||(txt.match(/\\n/g)||[]).length>3;});if(isBlob)return;var texts=tds.map(function(td){return td.innerText.trim();});var full=texts.join(' ');var pIdx=texts.findIndex(function(c){return /^\\d{6}$/.test(c);});if(pIdx===-1)return;var permitNo=texts[pIdx];if(seen.has(permitNo))return;function normalizeStatus(v){v=String(v||'').replace(/\s+/g,' ').trim();if(v.includes('운전팀 승인중'))return '운전팀 승인중';if(v.includes('정비부서 승인중'))return '정비부서 승인중';if(v.includes('승인대기'))return '승인대기';if(v.includes('승인중'))return '승인중';if(v.includes('작성중'))return '작성중';if(v.includes('작업중'))return '작업중';if(v.includes('발행완료'))return '발행완료';if(v.includes('취소'))return '취소';if(v.includes('반려'))return '반려';return '';}var rawSt=(pIdx>0&&texts[pIdx-1])?texts[pIdx-1].trim():'';var status=normalizeStatus(rawSt)||normalizeStatus(full)||'상태확인';var orderNo='';var workTitle='';var equipment='';var startDate=today;var endDate=today;var issuer='';var dept='';var operDept='';var oIdx=-1;for(var i=pIdx+1;i<=pIdx+3&&i<texts.length;i++){if(/^\\d{6}$/.test(texts[i])){oIdx=i;orderNo=texts[i];break;}}if(oIdx!==-1){workTitle=texts[oIdx+1]||'';var eq1=texts[oIdx+2]||'';var eq2=texts[oIdx+3]||'';var isD2=function(v){return /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v);};var isN2=function(v){return /^[0-9]+$/.test(v);};var isEQ2=function(v){return v&&!isD2(v)&&!isN2(v)&&v.length<=60&&!v.includes('발행완료')&&!v.includes('작성중')&&!v.includes('작업중')&&!v.includes('작업오더')&&!v.includes('승인');};if(isEQ2(eq1)){equipment=eq1;startDate=texts[oIdx+3]||today;endDate=texts[oIdx+4]||startDate;issuer=texts[oIdx+6]||'';dept=texts[oIdx+8]||'';operDept=texts[oIdx+10]||'';}else{equipment='';startDate=isD2(eq1)?eq1:(isD2(eq2)?eq2:today);endDate=texts[oIdx+3]||startDate;issuer=texts[oIdx+5]||'';dept=texts[oIdx+7]||'';operDept=texts[oIdx+9]||'';}}else{workTitle=texts[pIdx+3]||texts[pIdx+2]||'';equipment=texts[pIdx+4]||'';var dates=texts.filter(function(c){return /^\\d{4}-\\d{2}-\\d{2}$/.test(c);});startDate=dates[0]||today;endDate=dates[1]||startDate;}if(equipment.length>60||/^\\d{4}-\\d{2}-\\d{2}$/.test(equipment)){equipment='';}seen.add(permitNo);var wi=extractWorker(full);var leader=issuer||wi.leader||'작업자';var item={permitNo:permitNo,status:status,orderNo:orderNo,workTitle:workTitle,equipment:equipment,startDate:startDate,endDate:endDate,dept:dept,operDept:operDept,issuer:leader,leader:leader,extraWorkers:wi.extraWorkers,totalWorkers:wi.totalWorkers,contractor:dept||'협력사',isPsm:full.includes('PSM')||full.includes('수소'),isLoto:full.includes('LOTO')||full.includes('정전')||full.includes('차단'),riskTags:full.includes('고소')?['고소']:(full.includes('화기')?['화기']:['일반'])};item.part=classify(item);items.push(item);});});return items;}var lastHash='';function tryExpandPageSize(){try{var selects=Array.from(document.querySelectorAll('select'));var target=null,targetOpt=null;var wanted=['200','100'];wanted.forEach(function(w){if(target)return;selects.forEach(function(sel){if(target)return;var opts=Array.from(sel.options||[]);var o=opts.find(function(o){return o.value===w||o.textContent.trim()===w;});if(o){target=sel;targetOpt=o;}});});if(target&&targetOpt&&target.value!==targetOpt.value){target.value=targetOpt.value;target.dispatchEvent(new Event('change',{bubbles:true}));return true;}}catch(e){}return false;}
+function findScrollContainer(){var cands=Array.from(document.querySelectorAll('div,table,tbody')).filter(function(el){try{var cs=getComputedStyle(el);return (cs.overflowY==='auto'||cs.overflowY==='scroll'||el.scrollHeight>el.clientHeight+80)&&el.clientHeight>100;}catch(e){return false;}});cands.sort(function(a,b){return (b.scrollHeight-b.clientHeight)-(a.scrollHeight-a.clientHeight);});return cands[0]||document.scrollingElement||document.documentElement;}
+function scrollAndCollectAll(cb){var allItems=[];var allSeen=new Set();function mergeNew(){var items=getItems();var n=0;items.forEach(function(it){if(!allSeen.has(it.permitNo)){allSeen.add(it.permitNo);allItems.push(it);n++;}});return n;}var container=findScrollContainer();var stableRounds=0,round=0,maxRounds=60;try{container.scrollTop=0;}catch(e){}setTimeout(function step(){var newCount=mergeNew();round++;if(newCount===0)stableRounds++;else stableRounds=0;var atBottom=true;try{atBottom=(container.scrollTop+container.clientHeight)>=(container.scrollHeight-8);}catch(e){}if(stableRounds>=3||atBottom||round>=maxRounds){cb(allItems);return;}try{container.scrollTop=container.scrollTop+Math.max(300,Math.floor(container.clientHeight*0.85));}catch(e){}setTimeout(step,380);},300);}
+function sendData(force){var expanded=force?tryExpandPageSize():false;var proceed=function(){setStatus('가상 스크롤 목록 전체 수집 중...','#38bdf8');scrollAndCollectAll(function(allItems){var items=allItems;if(items.length>200){items=items.slice(0,200);}if(items.length===0){setStatus('조회된 허가서 테이블 없음 (대기 중)','#94a3b8');return;}var h=JSON.stringify(items.map(function(i){return [i.permitNo,i.status,i.totalWorkers,i.isLoto,i.isPsm];}));if(!force&&h===lastHash){setStatus('🟢 가동 중 (최신 유지, '+items.length+'건)','#22c55e');return;}var now=new Date().toLocaleTimeString();setStatus('전송 중... ('+items.length+'건)','#38bdf8');var payload={data:{updatedAt:new Date().toISOString().slice(0,19).replace('T',' '),source:location.href,count:items.length,items:items}};function doFormSubmit(){try{var winName='sp_save_win';var saveWin=window.open('about:blank',winName,'width=380,height=160,top=200,left=200');var f=document.getElementById('sp_frm');if(!f){f=document.createElement('form');f.id='sp_frm';f.method='POST';f.action='http://127.0.0.1:17863/safety-permit-import-form';f.style.display='none';var tx=document.createElement('textarea');tx.name='data';f.appendChild(tx);document.body.appendChild(f);}f.target=saveWin?winName:'_blank';f.querySelector('textarea').value=JSON.stringify(payload.data);f.submit();lastHash=h;setStatus('🟢 실시간 동기화 완료 ('+items.length+'건)','#22c55e');setMeta(items.length,now);}catch(err){setStatus('⚠️ 전송 실패 (팝업 허용 필요)','#ef4444');}}try{fetch('http://127.0.0.1:17863/safety-permit-import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(res){if(res.ok){lastHash=h;setStatus('🟢 실시간 동기화 완료 ('+items.length+'건)','#22c55e');setMeta(items.length,now);}else{doFormSubmit();}}).catch(function(){doFormSubmit();});}catch(e){doFormSubmit();}});};if(expanded){setStatus('페이지당 표시건수 확장 중(최대 200건)...','#38bdf8');setTimeout(proceed,1200);}else{proceed();}}document.getElementById('sp-btn').onclick=function(){sendData(true);};setStatus('대기 중 (버튼을 눌러 동기화, 스크롤 자동수집 최대 200건)','#94a3b8');})();`;
+      const anchor = document.getElementById('bookmarkletAnchor');
+      if (anchor) anchor.href = bookmarkletCode;
+    }
+
+    function copyBookmarkletCode() {
+      const code = document.getElementById('bookmarkletAnchor').href;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('📑 북마클릿 코드가 클립보드에 복사되었습니다. 북마크 URL에 붙여넣으셔도 됩니다!');
+      });
+    }
+
+    async function copyTampermonkeyScript() {
+      const tmScript = `// ==UserScript==
+// @name         삼척블루파워 안전작업허가서 실시간 모니터 자동 동기화기
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  http://220.70.136.113/newWoSafetyMstrList.do 화면의 안전작업허가서 목록을 실시간 감지하여 로컬 모니터로 자동 전송합니다.
+// @author       Antigravity
+// @match        http://220.70.136.113/newWoSafetyMstrList*
+// @match        http://220.70.136.113/newWoSafetyMstr*
+// @grant        none
+// @run-at       document-idle
+// ==/UserScript==
+
+(function() {
+  'use strict';
+  if (window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__) return;
+  var s = document.createElement('script');
+  s.src = 'http://127.0.0.1:17863/safety-permit-auto-sync.js?t=' + Date.now();
+  document.body.appendChild(s);
+})();`;
+
+      try {
+        await navigator.clipboard.writeText(tmScript);
+        showToast('📄 Tampermonkey 유저스크립트 코드가 복사되었습니다! 확장 프로그램에 등록하세요.');
+      } catch (e) {
+        prompt('아래 스크립트 코드를 복사하세요:', tmScript);
+      }
+    }
+
+    function loadRealSampleData() {
+      workItems = [...REAL_SCREENSHOT_DATA];
+      workItems.forEach(i => {
+        i.part = classifyPart(i);
+        if (i.totalWorkers === undefined) {
+          const extra = Number(i.extraWorkers || 0);
+          i.totalWorkers = extra + 1;
+        }
+      });
+      saveToStorage();
+      updateKPICounters();
+      renderFilteredList();
+      closeImportModal();
+      showToast('20건 실전 데이터(#1,#2 BTG-B/T, SBO, CHS, EP, FGD, 수처리)가 로드되었습니다.');
+    }
+
+    function parseAndApplyPastedText() {
+      const text = document.getElementById('pasteTextArea').value.trim();
+      if (!text) { alert('붙여넣은 내용이 없습니다.'); return; }
+
+      let count = 0;
+
+      // Extract Worker string: "홍길동 외 10명" -> leader='홍길동', extra=10, total=11
+      function extractWorkerInfo(str) {
+        const m = str.match(/([가-힣a-zA-Z]+)\s*외\s*(\d+)\s*명/);
+        if (m) {
+          const leader = m[1];
+          const extra = parseInt(m[2], 10);
+          return { leader, extraWorkers: extra, totalWorkers: extra + 1 };
+        }
+        const mSingle = str.match(/([가-힣a-zA-Z]{2,4})/);
+        return { leader: mSingle ? mSingle[1] : '작업자', extraWorkers: 0, totalWorkers: 1 };
+      }
+
+      // Case 1: JSON paste
+      if (text.startsWith('[') && text.endsWith(']')) {
+        try {
+          const raw = JSON.parse(text);
+          raw.forEach((r, idx) => {
+            if (Array.isArray(r) && r.length >= 6) {
+              const permitNo = r.find(c => /^\d{5,7}$/.test(c)) || `12${Date.now().toString().slice(-4)}${idx}`;
+              const title = r.find(c => c.length > 5 && !/^\d+$/.test(c)) || '작업명 미상';
+              const dates = r.filter(c => /^202\d-\d{2}-\d{2}/.test(c));
+              const startDate = dates[0] || currentTargetDate;
+              const endDate = dates[1] || startDate;
+              const equipment = r.find(c => /blr|tbn|area|cpp|gis|345kv|surge|수처리|chute|pulv/i.test(c)) || '';
+              
+              // Worker info extraction
+              const workerInfo = extractWorkerInfo(r.join(' '));
+              const isPsm = r.some(c => c.includes('PSM') || c.includes('수소'));
+              const isLoto = r.some(c => c.includes('LOTO') || c.includes('정전') || c.includes('차단'));
+              const detectedOper = r.find(c => /연료설비|발전\s*[1-4]파트|발전[1-4]파트|회처리|탈황|수폐수|수처리/i.test(c)) || '';
+
+              const item = {
+                permitNo,
+                status: '발행완료',
+                orderNo: '11' + Math.floor(Math.random() * 8999 + 1000),
+                workTitle: title,
+                equipment,
+                startDate,
+                endDate,
+                dept: '운전팀 / 협력사',
+                operDept: detectedOper,
+                leader: workerInfo.leader,
+                extraWorkers: workerInfo.extraWorkers,
+                totalWorkers: workerInfo.totalWorkers,
+                isPsm,
+                isLoto,
+                riskTags: title.includes('화기') ? ['화기'] : (title.includes('고소') ? ['고소'] : ['일반'])
+              };
+              item.part = classifyPart(item);
+              workItems.unshift(item);
+              count++;
+            }
+          });
+        } catch(e) {}
+      }
+
+      // Case 2: TSV / Text (인트라넷 화면 복사-붙여넣기 100% 완벽 대응)
+      if (count === 0) {
+        const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+        lines.forEach((l, idx) => {
+          const cols = l.split('\t').map(c => c.trim());
+          if (cols.length >= 4) {
+            let permitNo = '';
+            let status = '발행완료';
+            let orderNo = '';
+            let workTitle = '';
+            let equipment = '';
+            let startDate = currentTargetDate;
+            let endDate = currentTargetDate;
+            let issuer = '';
+            let dept = '';
+            let operDept = '';
+
+            // 거대 텍스트 블록(컨테이너) 방어
+            if (cols.some(c => c.length > 250)) return;
+
+            // 1) 허가번호 6자리 위치 동적 탐색 (체크박스 개수 상관없이 100% 매칭)
+            const pIdx = cols.findIndex(c => /^\d{6}$/.test(c));
+            if (pIdx !== -1) {
+              permitNo = cols[pIdx];
+              status = (pIdx > 0 && cols[pIdx - 1]) ? cols[pIdx - 1].trim() : '발행완료';
+              if (status.includes('작성')) status = '작성중';
+              else if (status.includes('작업')) status = '작업중';
+              else if (status.includes('승인')) status = '승인대기';
+              else if (status.includes('취소')) status = '취소';
+              else if (status.includes('반려')) status = '반려';
+              else if (status.includes('발행')) status = '발행완료';
+              else if (l.includes('작성중')) status = '작성중';
+              else if (l.includes('작업중')) status = '작업중';
+              else status = '발행완료';
+
+              let oIdx = -1;
+              for (let i = pIdx + 1; i <= pIdx + 3 && i < cols.length; i++) {
+                if (/^\d{6}$/.test(cols[i])) {
+                  oIdx = i;
+                  orderNo = cols[i];
+                  break;
+                }
+              }
+
+              if (oIdx !== -1) {
+                workTitle = cols[oIdx + 1] || '';
+                equipment = cols[oIdx + 2] || '';
+                startDate = cols[oIdx + 3] || currentTargetDate;
+                endDate = cols[oIdx + 4] || startDate;
+                issuer = cols[oIdx + 6] || '';
+                dept = cols[oIdx + 8] || '';
+                operDept = cols[oIdx + 10] || '';
+              } else {
+                workTitle = cols[pIdx + 3] || cols[pIdx + 2] || '';
+                equipment = cols[pIdx + 4] || '';
+                const dates = cols.filter(c => /^202\d-\d{2}-\d{2}/.test(c));
+                startDate = dates[0] || currentTargetDate;
+                endDate = dates[1] || startDate;
+              }
+            } else {
+              // 2) 휴리스틱 매핑
+              permitNo = cols.find(c => /^\d{5,7}$/.test(c)) || `12${Date.now().toString().slice(-4)}${idx}`;
+              workTitle = cols.find(c => c.length > 5 && !/^\d+$/.test(c) && !c.includes('2026-')) || cols[2] || cols[1];
+              const dates = cols.filter(c => /^202\d-\d{2}-\d{2}/.test(c));
+              startDate = dates[0] || currentTargetDate;
+              endDate = dates[1] || dates[0] || currentTargetDate;
+              equipment = cols.find(c => /blr|tbn|area|cpp|gis|345kv|surge|수처리|chute|pulv|hopper/i.test(c)) || cols[3] || '';
+              orderNo = cols.find(c => /^11\d{4}$/.test(c)) || '';
+              status = cols.includes('발행완료') ? '발행완료' : '작업중';
+              operDept = cols.find(c => /연료설비|발전\s*[1-4]파트|발전[1-4]파트|회처리|탈황|수폐수|수처리/i.test(c)) || '';
+              dept = cols.find(c => (c.includes('팀') || c.includes('HPS') || c.includes('EES')) && !/발전\s*[1-4]파트|연료설비|회처리|탈황|수폐수/.test(c)) || '운전팀';
+            }
+
+            // 설비명 길이 검증 (절대 비정상적인 텍스트 덩어리가 들어가지 않도록 방어)
+            if (equipment.length > 60 || /^\d{4}-\d{2}-\d{2}$/.test(equipment)) {
+              equipment = '';
+            }
+
+            const workerInfo = extractWorkerInfo(l);
+            const leaderName = issuer || workerInfo.leader || '작업자';
+            const extraWorkers = workerInfo.extraWorkers || 0;
+            const totalWorkers = extraWorkers > 0 ? extraWorkers + 1 : 1;
+            const isPsm = l.includes('PSM') || l.includes('수소');
+            const isLoto = l.includes('LOTO') || l.includes('정전') || l.includes('차단');
+
+            const item = {
+              permitNo,
+              status,
+              orderNo,
+              workTitle,
+              equipment,
+              startDate,
+              endDate,
+              dept,
+              operDept,
+              issuer: leaderName,
+              leader: leaderName,
+              extraWorkers,
+              totalWorkers,
+              contractor: dept || 'HPS',
+              isPsm,
+              isLoto,
+              riskTags: l.includes('고소') ? ['고소'] : (l.includes('화기') ? ['화기'] : ['일반'])
+            };
+            item.part = classifyPart(item);
+            workItems.unshift(item);
+            count++;
+          }
+        });
+      }
+
+      if (count > 0) {
+        saveToStorage();
+        updateKPICounters();
+        renderFilteredList();
+        closeImportModal();
+        showToast(`총 ${count}건의 작업이 인원수·LOTO·PSM과 함께 등록되었습니다.`);
+      } else {
+        alert('데이터를 인식하지 못했습니다. 형식을 확인해 주세요.');
+      }
+    }
+
+    window.onclick = function(e) {
+      if (e.target === document.getElementById('reportModal')) closeReportModal();
+      if (e.target === document.getElementById('detailModal')) closeDetailModal();
+      if (e.target === document.getElementById('importModal')) closeImportModal();
+    };
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeReportModal();
+        closeDetailModal();
+        closeImportModal();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
