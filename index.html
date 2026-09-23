@@ -682,15 +682,17 @@
       margin-right: 3px;
       white-space: nowrap;
     }
-    .risk-high { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); }
-    .risk-fire { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.35); }
-    .risk-elec { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.35); }
-    .risk-confined { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); }
-    .risk-dive { background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.35); }
-    .risk-excavation { background: rgba(180, 83, 9, 0.2); color: #d97706; border: 1px solid rgba(180, 83, 9, 0.35); }
-    .risk-heavy { background: rgba(100, 116, 139, 0.25); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.4); }
-    .risk-general { background: rgba(100, 116, 139, 0.12); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.25); }
-    .risk-multi { background: rgba(100, 116, 139, 0.15); border: 1px solid rgba(100, 116, 139, 0.3); font-size: 12px; padding: 2px 6px; cursor: help; letter-spacing: 1px; white-space: nowrap; }
+    .risk-fire { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: 800; }
+    .risk-elec { background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 800; }
+    .risk-hazmat { background: #fef9c3; color: #a16207; border: 1px solid #fde047; font-weight: 800; }
+    .risk-heavy { background: #e7e5e4; color: #44403c; border: 1px solid #d6d3d1; font-weight: 800; }
+    .risk-dive { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; font-weight: 800; }
+    .risk-confined { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; font-weight: 800; }
+    .risk-excavation { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-weight: 800; }
+    .risk-high { background: #cffafe; color: #0e7490; border: 1px solid #67e8f9; font-weight: 800; }
+    .risk-general { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .risk-multi { background: #f8fafc; border: 1px solid #cbd5e1; font-size: 13px; padding: 3px 7px; cursor: help; letter-spacing: 1.5px; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+    .risk-tag-stack { display: flex; flex-direction: column; gap: 3px; align-items: center; }
 
     .work-title-cell {
       cursor: pointer;
@@ -910,6 +912,8 @@
         <span class="sync-dot"></span>
         <span id="syncStatusText">수동 동기화 대기 중 (클릭 시 동기화)</span>
       </div>
+
+      <span id="ptwCloudStatus" role="status" aria-live="polite" style="font-size:11px;color:var(--text-muted);max-width:260px;line-height:1.3;">공유 데이터 연결 중…</span>
 
       <!-- Target Origin URL -->
       <a href="http://220.70.136.113/newWoSafetyMstrList.do" target="_blank" rel="noopener" class="origin-link" title="안전작업허가서 원본 목록 열기">
@@ -1273,7 +1277,7 @@
       <div id="emptyState" class="empty-state" style="display: none; padding: 60px 20px; text-align: center; color: var(--text-muted);">
         <div style="font-size: 40px; margin-bottom: 10px;">📋</div>
         <h3 style="font-size: 16px; margin-bottom: 6px;">선택한 일자/조건에 일치하는 허가서 작업이 없습니다</h3>
-        <p style="font-size: 13px;">상단의 일자를 변경하시거나 [전체 일자 해제]를 눌러보세요.</p>
+        <p style="font-size: 13px;">게시된 데이터가 없다면 관리자에게 게시를 요청하세요. 데이터가 있다면 날짜를 변경하거나 [전체 일자 해제]를 눌러보세요.</p>
       </div>
     </section>
   </main>
@@ -1360,7 +1364,7 @@
           <div class="detail-item">
             <div class="detail-label" style="display:flex; align-items:center; justify-content:space-between;">
               <span>설비번호 / 설비명</span>
-              <span onclick="editFacilityInfo()" style="cursor:pointer; color:#60a5fa; font-weight:700; font-size:11px;" title="원본 상세 페이지의 설비번호/설비명 값을 입력합니다">✏️ 입력</span>
+              <span id="ptwFacilityEdit" onclick="editFacilityInfo()" style="cursor:pointer; color:#60a5fa; font-weight:700; font-size:11px;" title="원본 상세 페이지의 설비번호/설비명 값을 입력합니다">✏️ 입력</span>
             </div>
             <div class="detail-val" id="modalFacility" style="font-size:12px;">-</div>
           </div>
@@ -1399,7 +1403,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
           📋 허가번호 복사 + 인트라넷 열기
         </button>
-        <button class="btn btn-secondary" onclick="changeCurrentItemPartPrompt()">직무 파트 재지정</button>
+        <button class="btn btn-secondary" id="ptwPartEdit" onclick="changeCurrentItemPartPrompt()">직무 파트 재지정</button>
         <button class="btn btn-secondary" onclick="closeDetailModal()">닫기</button>
       </div>
     </div>
@@ -1495,6 +1499,18 @@
               💾 현재 데이터 백업(JSON 다운로드)
             </button>
             <input type="file" id="adminJsonFileInput" accept="application/json,.json" onchange="handleAdminJsonUpload(event)" style="font-size: 12px; color: var(--text-main);">
+          </div>
+          <div style="margin-top:12px;border-top:1px solid var(--border-subtle);padding-top:12px;">
+            <h4 style="font-size:13px;margin-bottom:6px;">☁️ Firebase 공유 게시</h4>
+            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">인터넷에 공개해도 되는 작업 데이터만 게시하세요. 인트라넷 취합과 JSON 복원은 자동 게시되지 않습니다.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <input id="ptwAdminEmail" type="email" autocomplete="username" placeholder="Firebase 관리자 이메일" style="background:var(--bg-card);color:var(--text-main);border:1px solid var(--border-subtle);border-radius:6px;padding:7px;">
+              <input id="ptwAdminPassword" type="password" autocomplete="current-password" placeholder="Firebase 계정 비밀번호" style="background:var(--bg-card);color:var(--text-main);border:1px solid var(--border-subtle);border-radius:6px;padding:7px;">
+              <button class="btn btn-secondary btn-sm" onclick="ptwFirebaseLogin()">Firebase 로그인</button>
+              <button class="btn btn-secondary btn-sm" onclick="loadLocalDraftForAdmin()" title="기존 브라우저의 로컬 취합 데이터 불러오기">로컬 취합 데이터 불러오기</button>
+              <button class="btn btn-success btn-sm" id="ptwPublishBtn" onclick="ptwPublishNow()" disabled>☁️ 공유 데이터 게시</button>
+            </div>
+            <div id="ptwPublishState" style="font-size:11px;color:var(--text-muted);margin-top:8px;">Firebase 로그인 후 게시할 수 있습니다.</div>
           </div>
         </div>
 
@@ -2141,6 +2157,8 @@
        ========================================================================== */
     let workItems = [];
     let isAdminMode = false;
+    let ptwLocalDraft = false;
+    let ptwApplyingRemote = false;
     const ADMIN_PASSWORD = '12345';
     function getLocalDateString(offsetDays = 0) {
       const date = new Date();
@@ -2181,14 +2199,11 @@
         try {
           workItems = JSON.parse(stored);
         } catch(e) {
-          workItems = [...REAL_SCREENSHOT_DATA];
+          workItems = [];
         }
       } else {
-        workItems = [...REAL_SCREENSHOT_DATA];
-        saveToStorage();
+        workItems = [];
       }
-
-    
 
     workItems.forEach(item => {
       sanitizePermitItem(item);
@@ -2203,6 +2218,8 @@
     // ★ 정제된 데이터를 localStorage에 즉시 재저장 → 오염 캐시 덮어쓰기
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(workItems)); } catch(e) {}
 
+      // 공개 화면에는 로컬 백업/샘플 대신 Firestore에 게시된 데이터만 표시한다.
+      workItems = [];
       setupBookmarklet();
       updateKPICounters();
       renderFilteredList();
@@ -2211,7 +2228,9 @@
     }
 
     function saveToStorage() {
+      if (isAdminMode && !ptwApplyingRemote) ptwLocalDraft = true;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(workItems));
+      updateCloudPublishState();
     }
 
     function showToast(msg) {
@@ -2235,7 +2254,9 @@
         isAdminMode = true;
         showToast('🔓 관리자 모드가 활성화되었습니다.');
       } else {
+        if (ptwLocalDraft && !confirm('공유되지 않은 로컬 변경사항이 있습니다. 관리자 모드를 종료하시겠습니까?')) return;
         isAdminMode = false;
+        if (window.ptwFirebase && window.ptwFirebase.logout) window.ptwFirebase.logout();
         showToast('🔒 관리자 모드가 비활성화되었습니다.');
       }
       applyAdminModeUI();
@@ -2257,6 +2278,95 @@
       }
       const adminSection = document.getElementById('adminJsonUploadSection');
       if (adminSection) adminSection.style.display = isAdminMode ? 'block' : 'none';
+      ['ptwFacilityEdit', 'ptwPartEdit'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = isAdminMode ? '' : 'none'; });
+      updateCloudPublishState();
+    }
+
+    function updateCloudPublishState() {
+      const status = document.getElementById('ptwPublishState');
+      const btn = document.getElementById('ptwPublishBtn');
+      const signedIn = !!(window.ptwFirebase && window.ptwFirebase.isAdmin());
+      if (btn) btn.disabled = !isAdminMode || !signedIn || !workItems.length;
+      if (status) {
+        status.textContent = signedIn
+          ? `${ptwLocalDraft ? '게시 전 로컬 변경사항 있음 · ' : ''}현재 ${workItems.length}건 · 게시 버튼을 눌러야 다른 사람에게 반영됩니다.`
+          : 'Firebase 관리자 계정으로 로그인해야 게시할 수 있습니다.';
+      }
+    }
+
+    async function ptwFirebaseLogin() {
+      if (!isAdminMode) return;
+      const email = document.getElementById('ptwAdminEmail').value.trim();
+      const passwordInput = document.getElementById('ptwAdminPassword');
+      const password = passwordInput.value;
+      passwordInput.value = '';
+      if (!email || !password) { alert('Firebase 관리자 이메일과 비밀번호를 입력하세요.'); return; }
+      if (!window.ptwFirebase) { alert('Firebase SDK가 아직 준비되지 않았습니다. 연결 상태를 확인하세요.'); return; }
+      try {
+        await window.ptwFirebase.login(email, password);
+        showToast('✅ Firebase 관리자 계정 인증 완료');
+      } catch (err) {
+        alert('Firebase 로그인 실패: ' + (err.code || err.message || String(err)));
+      }
+      updateCloudPublishState();
+    }
+
+    async function ptwPublishNow() {
+      if (!isAdminMode || !window.ptwFirebase || !window.ptwFirebase.isAdmin()) {
+        alert('Firebase 관리자 계정 로그인이 필요합니다.'); return;
+      }
+      if (!workItems.length) { alert('게시할 데이터가 없습니다.'); return; }
+      const items = JSON.parse(JSON.stringify(workItems));
+      const bytes = new Blob([JSON.stringify({workItems:items})]).size;
+      if (bytes > 850000) { alert('현재 데이터가 한 Firestore 문서에 담기엔 너무 큽니다. 분할 저장 방식이 필요합니다.'); return; }
+      if (!confirm(`${items.length}건의 작업 정보를 공개 게시하시겠습니까? 이름 등 포함된 모든 필드가 사이트 방문자에게 공개됩니다. (약 ${Math.ceil(bytes/1024)}KB)`)) return;
+      const btn = document.getElementById('ptwPublishBtn');
+      if (btn) btn.disabled = true;
+      try {
+        await window.ptwFirebase.publish(items);
+        ptwLocalDraft = false;
+        applyPublishedSnapshot(items, {toDate: () => new Date()});
+        showToast(`☁️ ${items.length}건 공유 게시 완료`);
+      } catch (err) {
+        alert('Firebase 게시 실패: ' + (err.code || err.message || String(err)));
+      } finally {
+        updateCloudPublishState();
+      }
+    }
+
+    function loadLocalDraftForAdmin() {
+      if (!isAdminMode) return;
+      let items;
+      try { items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+      catch (err) { alert('로컬 데이터 형식이 잘못되었습니다: ' + err.message); return; }
+      if (!Array.isArray(items) || !items.length) { alert('브라우저에 저장된 로컬 데이터가 없습니다. 이전 JSON 백업 파일을 업로드하세요.'); return; }
+      if (!confirm(`기존 브라우저 로컬 데이터 ${items.length}건을 화면에 불러오겠습니까? (Firebase에는 게시되지 않습니다)`)) return;
+      workItems = items;
+      ptwLocalDraft = true;
+      updateKPICounters();
+      renderFilteredList();
+      updateCloudPublishState();
+      showToast(`📂 로컬 ${items.length}건을 불러왔습니다. 아직 공유되지 않았습니다.`);
+    }
+
+    function applyPublishedSnapshot(items, publishedAt) {
+      if (ptwLocalDraft) {
+        const st = document.getElementById('ptwCloudStatus');
+        if (st) st.textContent = '로컬 변경사항 미게시 · 공유 화면 갱신 대기';
+        return;
+      }
+      workItems = items.map(item => {
+        const copy = {...item};
+        if (!copy.part) copy.part = classifyPart(copy);
+        if (copy.totalWorkers === undefined) copy.totalWorkers = Math.max(1, Number(copy.extraWorkers || 0) + 1);
+        return copy;
+      });
+      updateKPICounters();
+      renderFilteredList();
+      const st = document.getElementById('ptwCloudStatus');
+      const when = publishedAt && publishedAt.toDate ? publishedAt.toDate().toLocaleString('ko-KR') : '게시 대기';
+      if (st) st.textContent = `☁️ 공유 ${workItems.length}건 · ${when}`;
+      updateCloudPublishState();
     }
 
     function parseBackupJsonText(rawText) {
@@ -2625,21 +2735,26 @@
           const found = __riskIconMap.find(([k]) => tag.includes(k));
           return found ? found[1] : '';
         }
-        if (rTags.length > 1 && !rTags.includes('일반작업')) {
+        function __tagBadge(tag) {
+          if (tag.includes('화기')) return `<span class="risk-tag risk-fire">🔥화기</span>`;
+          if (tag.includes('고소')) return `<span class="risk-tag risk-high">🪜고소</span>`;
+          if (tag.includes('정전') || tag.includes('전기')) return `<span class="risk-tag risk-elec">⚡전기</span>`;
+          if (tag.includes('밀폐')) return `<span class="risk-tag risk-confined">🚪밀폐</span>`;
+          if (tag.includes('위험물') || tag.includes('유해물질')) return `<span class="risk-tag risk-hazmat">☣️유해물질</span>`;
+          if (tag.includes('잠수')) return `<span class="risk-tag risk-dive">🤿잠수</span>`;
+          if (tag.includes('굴착')) return `<span class="risk-tag risk-excavation">⛏️굴착</span>`;
+          if (tag.includes('중장비')) return `<span class="risk-tag risk-heavy">🚜중장비</span>`;
+          return `<span class="risk-tag risk-general">일반작업</span>`;
+        }
+        if (rTags.length >= 4 && !rTags.includes('일반작업')) {
+          // 4개 이상: 이모지만 압축 표시 (연한 배경으로 이모지가 뚜렷하게 보이도록)
           const icons = rTags.map(__tagIcon).filter(Boolean).join(' ');
           riskHtml = `<span class="risk-tag risk-multi" title="${rTags.join(', ')}">${icons}</span>`;
+        } else if (rTags.length > 1 && !rTags.includes('일반작업')) {
+          // 1~3개: 색깔 뱃지를 세로로 쌓아서 표시
+          riskHtml = `<div class="risk-tag-stack">${rTags.map(__tagBadge).join('')}</div>`;
         } else {
-          rTags.forEach(tag => {
-            if (tag.includes('화기')) riskHtml += `<span class="risk-tag risk-fire">🔥화기</span>`;
-            else if (tag.includes('고소')) riskHtml += `<span class="risk-tag risk-high">🪜고소</span>`;
-            else if (tag.includes('정전') || tag.includes('전기')) riskHtml += `<span class="risk-tag risk-elec">⚡전기</span>`;
-            else if (tag.includes('밀폐')) riskHtml += `<span class="risk-tag risk-confined">🚪밀폐</span>`;
-            else if (tag.includes('위험물') || tag.includes('유해물질')) riskHtml += `<span class="risk-tag risk-fire">☣️유해물질</span>`;
-            else if (tag.includes('잠수')) riskHtml += `<span class="risk-tag risk-dive">🤿잠수</span>`;
-            else if (tag.includes('굴착')) riskHtml += `<span class="risk-tag risk-excavation">⛏️굴착</span>`;
-            else if (tag.includes('중장비')) riskHtml += `<span class="risk-tag risk-heavy">🚜중장비</span>`;
-            else riskHtml += `<span class="risk-tag risk-general">일반작업</span>`;
-          });
+          rTags.forEach(tag => { riskHtml += __tagBadge(tag); });
         }
 
         // 11개 컬럼 렌더링 (신청부서/업체 서브메타 제거, 오더번호만 깔끔하게 표시)
@@ -3140,6 +3255,7 @@
     function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); }
 
     function changeCurrentItemPartPrompt() {
+      if (!isAdminMode) return;
       if (!selectedItemId) return;
       const item = workItems.find(i => i.permitNo === selectedItemId);
       if (!item) return;
@@ -3176,6 +3292,7 @@
     }
 
     function editFacilityInfo() {
+      if (!isAdminMode) return;
       if (!selectedItemId) return;
       const item = workItems.find(i => i.permitNo === selectedItemId);
       if (!item) return;
@@ -3696,7 +3813,85 @@ function sendData(force){var expanded=force?tryExpandPageSize():false;var procee
       }
     });
 
+    window.isAdminModeEnabled = () => isAdminMode;
+    window.hasUnpublishedDraft = () => ptwLocalDraft;
+    window.updateCloudPublishState = updateCloudPublishState;
+    window.applyPublishedSnapshot = applyPublishedSnapshot;
+
     window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+    import { getFirestore, doc, onSnapshot, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyBC_iSnJo0eHZeuf5-nKyvxB__LLaip6NY',
+      authDomain: 'ptw-check.firebaseapp.com',
+      projectId: 'ptw-check',
+      storageBucket: 'ptw-check.firebasestorage.app',
+      messagingSenderId: '84207515693',
+      appId: '1:84207515693:web:a5463c87be2da5a04020a4'
+    };
+    const adminUid = 'VMlhxs0fkxO2gGWOwvlq2OOqLhj2';
+    try {
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+      const published = doc(db, 'published', 'current');
+      window.ptwFirebase = {
+        isAdmin: () => !!(auth.currentUser && auth.currentUser.uid === adminUid),
+        login: async (email, password) => {
+          const result = await signInWithEmailAndPassword(auth, email, password);
+          if (result.user.uid !== adminUid) {
+            await signOut(auth);
+            throw new Error('이 계정에는 게시 권한이 없습니다.');
+          }
+        },
+        logout: () => signOut(auth).catch(() => {}),
+        publish: async items => {
+          if (!window.isAdminModeEnabled() || !auth.currentUser || auth.currentUser.uid !== adminUid) {
+            throw new Error('관리자 로그인 후에만 게시할 수 있습니다.');
+          }
+          await setDoc(published, {workItems:items, count:items.length, publishedAt:serverTimestamp(), publishedBy:auth.currentUser.uid});
+        }
+      };
+      onAuthStateChanged(auth, user => {
+        if (user && !window.isAdminModeEnabled()) { signOut(auth).catch(() => {}); return; }
+        const el = document.getElementById('ptwCloudStatus');
+        if (user && user.uid !== adminUid) {
+          signOut(auth).catch(() => {});
+          if (el) el.textContent = '관리자 계정 UID가 일치하지 않습니다.';
+        }
+        window.updateCloudPublishState();
+      });
+      function startListening() {
+        onSnapshot(published, snapshot => {
+          if (!snapshot.exists()) {
+            window.applyPublishedSnapshot([], null);
+            const el = document.getElementById('ptwCloudStatus');
+            if (el && !window.hasUnpublishedDraft()) el.textContent = '☁️ 아직 게시된 데이터가 없습니다.';
+            return;
+          }
+          const data = snapshot.data();
+          if (!Array.isArray(data.workItems)) {
+            const el = document.getElementById('ptwCloudStatus');
+            if (el) el.textContent = '공유 데이터 형식 오류: workItems가 배열이 아닙니다.';
+            return;
+          }
+          window.applyPublishedSnapshot(data.workItems, data.publishedAt);
+        }, err => {
+          if (!window.hasUnpublishedDraft()) window.applyPublishedSnapshot([], null);
+          const el = document.getElementById('ptwCloudStatus');
+          if (el) el.textContent = '☁️ 공유 연결 실패: ' + (err.code || err.message);
+        });
+      }
+      if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', startListening, {once:true});
+      else startListening();
+    } catch (err) {
+      const el = document.getElementById('ptwCloudStatus');
+      if (el) el.textContent = 'Firebase 초기화 실패: ' + (err.message || String(err));
+    }
   </script>
 </body>
 </html>
