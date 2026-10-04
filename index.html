@@ -25,7 +25,7 @@
       --color-btgb2: #ef4444;   /* #2 BTG-B (레드/보일러) */
       --color-btgt2: #10b981;   /* #2 BTG-T (에메랄드/터빈) */
       --color-sbo: #eab308;     /* SBO (골드/전기) */
-      --color-chs: #f59e0b;     /* CHS (연료설비: 앰버) */
+      --color-chs: #6b6b6b;     /* CHS (연료설비: 회색) */
       --color-ep: #a855f7;      /* EP (회처리설비: 바이올렛) */
       --color-fgd: #14b8a6;     /* FGD (탈황설비: 틸) */
       --color-wwt: #38bdf8;     /* 수처리 (수폐수설비: 스카이블루) */
@@ -453,7 +453,7 @@
     .part-tab.tab-btgb2.active { background: var(--color-btgb2); color: white; }
     .part-tab.tab-btgt2.active { background: var(--color-btgt2); color: #000; }
     .part-tab.tab-sbo.active { background: var(--color-sbo); color: #000; }
-    .part-tab.tab-chs.active { background: var(--color-chs); color: #000; }
+    .part-tab.tab-chs.active { background: var(--color-chs); color: #fff; }
     .part-tab.tab-ep.active { background: var(--color-ep); color: white; }
     .part-tab.tab-fgd.active { background: var(--color-fgd); color: white; }
     .part-tab.tab-wwt.active { background: var(--color-wwt); color: #000; }
@@ -591,17 +591,17 @@
       font-family: 'JetBrains Mono', monospace;
       white-space: nowrap;
     }
-    .part-tag.btgb1 { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); }
-    .part-tag.btgt1 { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
-    .part-tag.btgb2 { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-    .part-tag.btgt2 { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-    .part-tag.sbo { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
-    .part-tag.chs { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .part-tag.ep { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
-    .part-tag.fgd { background: rgba(20, 184, 166, 0.2); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.4); }
-    .part-tag.wwt { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
-    .part-tag.ccr { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-    .part-tag.etc { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.4); }
+    .part-tag.btgb1 { background: #c2410c; color: #ffffff; border: 1px solid #c2410c; }
+    .part-tag.btgt1 { background: #0e7490; color: #ffffff; border: 1px solid #0e7490; }
+    .part-tag.btgb2 { background: #b91c1c; color: #ffffff; border: 1px solid #b91c1c; }
+    .part-tag.btgt2 { background: #047857; color: #ffffff; border: 1px solid #047857; }
+    .part-tag.sbo { background: #a16207; color: #ffffff; border: 1px solid #a16207; }
+    .part-tag.chs { background: #6b6b6b; color: #ffffff; border: 1px solid #6b6b6b; font-weight:700; }
+    .part-tag.ep { background: #7e22ce; color: #ffffff; border: 1px solid #7e22ce; }
+    .part-tag.fgd { background: #0f766e; color: #ffffff; border: 1px solid #0f766e; }
+    .part-tag.wwt { background: #0369a1; color: #ffffff; border: 1px solid #0369a1; }
+    .part-tag.ccr { background: #1d4ed8; color: #ffffff; border: 1px solid #1d4ed8; }
+    .part-tag.etc { background: #475569; color: #ffffff; border: 1px solid #475569; }
 
     .status-badge {
       display: inline-block;
@@ -672,6 +672,8 @@
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
     }
+
+    .worker-pill .worker-count { color: #000000; }
 
     .risk-tag {
       display: inline-block;
@@ -894,6 +896,8 @@
     body:not(.ptw-admin) #ptwReportBtn,
     body:not(.ptw-admin) #importDataBtn,
     body:not(.ptw-admin) #reclassifyBtn,
+    body:not(.ptw-admin) #partSettingsBtn,
+    body:not(.ptw-admin) #adminToolbar,
     body:not(.ptw-admin) #realtimeSyncBadge,
     body:not(.ptw-admin) #ptwFacilityEdit,
     body:not(.ptw-admin) #ptwPartEdit { display:none !important; }
@@ -965,9 +969,52 @@
       #adminJsonUploadSection input[type="file"] { max-width:100%; }
     }
     @media (max-width: 360px) { .kpi-grid { grid-template-columns:minmax(0,1fr) !important; } }
+
+    /* 상태와 일반 조작은 첫 줄, 관리자 도구는 별도의 정렬된 줄에 배치한다. */
+    header.top-navbar { display:grid; grid-template-columns:minmax(320px,1fr) auto; gap:12px 24px; }
+    .brand-section { min-width:0; }
+    .brand-title { flex-wrap:wrap; gap:6px 10px; line-height:1.4; }
+    .brand-title > span:first-child { flex-shrink:0; }
+    .brand-version { white-space:nowrap; }
+    .header-actions { width:auto; flex-wrap:wrap; justify-content:flex-end; gap:8px; min-width:0; }
+    .header-actions > .btn, .header-actions > .origin-link { min-height:36px; box-sizing:border-box; flex-shrink:0; white-space:nowrap; }
+    .header-actions > #ptwCloudStatus { max-width:240px !important; overflow-wrap:anywhere; line-height:1.5 !important; }
+    .header-actions #themeToggleBtn { width:36px; padding:0; }
+    .admin-toolbar { grid-column:1 / -1; display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding-top:12px; border-top:1px solid var(--border-subtle); }
+    .admin-toolbar-label { font-size:12px; font-weight:700; color:var(--text-muted); padding-right:8px; white-space:nowrap; }
+    .admin-toolbar .btn { min-height:36px; padding:7px 12px; font-size:12px; flex-shrink:0; }
+    .admin-toolbar .sync-badge { flex-shrink:0; white-space:nowrap; margin-left:auto; }
+    @media(max-width:1250px) {
+      header.top-navbar { grid-template-columns:minmax(0,1fr); }
+      .header-actions { width:100%; justify-content:flex-start; }
+      .admin-toolbar .sync-badge { margin-left:0; }
+    }
+    @media(max-width:700px) {
+      header.top-navbar { gap:10px; }
+      .brand-title > span:first-child { flex-shrink:1; }
+      .brand-version { font-size:10px !important; }
+      .header-actions > #ptwCloudStatus { flex-basis:100%; max-width:none !important; }
+      .admin-toolbar { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .admin-toolbar-label, .admin-toolbar .sync-badge { grid-column:1 / -1; }
+      .admin-toolbar .btn { white-space:normal; padding:7px 8px; }
+      .admin-toolbar .sync-badge { justify-self:start; max-width:100%; white-space:normal; }
+    }
+    #partSettingsModal .modal-dialog { max-width:1100px; overflow:hidden; }
+    #partSettingsModal .modal-body { overflow-y:auto; min-height:0; }
+    #partSettingsModal .modal-header, #partSettingsModal .modal-footer { flex-shrink:0; }
+    .part-settings-note { font-size:13px; line-height:1.7; color:var(--text-dim); }
+    .part-rule { border:1px solid var(--border-subtle); background:var(--bg-card); border-radius:8px; padding:12px; margin-bottom:10px; }
+    .part-rule-top { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px; }
+    .part-settings-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    #partSettingsModal label { font-size:12px; display:block; }
+    #partSettingsModal input:not([type=checkbox]), #partSettingsModal select, #partSettingsModal textarea { width:100%; margin-top:4px; padding:8px; border:1px solid var(--border-subtle); border-radius:6px; background:var(--bg-panel); color:var(--text-main); font:inherit; box-sizing:border-box; }
+    #partSettingsModal textarea { resize:vertical; min-height:58px; }
+    .part-rule-top select { max-width:145px; }
+    #partSettingsPreview { white-space:pre-wrap; font-size:13px; line-height:1.7; padding:12px; border-radius:8px; background:var(--bg-card); }
+    @media(max-width:650px) { .part-settings-grid { grid-template-columns:1fr; } }
   </style>
 </head>
-<body>
+<body class="light-theme">
 <script>
 (function () {
   const ACCESS_CODE = "발전1파트";
@@ -1014,47 +1061,44 @@
       <div>
         <div class="brand-title">
           <span>안전작업허가서 통합 필터링 모니터  </span>
-          <span style="font-size: 11px; padding: 2px 6px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-radius: 4px; font-weight: 600;">v2.8 PSM & LOTO & Manpower</span>
+          <span class="brand-version" style="font-size: 11px; padding: 2px 6px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-radius: 4px; font-weight: 600;">v2.8 PSM & LOTO & Manpower</span>
         </div>
         <div class="brand-subtitle"> 발전운전팀 · 작업인원수(외 N명) 및 PSM·LOTO 관리</div>
       </div>
     </div>
 
     <div class="header-actions">
-      <!-- Realtime Sync Status Badge -->
-      <div id="realtimeSyncBadge" class="sync-badge disconnected" onclick="triggerManualSync()" title="인트라넷(220.70.136.113) 수동 동기화 (클릭 시에만 즉시 확인, 스크롤 자동수집)">
-        <span class="sync-dot"></span>
-        <span id="syncStatusText">수동 동기화 대기 중 (클릭 시 동기화)</span>
-      </div>
 
       <span id="ptwCloudStatus" role="status" aria-live="polite" style="font-size:11px;color:var(--text-muted);max-width:260px;line-height:1.3;">공유 데이터 연결 중…</span>
 
       <!-- Target Origin URL -->
       <a href="http://220.70.136.113/newWoSafetyMstrList.do" target="_blank" rel="noopener" class="origin-link" title="안전작업허가서 원본 목록 열기">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-        안전작업허가서(220.70.136.113)
+        안전작업허가서 원본
       </a>
-
-      <!-- Daily Summary Report Button -->
-      <button class="btn btn-accent" id="ptwReportBtn" onclick="openReportModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        당일 취합 보고서 / 일지 복사
-      </button>
-
-      <!-- Import Data Button -->
-      <button class="btn btn-primary" id="importDataBtn" onclick="openImportModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        데이터 가져오기 / 수집기
-      </button>
-
-      <!-- 전체 파트 재분류 (캐시 문제 무관하게 즉시 재계산) -->
-      <button class="btn btn-secondary btn-sm" id="reclassifyBtn" onclick="reclassifyAllParts()" title="모든 항목의 담당 파트를 최신 규칙으로 다시 계산합니다 (수동 지정 항목은 제외)">🔄 파트 재분류</button>
 
       <!-- 관리자 모드 토글 -->
       <button class="btn btn-secondary btn-sm" id="adminModeBtn" onclick="toggleAdminMode()" title="관리자 모드 켜기/끄기 (비밀번호 필요)">🔒 관리자 모드</button>
 
       <!-- Theme Toggle -->
-      <button class="btn btn-secondary btn-sm" onclick="toggleTheme()" id="themeToggleBtn" title="다크/라이트 모드">🌙</button>
+      <button class="btn btn-secondary btn-sm" onclick="toggleTheme()" id="themeToggleBtn" title="다크/라이트 모드">☀️</button>
+    </div>
+    <div class="admin-toolbar" id="adminToolbar" role="group" aria-label="관리자 도구">
+      <span class="admin-toolbar-label">관리자 도구</span>
+      <button class="btn btn-accent" id="ptwReportBtn" onclick="openReportModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        당일 취합 보고서 / 일지 복사
+      </button>
+      <button class="btn btn-primary" id="importDataBtn" onclick="openImportModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        북마크 / 데이터 관리
+      </button>
+      <button class="btn btn-secondary btn-sm" id="reclassifyBtn" onclick="reclassifyAllParts()" title="모든 항목의 담당 파트를 최신 규칙으로 다시 계산합니다 (수동 지정 항목은 제외)">🔄 파트 재분류</button>
+      <button id="partSettingsBtn" class="btn btn-secondary btn-sm" onclick="openPartSettings()">⚙️ 부서 필터 설정</button>
+      <div id="realtimeSyncBadge" class="sync-badge disconnected" onclick="triggerManualSync()" title="Firebase 관리자 로그인 후 클릭하면 수집 데이터를 불러오고 자동으로 공유 게시합니다">
+        <span class="sync-dot"></span>
+        <span id="syncStatusText">수동 동기화 · 자동 공유 게시</span>
+      </div>
     </div>
   </header>
 
@@ -1396,6 +1440,27 @@
     </section>
   </main>
 
+
+  <div class="modal-overlay" id="partSettingsModal" role="dialog" aria-modal="true" aria-labelledby="partSettingsTitle">
+    <div class="modal-dialog">
+      <div class="modal-header"><h3 id="partSettingsTitle">⚙️ 부서별 자동 분류 설정</h3><button class="modal-close-btn" onclick="closePartSettings()" aria-label="닫기">&times;</button></div>
+      <div class="modal-body">
+        <p class="part-settings-note">위에서부터 검사하여 <b>처음 일치한 규칙</b>의 부서로 분류합니다. 키워드는 쉼표 또는 줄바꿈으로 구분하며, 하나라도 포함되면 일치합니다. 영문 대소문자·공백·하이픈 차이는 무시합니다. 호기 조건은 아래 호기 판별 기준을 함께 사용합니다. 어떤 규칙에도 맞지 않으면 기타로 분류합니다.<br><b>저장하면 현재 목록에 즉시 적용되며 이 브라우저에 유지됩니다.</b> 개별 수동 지정은 유지됩니다. 필터 설정은 다른 PC에 자동 공유되지 않습니다.</p>
+        <details><summary>호기 판별 기준 수정</summary><p class="part-settings-note">작업위치·설비명·계통·작업명에서 호기를 먼저 찾습니다. 없으면 운전부서로 판단합니다. 두 호기가 모두 나오면 1호기를 우선합니다.</p><div class="part-settings-grid">
+          <label>1호기 위치 / 작업명 키워드<input id="partUnit1"></label><label>2호기 위치 / 작업명 키워드<input id="partUnit2"></label>
+          <label>1호기 운전부서 키워드<input id="partOper1"></label><label>2호기 운전부서 키워드<input id="partOper2"></label>
+        </div></details>
+        <div id="partRuleEditor"></div>
+        <div><button class="btn btn-secondary btn-sm" onclick="addPartRule()">＋ 규칙 추가</button></div>
+        <details open><summary>분류 시험 / 현재 목록 변경 미리보기</summary><div class="part-settings-grid" style="margin-top:10px;">
+          <label>작업위치<input id="partTestEquipment" value="Fly Ash Silo-A"></label><label>작업명<input id="partTestTitle" value="FLY ASH SILO-A AERATION BLOWER 정비"></label>
+          <label>운전부서<input id="partTestOper" value="발전1파트"></label><label>발행부서<input id="partTestDept" value="HPS 보일러팀"></label>
+        </div><button class="btn btn-secondary btn-sm" style="margin:10px 0;" onclick="previewPartRules()">현재 설정으로 시험</button><div id="partSettingsPreview" role="status" aria-live="polite"></div></details>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="resetPartRulesDraft()">기본값 복원</button><button class="btn btn-secondary" onclick="closePartSettings()">취소</button><button class="btn btn-primary" onclick="savePartRules()">저장 및 적용</button></div>
+    </div>
+  </div>
+
   <!-- DAILY SUMMARY REPORT MODAL -->
   <div class="modal-overlay" id="reportModal">
     <div class="modal-dialog">
@@ -1509,7 +1574,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button id="modalOriginLink" onclick="openSafetyDetail(selectedItemId)" class="btn btn-primary" title="사용자 제공 정밀 파라미터 86개를 모두 담아 상세 화면을 바로 띄웁니다">
+        <button id="modalOriginLink" onclick="openSafetyDetail(selectedItemId)" class="btn btn-primary" title="허가번호로 사내 원본 상세 화면을 조회합니다">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
           ⚡ 원본 상세 원클릭 열기
         </button>
@@ -1529,78 +1594,27 @@
       <div class="modal-header">
         <div class="modal-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          안전작업허가서 데이터 가져오기 / 화면 복사
+          안전작업허가서 북마크 등록
         </div>
         <button class="modal-close-btn" onclick="closeImportModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <!-- 1. Realtime Auto-Sync Section -->
-        <div style="background: rgba(37, 99, 235, 0.08); border: 1.5px solid rgba(59, 130, 246, 0.4); border-radius: var(--radius-md); padding: 16px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-            <h4 style="font-size: 14px; font-weight: 700; color: #60a5fa; display: flex; align-items: center; gap: 6px; margin: 0;">
-              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e;"></span>
-              ⚡ 인트라넷(220.70.136.113) 실시간 무인 자동 동기화
-            </h4>
-            <span id="modalBridgeStatus" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(34, 197, 94, 0.2); color: #4ade80;">로컬 브릿지 연결됨</span>
+        <div style="background:rgba(37,99,235,0.08);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:18px;">
+          <h4 style="font-size:15px;font-weight:700;margin:0 0 10px;">📑 오늘 날짜 · 전체 건수 조회 북마크</h4>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;">북마크를 실행하면 오늘 날짜로 조회합니다. 다른 날짜는 원본 화면의 작업허가 기간을 바꾼 뒤 수집창의 선택 날짜로 동기화를 누르세요. 오늘로 돌아갈 때는 오늘 날짜로 조회·동기화 버튼을 사용하세요.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;">
+            <a class="btn btn-primary" id="bookmarkletAnchor" href="#" title="브라우저 북마크바로 드래그해 등록하세요">📑 오늘 날짜 / 전체 건수 북마크</a>
+            <button class="btn btn-secondary" onclick="copyBookmarkletCode()">📋 북마크 코드 복사</button>
           </div>
-          <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
-            <a href="http://220.70.136.113/newWoSafetyMstrList.do" target="_blank" style="color: #93c5fd; font-weight: 600; text-decoration: underline;">안전작업허가서 웹 화면</a>을 띄워두고, 아래 <b>[지금 즉시 동기화] 버튼을 누를 때만</b> 목록을 끝까지 자동 스크롤하며 최대 200건을 수집해 반영합니다. (자동 주기 동기화는 사용하지 않습니다)
-          </p>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <a class="btn btn-primary btn-sm" id="bookmarkletAnchor" href="#" title="브라우저 북마크바(즐겨찾기)로 드래그하여 인트라넷 탭에서 클릭하세요">
-              📑 실시간 자동동기화 북마클릿
-            </a>
-            <button class="btn btn-secondary btn-sm" onclick="copyBookmarkletCode()" title="북마클릿 자바스크립트 코드 복사">
-              코드 복사
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="copyTampermonkeyScript()">
-              📄 Tampermonkey 무인 스크립트 복사
-            </button>
-            <button class="btn btn-accent btn-sm" onclick="triggerManualSync()">
-              🔄 지금 즉시 최신 데이터 확인
-            </button>
-          </div>
+          <ol style="font-size:12px;color:var(--text-dim);line-height:1.9;padding-left:20px;margin-top:14px;">
+            <li>위 버튼을 북마크바로 드래그하거나, 코드를 복사해 기존 북마크의 URL에 붙여넣으세요.</li>
+            <li><a href="http://220.70.136.113/newWoSafetyMstrList.do" target="_blank" rel="noopener" style="color:#60a5fa;">사내 안전작업허가서 목록</a>을 열고 등록한 북마크를 누르세요.</li>
+            <li>기존 코드를 교체했다면 원본 페이지를 새로고침한 뒤 실행하세요.</li>
+          </ol>
+          <span id="modalBridgeStatus" style="display:inline-block;margin-top:10px;font-size:11px;padding:2px 8px;border-radius:12px;background:rgba(148,163,184,0.2);color:var(--text-muted);">로컬 브릿지 연결 확인 대기</span>
         </div>
 
-        <!-- 1-B. Detail Page Facility/Risk Info Collector Bookmarklet -->
-        <div style="background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-md); padding: 14px 16px;">
-          <h4 style="font-size: 13px; font-weight: 700; color: #34d399; margin: 0 0 6px 0;">🧰 상세 페이지 설비정보·위험유형 수집기</h4>
-          <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px;">
-            <b>[단건]</b> 상세 페이지를 열 때마다 클릭하면 자동으로 누적 저장됩니다(매번 복사할 필요 없음).<br>
-            <b>[일괄]</b> 이 시스템은 IBSheet 그리드 특성상 자동 일괄 수집이 되지 않아, 대신 <b>[단건]</b>을 반복 사용하시길 권장합니다.<br>
-            <b>[누적 데이터 내보내기]</b> 여러 상세 페이지에서 단건 수집을 반복한 뒤, 마지막에 한 번만 클릭하면 그동안 모은 데이터 전체를 한꺼번에 내보냅니다.
-          </p>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <a class="btn btn-success btn-sm" id="detailBookmarkletAnchor" href="#" title="상세 페이지에서 클릭 (단건 수집)">
-              🔍 단건 수집 북마클릿
-            </a>
-            <button class="btn btn-secondary btn-sm" onclick="copyDetailBookmarklet()" title="단건 수집 북마클릿 코드 복사">
-              코드 복사
-            </button>
-            <a class="btn btn-secondary btn-sm" id="exportBookmarkletAnchor" href="#" title="목록 화면 등 같은 사이트 아무 페이지에서 클릭 (그동안 단건 수집으로 누적된 데이터 전체 내보내기)" style="border-color:#f59e0b;color:#fbbf24;">
-              📦 누적 데이터 내보내기
-            </a>
-            <button class="btn btn-secondary btn-sm" onclick="copyExportBookmarklet()" title="누적 데이터 내보내기 코드 복사">
-              코드 복사
-            </button>
-            <a class="btn btn-accent btn-sm" id="bulkDetailBookmarkletAnchor" href="#" title="목록 화면에서 클릭 (일괄 수집)">
-              🧲 일괄 수집 북마클릿
-            </a>
-            <button class="btn btn-secondary btn-sm" onclick="copyBulkDetailBookmarklet()" title="일괄 수집 북마클릿 코드 복사">
-              코드 복사
-            </button>
-          </div>
-        </div>
-
-        <!-- 2. Manual Paste Section -->
-        <div>
-          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 4px;">📋 표 직접 복사 붙여넣기 (Ctrl + V)</h4>
-          <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px;">
-            안전작업허가서 목록 화면이나 상세 화면의 표/텍스트를 마우스로 복사(Ctrl+C)한 후 아래 상자에 붙여넣으세요.
-          </p>
-          <textarea id="pasteTextArea" style="width: 100%; height: 90px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; font-family: monospace; font-size: 11.5px; resize: vertical;" placeholder="웹 화면 표 내용을 여기에 Ctrl + V 로 붙여넣으세요..."></textarea>
-        </div>
-
+        <details><summary style="cursor:pointer;font-size:13px;font-weight:600;">관리자 데이터 백업 / 공유 게시</summary>
         <!-- 4. 관리자 전용 JSON 백업/복원 -->
         <div id="adminJsonUploadSection" style="display:none; background: rgba(139, 92, 246, 0.08); border: 1.5px solid rgba(139, 92, 246, 0.4); border-radius: var(--radius-md); padding: 16px;">
           <h4 style="font-size: 13px; font-weight: 700; color: #a78bfa; margin: 0 0 8px 0;">🔐 관리자 전용 - JSON 백업/복원</h4>
@@ -1616,29 +1630,26 @@
           </div>
           <div style="margin-top:12px;border-top:1px solid var(--border-subtle);padding-top:12px;">
             <h4 style="font-size:13px;margin-bottom:6px;">☁️ Firebase 공유 게시</h4>
-            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">인트라넷 취합/JSON 복원은 자동 게시되지 않습니다. 공개 가능한 항목인지 확인한 뒤 직접 게시하세요.</p>
+            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Firebase 관리자 로그인 후 상단 수동 동기화를 누르면 취합 데이터가 자동으로 공유 게시됩니다. JSON 복원과 개별 수정은 공유 데이터 게시 버튼으로 반영하세요.</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <span id="ptwAuthSummary" style="font-size:12px;color:var(--text-dim);" role="status" aria-live="polite">Firebase 로그인 확인 중…</span>
+              <div id="ptwLoginFields" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
               <input id="ptwAdminEmail" type="email" autocomplete="username" placeholder="Firebase 관리자 이메일" style="background:var(--bg-card);color:var(--text-main);border:1px solid var(--border-subtle);border-radius:6px;padding:7px;max-width:100%;">
               <input id="ptwAdminPassword" type="password" autocomplete="current-password" placeholder="Firebase 계정 비밀번호" style="background:var(--bg-card);color:var(--text-main);border:1px solid var(--border-subtle);border-radius:6px;padding:7px;max-width:100%;">
               <button class="btn btn-secondary btn-sm" onclick="ptwFirebaseLogin()">Firebase 로그인</button>
+              </div>
+              <button id="ptwLogoutBtn" class="btn btn-secondary btn-sm" onclick="ptwFirebaseLogout()" style="display:none;">Firebase 로그아웃</button>
               <button class="btn btn-secondary btn-sm" onclick="loadLocalDraftForAdmin()">로컬 취합 데이터 불러오기</button>
               <button class="btn btn-success btn-sm" id="ptwPublishBtn" onclick="ptwPublishNow()" disabled>☁️ 공유 데이터 게시</button>
             </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">로그인은 이 브라우저에 유지됩니다. 관리자 모드를 꺼도 로그인은 유지되며, Firebase 로그아웃 버튼을 누르면 종료됩니다.</p>
             <div id="ptwPublishState" style="font-size:11px;color:var(--text-muted);margin-top:8px;">Firebase 로그인 후 게시할 수 있습니다.</div>
           </div>
         </div>
 
-        <!-- 3. Sample Data -->
-        <div style="display:flex; justify-content:space-between; align-items:center; background: var(--bg-card); padding: 10px 14px; border-radius: var(--radius-sm);">
-          <div>
-            <div style="font-weight: 700; font-size: 12.5px;">💡 최신 실전 데이터 세트 적용</div>
-            <div style="font-size: 11px; color: var(--text-muted);">19일~22일 작업인원(외 N명), LOTO, PSM 세부정보가 포함된 실제 데이터 복원</div>
-          </div>
-          <button class="btn btn-accent btn-sm" onclick="loadRealSampleData()">실전 데이터 로드</button>
-        </div>
+        </details>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary" onclick="parseAndApplyPastedText()">데이터 분석 적용</button>
         <button class="btn btn-secondary" onclick="closeImportModal()">닫기</button>
       </div>
     </div>
@@ -1666,13 +1677,9 @@
 
     /**
      * [담당 파트 자동 분류 엔진]
-     * 1. 운전부서 문구 기반 우선 판별:
-     *    - '연료설비' 문구 ➡️ CHS
-     *    - '회처리' 문구 ➡️ EP
-     *    - '탈황' 문구 ➡️ FGD
-     *    - '수폐수'/'수처리' 문구 ➡️ 수처리 (WWT)
-     * 2. 전기 계통 ➡️ SBO
-     * 3. 발전 파트 (발전 1,2,3,4파트 / CCR / EES) ➡️ #1 BTG-B, #1 BTG-T, #2 BTG-B, #2 BTG-T 세부 판별
+     * 기본값은 Fly Ash 작업위치를 EP로 먼저 분류한다.
+     * 부서 필터 설정창에서 검색 대상, 키워드, 호기, 우선순위를 수정한다.
+     * 저장된 규칙은 classifyPartResult에서 순서대로 적용한다.
      */
     function sanitizePermitItem(item) {
       if (!item) return item;
@@ -1747,532 +1754,129 @@
       return item;
     }
 
-    function classifyPart(item) {
-      const oper = (item.operDept || '').trim();
-      const loc = (item.equipment || '').toLowerCase();
-      const title = (item.workTitle || '').toLowerCase();
-      const dept = (item.dept || '').toLowerCase();
-      const text = `${oper} ${dept} ${title} ${loc}`.toLowerCase();
 
-      const locUnit1 = loc.includes('#1') || loc.includes('1호기');
-      const locUnit2 = loc.includes('#2') || loc.includes('2호기');
-      const locIsBoilerCode = loc.includes('blr') || loc.includes('pulv') || loc.includes('pa fan') || loc.includes('mill') || loc.includes('보일러');
-      const locIsTurbineCode = loc.includes('tbn') || loc.includes('msv') || loc.includes('터빈');
-      if (locIsBoilerCode || locIsTurbineCode) {
-        if (locUnit1 && locIsBoilerCode) return 'BTG-B1';
-        if (locUnit1 && locIsTurbineCode) return 'BTG-T1';
-        if (locUnit2 && locIsBoilerCode) return 'BTG-B2';
-        if (locUnit2 && locIsTurbineCode) return 'BTG-T2';
+    const PART_RULES_KEY = 'PTW_PART_RULES_V1';
+    const PART_RULE_SCOPES = { equipment:'작업위치', loc:'작업위치 + 설비명 + 계통', operDept:'운전부서', dept:'발행부서', workTitle:'작업명', all:'위 항목 전체' };
+    function defaultPartRules() {
+      const rule = (part, scope, keywords, unit='ANY') => ({ enabled:true, part, scope, keywords, unit });
+      const ash = 'Fly Ash, Bottom Ash, 회처리, 비회설비, 집진기, FAS-A, FAS-B';
+      const boiler = 'BLR, PULV, PA FAN, MILL, 보일러';
+      const turbine = 'TBN, MSV, 터빈';
+      return { version:1, unit1:'#1, 1호기', unit2:'#2, 2호기', oper1:'발전1파트, 발전3파트', oper2:'발전2파트, 발전4파트', rules:[
+        rule('EP','equipment',ash),
+        rule('CHS','operDept','연료'), rule('CHS','dept','연료운영'),
+        rule('EP','all',ash), rule('FGD','all','탈황, FGD, 석회석, 흡수탑'),
+        rule('BTG-B1','loc',boiler,'1'), rule('BTG-T1','loc',turbine,'1'),
+        rule('BTG-B2','loc',boiler,'2'), rule('BTG-T2','loc',turbine,'2'),
+        rule('CHS','all','연료설비, 석탄취급, CHS, COAL, 저탄, 하역, 부두, 상탄, 벨트, 컨베이어, 트리퍼, 스태커, 리클레이머, 낙탄'),
+        rule('WWT','all','수폐수, 수처리, 순수제조, 폐수, CPP'),
+        rule('SBO','all','SBO, 345kV, 전기실, UPS, GIS, switchgear, 차단기, 변압기, EDG, 전기팀, 스위치야드, 전동기'),
+        rule('BTG-T1','all','TBN, MSV, 터빈, 발전기, CWP, crane, 급수, 복수','1'),
+        rule('BTG-B1','all','BLR, PULV, PA FAN, 보일러, 미분기, soot blower, pulverizer, 통풍','1'),
+        rule('BTG-T2','all','TBN, MSV, 터빈, 발전기, CWP, crane, 급수, 복수','2'),
+        rule('BTG-B2','all','BLR, PULV, PA FAN, 보일러, 미분기, soot blower, pulverizer, 통풍','2'),
+        rule('CCR','all','','1'), rule('CCR','all','','2'),
+        rule('CCR','all','BLR, PULV, PA FAN, 보일러, 미분기, soot blower, pulverizer, 통풍, TBN, MSV, 터빈, 발전기, CWP, crane, 급수, 복수')
+      ] };
+    }
+    function validatePartRules(config) {
+      if (!config || config.version !== 1 || !Array.isArray(config.rules) || !config.rules.length) throw new Error('규칙을 한 개 이상 등록해 주세요.');
+      for (const key of ['unit1','unit2','oper1','oper2']) if(typeof config[key] !== 'string') throw new Error('호기 키워드를 확인해 주세요.');
+      config.rules.forEach((r,i) => {
+        if (!PART_DEFS[r.part] || !PART_RULE_SCOPES[r.scope] || !['ANY','1','2'].includes(r.unit) || typeof r.keywords !== 'string' || typeof r.enabled !== 'boolean') throw new Error((i+1)+'번 규칙을 확인해 주세요.');
+      });
+      return config;
+    }
+    let partRulesConfig = defaultPartRules();
+    try { const saved = localStorage.getItem(PART_RULES_KEY); if(saved) partRulesConfig = validatePartRules(JSON.parse(saved)); } catch(e) { console.warn('부서 필터 기본값 사용:',e.message); }
+    let partRulesDraft = null;
+    function partTokens(value) { return String(value || '').split(/[,\n]/).map(x=>x.trim()).filter(Boolean); }
+    function normalizePartText(value) { return String(value || '').toLowerCase().replace(/[\s_-]+/g,''); }
+    function hasPartKeyword(text, keyword) {
+      const source = normalizePartText(text), token = normalizePartText(keyword);
+      // #1 조건이 #10을 잘못 잡지 않도록 숫자 뒤 경계를 확인한다.
+      if (/^#\d+$/.test(token)) return source.includes(token) && new RegExp(token+'(?![0-9])').test(source);
+      return token.length > 0 && source.includes(token);
+    }
+    function matchesPartKeywords(text, keywords) { return partTokens(keywords).some(k=>hasPartKeyword(text,k)); }
+    function classifyPartResult(item, config=partRulesConfig) {
+      const loc = [item.equipment,item.facilityName,item.systemCategory].filter(Boolean).join(' ');
+      const sources = { equipment:item.equipment||'', loc, operDept:item.operDept||'', dept:item.dept||'', workTitle:item.workTitle||'' };
+      sources.all = Object.values(sources).join(' ');
+      const unitText = loc+' '+sources.workTitle;
+      let unit = matchesPartKeywords(unitText,config.unit1) ? '1' : matchesPartKeywords(unitText,config.unit2) ? '2' : '';
+      if (!unit) unit = matchesPartKeywords(sources.operDept,config.oper1) ? '1' : matchesPartKeywords(sources.operDept,config.oper2) ? '2' : '';
+      for (let index=0; index<config.rules.length; index++) {
+        const rule = config.rules[index];
+        if (!rule.enabled || (rule.unit !== 'ANY' && rule.unit !== unit)) continue;
+        if (!partTokens(rule.keywords).length || matchesPartKeywords(sources[rule.scope],rule.keywords)) return { part:rule.part, index, unit };
       }
-
-      if (
-        oper.includes('회처리') || text.includes('회처리') || text.includes('fly ash') ||
-        text.includes('bottom ash') || text.includes('집진기') || text.includes('비회설비')
-      ) {
-        return 'EP';
-      }
-      if (oper.includes('탈황') || text.includes('탈황') || text.includes('fgd') || text.includes('석회석') || text.includes('흡수탑')) {
-        return 'FGD';
-      }
-      if (
-        oper.includes('연료설비') || text.includes('연료설비') || text.includes('석탄취급') ||
-        text.includes('chs') || text.includes('coal') ||
-        text.includes('저탄장') || text.includes('저탄') || text.includes('하역') ||
-        text.includes('부두') || text.includes('상탄') || text.includes('벨트') ||
-        text.includes('컨베이어') || text.includes('트리퍼') || text.includes('스태커') ||
-        text.includes('리클레이머') || text.includes('낙탄') ||
-        ((text.includes('silo') || text.includes('사일로')) && (text.includes('coal') || text.includes('석탄') || text.includes('연료')))
-      ) {
-        return 'CHS';
-      }
-      if (
-        oper.includes('수폐수') || oper.includes('수처리') || text.includes('수폐수') ||
-        text.includes('수처리') || text.includes('순수제조') || text.includes('폐수') ||
-        text.includes('cpp')
-      ) {
-        return 'WWT';
-      }
-
-      if (text.includes('sbo') || loc.includes('345kv') || loc.includes('전기실') || loc.includes('ups') || text.includes('gis') || text.includes('switchgear') || text.includes('차단기') || text.includes('변압기') || text.includes('edg') || text.includes('전기팀') || text.includes('스위치야드') || text.includes('전동기')) {
-        return 'SBO';
-      }
-
-      const explicitUnit1 = locUnit1 || title.includes('#1') || title.includes('1호기');
-      const explicitUnit2 = locUnit2 || title.includes('#2') || title.includes('2호기');
-
-      let isUnit1, isUnit2;
-      if (explicitUnit1 || explicitUnit2) {
-        isUnit1 = explicitUnit1;
-        isUnit2 = explicitUnit2 && !explicitUnit1;
-      } else {
-        isUnit1 = oper.includes('발전1파트') || oper.includes('발전3파트');
-        isUnit2 = oper.includes('발전2파트') || oper.includes('발전4파트');
-      }
-
-      const isBoiler = loc.includes('blr') || loc.includes('pulv') || loc.includes('pa fan') || loc.includes('보일러') || title.includes('보일러') || title.includes('미분기') || title.includes('soot blower') || text.includes('pulverizer') || text.includes('통풍') || dept.includes('보일러');
-      const isTurbine = loc.includes('tbn') || loc.includes('msv') || loc.includes('발전기') || loc.includes('cwp') || title.includes('터빈') || title.includes('발전기') || text.includes('crane') || text.includes('급수') || text.includes('복수') || text.includes('cwp') || dept.includes('터빈');
-
-      if (isUnit1) {
-        if (isBoiler && !isTurbine) return 'BTG-B1';
-        if (isTurbine) return 'BTG-T1';
-        return 'CCR';
-      }
-
-      if (isUnit2) {
-        if (isBoiler && !isTurbine) return 'BTG-B2';
-        if (isTurbine) return 'BTG-T2';
-        return 'CCR';
-      }
-
-      if (isBoiler || isTurbine) return 'CCR';
-      return 'ETC';
+      return { part:'ETC', index:-1, unit };
+    }
+    function classifyPart(item) { return classifyPartResult(item).part; }
+    function partSettingsEscape(value) { return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function openPartSettings() {
+      if (!isAdminMode) return;
+      partRulesDraft = JSON.parse(JSON.stringify(partRulesConfig));
+      renderPartRulesEditor();
+      document.getElementById('partSettingsModal').classList.add('open');
+      document.getElementById('partSettingsTitle').setAttribute('tabindex','-1');
+      document.getElementById('partSettingsTitle').focus();
+      previewPartRules();
+    }
+    function closePartSettings() { document.getElementById('partSettingsModal').classList.remove('open'); partRulesDraft=null; }
+    function renderPartRulesEditor() {
+      for(const [key,id] of Object.entries({unit1:'partUnit1',unit2:'partUnit2',oper1:'partOper1',oper2:'partOper2'})) document.getElementById(id).value=partRulesDraft[key];
+      document.getElementById('partRuleEditor').innerHTML = partRulesDraft.rules.map((r,i)=>
+        '<div class="part-rule" data-rule-index="'+i+'"><div class="part-rule-top"><b>'+(i+1)+'</b><label><input type="checkbox" data-field="enabled" '+(r.enabled?'checked':'')+'> 사용</label><select data-field="part" aria-label="분류 부서">'+Object.values(PART_DEFS).map(p=>'<option value="'+p.code+'" '+(p.code===r.part?'selected':'')+'>'+p.label+'</option>').join('')+'</select><button class="btn btn-secondary btn-sm" onclick="movePartRule('+i+',-1)" '+(i===0?'disabled':'')+' aria-label="우선순위 올리기">↑</button><button class="btn btn-secondary btn-sm" onclick="movePartRule('+i+',1)" '+(i===partRulesDraft.rules.length-1?'disabled':'')+' aria-label="우선순위 내리기">↓</button><button class="btn btn-secondary btn-sm" onclick="removePartRule('+i+')">삭제</button></div><div class="part-settings-grid"><label>검색 대상<select data-field="scope">'+Object.entries(PART_RULE_SCOPES).map(([key,label])=>'<option value="'+key+'" '+(key===r.scope?'selected':'')+'>'+label+'</option>').join('')+'</select></label><label>호기 조건<select data-field="unit">'+[['ANY','호기 무관'],['1','1호기'],['2','2호기']].map(([key,label])=>'<option value="'+key+'" '+(key===r.unit?'selected':'')+'>'+label+'</option>').join('')+'</select></label></div><label>포함 키워드 (비우면 해당 검색 대상의 모든 작업과 일치)<textarea data-field="keywords">'+partSettingsEscape(r.keywords)+'</textarea></label></div>'
+      ).join('');
+    }
+    function readPartRulesDraft() {
+      for(const [key,id] of Object.entries({unit1:'partUnit1',unit2:'partUnit2',oper1:'partOper1',oper2:'partOper2'})) partRulesDraft[key]=document.getElementById(id).value;
+      document.querySelectorAll('#partRuleEditor [data-rule-index]').forEach(row=>{
+        const rule=partRulesDraft.rules[Number(row.dataset.ruleIndex)];
+        row.querySelectorAll('[data-field]').forEach(input=>rule[input.dataset.field]=input.type==='checkbox'?input.checked:input.value);
+      });
+      return validatePartRules(partRulesDraft);
+    }
+    function movePartRule(index,delta) { readPartRulesDraft(); const next=index+delta; if(next<0||next>=partRulesDraft.rules.length)return; [partRulesDraft.rules[index],partRulesDraft.rules[next]]=[partRulesDraft.rules[next],partRulesDraft.rules[index]]; renderPartRulesEditor(); previewPartRules(); }
+    function addPartRule() { readPartRulesDraft(); partRulesDraft.rules.push({enabled:true,part:'EP',scope:'equipment',unit:'ANY',keywords:'새 키워드'}); renderPartRulesEditor(); }
+    function removePartRule(index) { if(partRulesDraft.rules.length===1){showToast('규칙은 한 개 이상 필요합니다.');return;} readPartRulesDraft(); partRulesDraft.rules.splice(index,1); renderPartRulesEditor(); previewPartRules(); }
+    function resetPartRulesDraft() { partRulesDraft=defaultPartRules(); renderPartRulesEditor(); previewPartRules(); }
+    function previewPartRules() {
+      try {
+        const config=readPartRulesDraft();
+        const item={equipment:document.getElementById('partTestEquipment').value,workTitle:document.getElementById('partTestTitle').value,operDept:document.getElementById('partTestOper').value,dept:document.getElementById('partTestDept').value};
+        const result=classifyPartResult(item,config);
+        const changes=workItems.filter(x=>!x.partManual && x.part!==classifyPartResult(x,config).part);
+        const counts={}; workItems.forEach(x=>{const p=x.partManual?x.part:classifyPartResult(x,config).part;counts[p]=(counts[p]||0)+1;});
+        document.getElementById('partSettingsPreview').textContent='시험 결과: '+PART_DEFS[result.part].label+' · '+(result.index<0?'일치 규칙 없음':(result.index+1)+'번 규칙')+'\n현재 전체 목록 '+workItems.length+'건 중 '+changes.length+'건 변경 예정 (수동 지정 '+workItems.filter(x=>x.partManual).length+'건 유지)\n'+Object.entries(counts).map(([p,n])=>(PART_DEFS[p]?.label||p)+' '+n+'건').join(' / ')+(changes.length?'\n'+changes.slice(0,8).map(x=>'['+x.permitNo+'] '+(PART_DEFS[x.part]?.label||x.part)+' → '+PART_DEFS[classifyPartResult(x,config).part].label+' · '+(x.equipment||x.workTitle||'')).join('\n'):'');
+      } catch(e) { document.getElementById('partSettingsPreview').textContent=e.message; }
+    }
+    function savePartRules() {
+      if (!isAdminMode) return;
+      try {
+        const config=readPartRulesDraft();
+        localStorage.setItem(PART_RULES_KEY,JSON.stringify(config));
+        partRulesConfig=JSON.parse(JSON.stringify(config));
+      } catch(e) { alert('설정을 저장하지 못했습니다: '+e.message); return; }
+      let changed=0;
+      workItems.forEach(item=>{if(item.partManual)return; const part=classifyPart(item); if(item.part!==part)changed++; item.part=part;});
+      // 공유 데이터 원본은 그대로 두고 이 브라우저의 분류 표시만 갱신한다.
+      updateKPICounters(); renderFilteredList(); closePartSettings();
+      showToast('부서 필터 저장 완료 · '+changed+'건 재분류');
     }
 
     /* ==========================================================================
-       2. REALISTIC COMPREHENSIVE DATASET (인트라넷 상세 화면 100% 실제 데이터 반영)
-       ========================================================================== */
-    const REAL_SCREENSHOT_DATA = [
-      {
-        permitNo: '121729',
-        status: '발행완료',
-        orderNo: '119201',
-        workTitle: '#1 HH-LCV-12A(HP HTR8A -> HP HTR7A) Cascade Line Drain Valve 용접부에서 Steam 누설 발생',
-        workContent: '#1 HH-LCV-12A(HP HTR8A -> HP HTR7A) Cascade Line Drain Valve 용접부에서 Steam 누설 발생',
-        equipment: '1호기 Operating Floor HP HTR-7A 부근',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'EES 터빈팀',
-        operDept: 'EES 발전2파트',
-        issuer: '이병영',
-        leader: '이병영',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'EES 터빈팀',
-        manager: '이병영',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['화기'],
-        systemCategory: 'EES 발전2파트 > 1호기 Operating Floor HP HTR-7A 부근',
-        part: 'BTG-T1'
-      },
-      {
-        permitNo: '121524',
-        status: '발행완료',
-        orderNo: '114326',
-        workTitle: '#1,2 BAS BA 반출 작업을 위한 설비 운전 (\'26.04~12)',
-        workContent: '#1,2 BAS BA 반출 작업을 위한 설비 운전 (\'26.04~12)',
-        equipment: '#1,2  BOTTOM ASH SILO',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'KEPS 환경운영팀',
-        operDept: '회처리설비운전',
-        issuer: '김상용',
-        leader: '김상용',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'KEPS 환경운영팀',
-        manager: '김상용',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: '회처리설비운전 > #1,2  BOTTOM ASH SILO',
-        part: 'EP'
-      },
-      {
-        permitNo: '121712',
-        status: '발행완료',
-        orderNo: '119101',
-        workTitle: '\'26년 21항차 연료탄 하역작업',
-        workContent: '\'26년 21항차 연료탄 하역작업',
-        equipment: '하역부두',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: '세방',
-        operDept: '세방',
-        issuer: '세방',
-        leader: '세방',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: '세방',
-        manager: '세방',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: '세방 > 하역부두',
-        part: 'CHS'
-      },
-      {
-        permitNo: '121090',
-        status: '발행완료',
-        orderNo: '116732',
-        workTitle: '\'26년 상탄라인 낙탄처리 운영 3/4분기',
-        workContent: '\'26년 상탄라인 낙탄처리 운영 3/4분기',
-        equipment: 'CHS 부지내 상탄라인',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'KEPS 연료운영팀',
-        operDept: 'KEPS 연료운영팀',
-        issuer: '김태근',
-        leader: '김태근',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'KEPS 연료운영팀',
-        manager: '김태근',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: 'KEPS 연료운영팀 > CHS 부지내 상탄라인',
-        part: 'CHS'
-      },
-      {
-        permitNo: '121414',
-        status: '발행완료',
-        orderNo: '117754',
-        workTitle: '\'26년 중장비(로더) 운영 3/4분기',
-        workContent: '\'26년 중장비(로더) 운영 3/4분기',
-        equipment: '저탄장/비회설비/탈황설비/보일러',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'KEPS 연료운영팀',
-        operDept: 'KEPS 연료운영팀',
-        issuer: '이상복',
-        leader: '이상복',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'KEPS 연료운영팀',
-        manager: '이상복',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: 'KEPS 연료운영팀 > 저탄장/비회설비/탈황설비/보일러',
-        part: 'CHS'
-      },
-      {
-        permitNo: '121432',
-        status: '발행완료',
-        orderNo: '117756',
-        workTitle: '\'26년 중장비(습식 진공차) 운영 3/4분기',
-        workContent: '\'26년 중장비(습식 진공차) 운영 3/4분기',
-        equipment: '저탄장/비회설비/탈황설비/보일러/항만',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'KEPS 연료운영팀',
-        operDept: 'KEPS 연료운영팀',
-        issuer: '이상복',
-        leader: '이상복',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'KEPS 연료운영팀',
-        manager: '이상복',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: 'KEPS 연료운영팀 > 저탄장/비회설비/탈황설비/보일러/항만',
-        part: 'CHS'
-      },
-      {
-        permitNo: '121092',
-        status: '발행완료',
-        orderNo: '116731',
-        workTitle: '\'26년 하역라인 낙탄처리 운영 3/4분기',
-        workContent: '\'26년 하역라인 낙탄처리 운영 3/4분기',
-        equipment: 'CHS 부지내 하역라인',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'KEPS 연료운영팀',
-        operDept: 'KEPS 연료운영팀',
-        issuer: '김태근',
-        leader: '김태근',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'KEPS 연료운영팀',
-        manager: '김태근',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: 'KEPS 연료운영팀 > CHS 부지내 하역라인',
-        part: 'CHS'
-      },
-      {
-        permitNo: '121738',
-        status: '발행완료',
-        orderNo: '119208',
-        workTitle: '1호기 및 2호기 수소 입고 작업',
-        workContent: '1호기 및 2호기 수소 입고 작업',
-        equipment: '2호기 수소 저장고',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'EES 발전운영팀',
-        operDept: 'EES 발전3파트',
-        issuer: '이주형',
-        leader: '이주형',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'EES 발전운영팀',
-        manager: '이주형',
-        isLoto: false,
-        isPsm: true,
-        riskTags: ['일반'],
-        systemCategory: 'EES 발전3파트 > 2호기 수소 저장고',
-        part: 'BTG-T1'
-      },
-      {
-        permitNo: '121746',
-        status: '발행완료',
-        orderNo: '118625',
-        workTitle: '2호기 법정검사 관련 터빈설비 비계 설치 및 해체 공사',
-        workContent: '2호기 법정검사 관련 터빈설비 비계 설치 및 해체 공사',
-        equipment: 'TBN BLDG',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'EES 터빈팀',
-        operDept: 'EES 발전4파트',
-        issuer: '이병영',
-        leader: '이병영',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'EES 터빈팀',
-        manager: '이병영',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['고소'],
-        systemCategory: 'EES 발전4파트 > TBN BLDG',
-        part: 'BTG-T2'
-      },
-      {
-        permitNo: '121516',
-        status: '발행완료',
-        orderNo: '114325',
-        workTitle: 'FAS-A/B FA 반출 작업을 위한 Valve 조작 [\'26.04~12]',
-        workContent: 'FAS-A/B FA 반출 작업을 위한 Valve 조작 [\'26.04~12]',
-        equipment: '#1,2 FLY ASH SILO A001',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'KEPS 환경운영팀',
-        operDept: '회처리설비운전',
-        issuer: '김상용',
-        leader: '김상용',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'KEPS 환경운영팀',
-        manager: '김상용',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: '회처리설비운전 > #1,2 FLY ASH SILO A001',
-        part: 'EP'
-      },
-      {
-        permitNo: '121704',
-        status: '작성중',
-        orderNo: '118364',
-        workTitle: 'FGD #1 Absorber Filtrate Water Inlet Valve [1AX-FV-01] 유량 저하 현상 발생(주말작업)',
-        workContent: 'FGD #1 Absorber Filtrate Water Inlet Valve [1AX-FV-01] 유량 저하 현상 발생(주말작업)',
-        equipment: '#1 Absorber',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'HPS 연료탈황팀',
-        operDept: '탈황설비운전 3과',
-        issuer: '이성훈',
-        leader: '이성훈',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'HPS 연료탈황팀',
-        manager: '이성훈',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: '탈황설비운전 3과 > #1 Absorber',
-        part: 'FGD'
-      },
-      {
-        permitNo: '115864',
-        status: '발행완료',
-        orderNo: '115725',
-        workTitle: 'FGD #2 Mist Eliminator Washing Water Spray Valve 불량 개소 점검 필요',
-        workContent: 'FGD #2 Mist Eliminator Washing Water Spray Valve 불량 개소 점검 필요',
-        equipment: '#2 ABSORBER & GGH REHEATER AREA EL.+114,670',
-        startDate: '2026-07-06',
-        endDate: '2026-10-31',
-        workTime: '08:00 ~ 17:00',
-        dept: 'HPS 계측제어팀',
-        operDept: '탈황설비운전 1과',
-        issuer: '황현준',
-        leader: '황현준',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'HPS 계측제어팀',
-        manager: '황현준',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: '탈황설비운전 1과 > #2 ABSORBER & GGH REHEATER AREA EL.+114,670',
-        part: 'EP'
-      },
-      {
-        permitNo: '121699',
-        status: '작성중',
-        orderNo: '119153',
-        workTitle: 'FGD #공용 Limestone Slurry Return Line Bypass Valve 고착 해소(1호기 정지 작업)',
-        workContent: 'FGD #공용 Limestone Slurry Return Line Bypass Valve 고착 해소(1호기 정지 작업)',
-        equipment: 'Limestone Slurry Tank 상부',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'HPS 연료탈황팀',
-        operDept: '탈황설비운전',
-        issuer: '서장원',
-        leader: '서장원',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'HPS 연료탈황팀',
-        manager: '서장원',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: '탈황설비운전 > Limestone Slurry Tank 상부',
-        part: 'FGD'
-      },
-      {
-        permitNo: '121648',
-        status: '발행완료',
-        orderNo: '118472',
-        workTitle: '[별도공사] #2 보일러 수압시험 대비 비계 설치/해체 공사',
-        workContent: '[별도공사] #2 보일러 수압시험 대비 비계 설치/해체 공사',
-        equipment: '#2 보일러',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: 'EES 보일러팀',
-        operDept: 'EES 발전1파트',
-        issuer: '정승훈',
-        leader: '정승훈',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: 'EES 보일러팀',
-        manager: '정승훈',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['고소'],
-        systemCategory: 'EES 발전1파트 > #2 보일러',
-        part: 'BTG-B2'
-      },
-      {
-        permitNo: '121650',
-        status: '발행완료',
-        orderNo: '118027',
-        workTitle: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
-        workContent: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
-        equipment: 'STT',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: '플랜텍',
-        operDept: '연료설비운전 1과',
-        issuer: '플랜텍',
-        leader: '플랜텍',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: '플랜텍',
-        manager: '플랜텍',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: '연료설비운전 1과 > STT',
-        part: 'CHS'
-      },
-      {
-        permitNo: '121649',
-        status: '발행완료',
-        orderNo: '118027',
-        workTitle: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
-        workContent: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
-        equipment: 'BBB,SCB',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: '플랜텍',
-        operDept: '연료설비운전 1과',
-        issuer: '플랜텍',
-        leader: '플랜텍',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: '플랜텍',
-        manager: '플랜텍',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['화기'],
-        systemCategory: '연료설비운전 1과 > BBB,SCB',
-        part: 'CHS'
-      },
-      {
-        permitNo: '121646',
-        status: '발행완료',
-        orderNo: '118027',
-        workTitle: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
-        workContent: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
-        equipment: 'TT-05,06,07',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: '플랜텍',
-        operDept: '연료설비운전 1과',
-        issuer: '플랜텍',
-        leader: '플랜텍',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: '플랜텍',
-        manager: '플랜텍',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['화기'],
-        systemCategory: '연료설비운전 1과 > TT-05,06,07',
-        part: 'CHS'
-      },
-      {
-        permitNo: '121643',
-        status: '발행완료',
-        orderNo: '118027',
-        workTitle: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
-        workContent: '[추가공사] 석탄이송설비 습식공사(2단계) 시설(토건)작업',
-        equipment: 'S.P#1',
-        startDate: '2026-09-19',
-        endDate: '2026-09-19',
-        workTime: '08:00 ~ 17:00',
-        dept: '플랜텍',
-        operDept: '연료설비운전 1과',
-        issuer: '플랜텍',
-        leader: '플랜텍',
-        extraWorkers: 0,
-        totalWorkers: 1,
-        contractor: '플랜텍',
-        manager: '플랜텍',
-        isLoto: false,
-        isPsm: false,
-        riskTags: ['일반'],
-        systemCategory: '연료설비운전 1과 > S.P#1',
-        part: 'CHS'
-      }
-    ];
-
-    /* ==========================================================================
-       3. APPLICATION STATE & INITIALIZATION
+       2. APPLICATION STATE
        ========================================================================== */
     let workItems = [];
     let isAdminMode = false;
     let ptwLocalDraft = false;
     let ptwApplyingRemote = false;
+    let ptwPublishBusy = false;
+    let ptwSyncBusy = false;
+    let ptwPublishError = '';
     const ADMIN_PASSWORD = 'peace';
     function getLocalDateString(offsetDays = 0) {
       const date = new Date();
@@ -2300,10 +1904,9 @@
       try { localStorage.removeItem('sbo_last_sync_time'); } catch(e) {}
 
       const savedTheme = localStorage.getItem(THEME_KEY);
-      if (savedTheme === 'light') {
-        document.body.classList.add('light-theme');
-        document.getElementById('themeToggleBtn').textContent = '☀️';
-      }
+      const isLightTheme = savedTheme !== 'dark';
+      document.body.classList.toggle('light-theme', isLightTheme);
+      document.getElementById('themeToggleBtn').textContent = isLightTheme ? '☀️' : '🌙';
 
       document.getElementById('targetDateInput').value = currentTargetDate;
       updateDatePresetButtonLabels();
@@ -2373,7 +1976,7 @@
         if (ptwLocalDraft && !confirm('게시되지 않은 로컬 변경사항이 있습니다. 관리자 모드를 종료하시겠습니까?')) return;
         isAdminMode = false;
         closeReportModal();
-        if (window.ptwFirebase) window.ptwFirebase.logout();
+        closePartSettings();
         showToast('🔒 관리자 모드가 비활성화되었습니다.');
       }
       applyAdminModeUI();
@@ -2382,10 +1985,12 @@
     function applyAdminModeUI() {
       const importBtn = document.getElementById('importDataBtn');
       const reclassBtn = document.getElementById('reclassifyBtn');
+      const settingsBtn = document.getElementById('partSettingsBtn');
       const syncBadge = document.getElementById('realtimeSyncBadge');
       const adminBtn = document.getElementById('adminModeBtn');
       if (importBtn) importBtn.style.display = isAdminMode ? '' : 'none';
       if (reclassBtn) reclassBtn.style.display = isAdminMode ? '' : 'none';
+      if (settingsBtn) settingsBtn.style.display = isAdminMode ? '' : 'none';
       if (syncBadge) syncBadge.style.display = isAdminMode ? '' : 'none';
       const reportBtn = document.getElementById('ptwReportBtn');
       if (reportBtn) reportBtn.style.display = isAdminMode ? '' : 'none';
@@ -2406,10 +2011,18 @@
       const btn=document.getElementById('ptwPublishBtn');
       const state=document.getElementById('ptwPublishState');
       const signed=!!(window.ptwFirebase && window.ptwFirebase.isAdmin());
-      if(btn) btn.disabled=!isAdminMode || !signed || !workItems.length;
-      if(state) state.textContent=signed
-        ? `${ptwLocalDraft ? '로컬 변경사항 미게시 · ' : ''}현재 ${workItems.length}건 · 게시 버튼을 누르면 공유됩니다.`
-        : 'Firebase 관리자 계정으로 로그인해야 게시할 수 있습니다.';
+      const restoring=!!(window.ptwFirebase && !window.ptwFirebase.isReady());
+      const fields=document.getElementById('ptwLoginFields');
+      const logoutBtn=document.getElementById('ptwLogoutBtn');
+      const summary=document.getElementById('ptwAuthSummary');
+      if(fields)fields.style.display=signed?'none':'flex';
+      if(logoutBtn){logoutBtn.style.display=signed?'':'none';logoutBtn.disabled=ptwPublishBusy||ptwSyncBusy;}
+      if(summary)summary.textContent=restoring?'Firebase 로그인 복원 중…':signed?`로그인 유지 중 · ${window.ptwFirebase.email()}`:'Firebase 로그인이 필요합니다.';
+      if(btn) btn.disabled=restoring || ptwPublishBusy || ptwSyncBusy || !isAdminMode || !signed || !workItems.length;
+      if(state) state.textContent=ptwPublishBusy ? '공유 데이터 게시 중…'
+        : ptwPublishError ? ptwPublishError
+        : signed ? `${ptwLocalDraft ? '로컬 변경사항 미게시 · ' : ''}현재 ${workItems.length}건 · 수동 동기화 시 자동 공유 게시됩니다.`
+        : 'Firebase 관리자 로그인 후 수동 동기화를 누르면 자동 공유 게시됩니다.';
     }
     async function ptwFirebaseLogin() {
       if(!isAdminMode) return;
@@ -2418,26 +2031,48 @@
       const pw=input.value;input.value='';
       if(!email||!pw){ alert('이메일과 비밀번호를 입력하세요.');return; }
       if(!window.ptwFirebase){alert('Firebase가 준비되지 않았습니다. 연결 상태를 확인하세요.');return;}
-      try {await window.ptwFirebase.login(email,pw);showToast('Firebase 관리자 로그인 완료');}
+      try {await window.ptwFirebase.login(email,pw);ptwPublishError='';showToast('Firebase 관리자 로그인 완료 · 수동 동기화 시 자동 게시');}
       catch(err){alert('Firebase 로그인 실패: '+(err.code||err.message||String(err)));}
       updateCloudPublishState();
     }
-    async function ptwPublishNow() {
-      if(!isAdminMode||!window.ptwFirebase||!window.ptwFirebase.isAdmin()) {alert('Firebase 관리자 로그인이 필요합니다.');return;}
-      if(!workItems.length){alert('게시할 데이터가 없습니다.');return;}
+    async function ptwFirebaseLogout() {
+      if(!isAdminMode||!window.ptwFirebase)return;
+      if(ptwPublishBusy||ptwSyncBusy){showToast('동기화·게시가 끝난 뒤 로그아웃해 주세요.');return;}
+      try {
+        await window.ptwFirebase.logout();
+        ptwPublishError='';
+        showToast('Firebase 로그아웃 완료');
+      } catch(err){showToast('로그아웃 실패: '+(err.message||String(err)));}
+      updateCloudPublishState();
+    }
+    async function ptwPublishNow({ automatic = false } = {}) {
+      if(window.ptwFirebase)await window.ptwFirebase.ready;
+      if(ptwPublishBusy)return false;
+      const fail = message => {
+        ptwPublishError=message;
+        updateCloudPublishState();
+        if(automatic)showToast(message);else alert(message);
+        return false;
+      };
+      if(!isAdminMode||!window.ptwFirebase||!window.ptwFirebase.isAdmin()) return fail('미게시 · Firebase 관리자 로그인 후 다시 수동 동기화를 눌러 주세요.');
+      if(!workItems.length)return fail('게시할 데이터가 없습니다.');
       const items=JSON.parse(JSON.stringify(workItems));
-      if(items.some(x=>!x||typeof x!=='object'||!x.permitNo)){alert('허가번호가 없는 항목이 있어 게시할 수 없습니다.');return;}
+      if(items.some(x=>!x||typeof x!=='object'||!x.permitNo))return fail('미게시 · 허가번호가 없는 항목이 있어 게시할 수 없습니다.');
       const bytes=new Blob([JSON.stringify({workItems:items})]).size;
-      if(bytes>850000){alert('Firestore 단일 문서에 담기에는 데이터가 큽니다.');return;}
-      if(!confirm(`${items.length}건을 인터넷에 공개 게시하시겠습니까? 작업자 이름 등 포함된 필드도 공개됩니다.`))return;
-      const btn=document.getElementById('ptwPublishBtn');if(btn)btn.disabled=true;
+      if(bytes>850000)return fail('미게시 · Firestore 단일 문서에 담기에는 데이터가 큽니다.');
+      if(!automatic&&!confirm(`${items.length}건을 인터넷에 공개 게시하시겠습니까? 작업자 이름 등 포함된 필드도 공개됩니다.`))return false;
+      ptwPublishBusy=true;ptwPublishError='';updateCloudPublishState();
       try {
         await window.ptwFirebase.publish(items);
-        ptwLocalDraft=false;
-        applyPublishedSnapshot(items,{toDate:()=>new Date()});
-        showToast(`☁️ ${items.length}건 공유 게시 완료`);
-      } catch(err){alert('게시 실패: '+(err.code||err.message||String(err)));}
-      finally {updateCloudPublishState();}
+        // 게시 중 새로 수정한 데이터가 있으면 미게시 상태와 로컬 내용을 유지한다.
+        if(JSON.stringify(workItems)===JSON.stringify(items)) {
+          ptwLocalDraft=false;
+          applyPublishedSnapshot(items,{toDate:()=>new Date()});
+        }
+        showToast(`☁️ ${items.length}건 ${automatic?'동기화 및 자동 공유 게시':'공유 게시'} 완료`);
+        return true;
+      } catch(err){return fail('공유 게시 실패 · 로컬 데이터 유지: '+(err.code||err.message||String(err)));}
+      finally {ptwPublishBusy=false;updateCloudPublishState();}
     }
     function loadLocalDraftForAdmin(){
       if(!isAdminMode)return;
@@ -2445,7 +2080,7 @@
       catch(err){alert('로컬 데이터 오류: '+err.message);return;}
       if(!Array.isArray(items)||!items.length){alert('저장된 로컬 취합 데이터가 없습니다. JSON 백업을 업로드하세요.');return;}
       if(!confirm(`로컬 데이터 ${items.length}건을 불러오겠습니까? Firebase에는 게시되지 않습니다.`))return;
-      workItems=items;ptwLocalDraft=true;
+      workItems=items;workItems.forEach(item=>{if(!item.partManual)item.part=classifyPart(item);});ptwLocalDraft=true;
       updateKPICounters();renderFilteredList();updateCloudPublishState();
       showToast(`로컬 ${items.length}건 불러옴 · 미게시`);
     }
@@ -2454,7 +2089,7 @@
       if(!Array.isArray(items))return;
       workItems=items.map(x=>{
         const copy={...x};
-        if(!copy.part)copy.part=classifyPart(copy);
+        if(!copy.partManual)copy.part=classifyPart(copy);
         if(copy.totalWorkers===undefined)copy.totalWorkers=Math.max(1,Number(copy.extraWorkers||0)+1);
         return copy;
       });
@@ -2895,7 +2530,7 @@
           </td>
           <td style="text-align: center;">
             <span class="worker-pill" title="${workerDisplay} (총 ${totalW}명)">
-              👥 <b>${totalW}명</b>
+              <span aria-hidden="true" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif;">${Number(totalW) > 1 ? '👷‍♂️👨‍🔧' : '👷‍♂️'}</span> <b class="worker-count">${totalW}명</b>
             </span>
             <div style="font-size:11px; color:var(--text-dim); margin-top:2px; text-align: center;">${workerDisplay}</div>
           </td>
@@ -2918,7 +2553,7 @@
           </td>
           <td style="text-align: center; white-space: nowrap;">${riskHtml}</td>
           <td style="text-align: center; font-size:11.5px; font-family:'JetBrains Mono'; color:var(--text-muted); white-space: nowrap;">
-            ${item.startDate} ~ ${item.endDate}
+            ${item.startDate === item.endDate ? item.startDate : `${item.startDate} ~ ${item.endDate}`}
           </td>
           <td style="text-align: center;">
             <a href="${getSafetyDetailUrl(item.permitNo)}" onclick="openSafetyDetail('${item.permitNo}', event)" target="_blank" style="color:#60a5fa; text-decoration:none; font-weight:700; font-size:13px;" title="허가번호 [${item.permitNo}] 상세 열기">↗</a>
@@ -2957,7 +2592,7 @@
                 <div style="font-size:11.5px;color:#38bdf8;margin-bottom:6px;">📍 ${item.equipment}</div>
                 
                 <div style="display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap;">
-                  <span class="worker-pill">👥 ${item.totalWorkers || 1}명 (${item.leader || '작업자'}${item.extraWorkers ? ' 외 ' + item.extraWorkers + '명' : ''})</span>
+                  <span class="worker-pill"><span aria-hidden="true" style="font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif;">${Number(item.totalWorkers || 1) > 1 ? '👷‍♂️👨‍🔧' : '👷‍♂️'}</span> <b class="worker-count">${item.totalWorkers || 1}명</b> (${item.leader || '작업자'}${item.extraWorkers ? ' 외 ' + item.extraWorkers + '명' : ''})</span>
                   ${item.isLoto ? '<span class="badge-loto-yes">🔒 LOTO</span>' : ''}
                   ${item.isPsm ? '<span class="badge-psm-yes">⚠️ PSM</span>' : ''}
                 </div>
@@ -3136,250 +2771,32 @@
 
     function getSafetyDetailUrl(permitNo) {
       const no = String(permitNo || '').trim();
-      const params = new URLSearchParams();
-      params.set("strutsAction", "2001");
-      params.set("filterMap.KEY_NO", no);
-      params.set("detailMap.KEY_NO", no);
-      params.set("detailMap.PTW_NO", no);
-      params.set("isDecoratorName", "popupPage");
-      params.set("pageNum", "1");
-      params.set("rowNum", "1");
-      params.set("totalCount", "0");
-      return `http://220.70.136.113/newWoSafetyMstrDetail.do?${params.toString()}`;
+      if (!no) return 'http://220.70.136.113/newWoSafetyMstrList.do';
+      // 수집기의 상세 조회와 같은 조회 액션/허가서 키를 사용한다.
+      const params = new URLSearchParams({
+        strutsAction:'1000',
+        pageNum:'1', rowNum:'1', totalCount:'0',
+        isDecoratorName:'', extFilterNames:'', treeConfig:'', jsonObjGuid:'',
+        sheetPageSize:'50', pagingSheetConfig:'',
+        'filterMap.KEY_NO':no,
+        'filterMap.KEY_ITEM_NO':'', 'filterMap.IS_COUNT':'0',
+        'filterMap.POP_UP_YN':'', 'filterMap.myJobPopUp':'',
+        'filterMap.REQUEST_DATE_FROM':'', 'filterMap.REQUEST_DATE_TO':''
+      });
+      return 'http://220.70.136.113/newWoSafetyMstrDetail.do?' + params.toString();
     }
-
-    // 인트라넷 newWoSafetyMstrDetail.do가 요구하는 86개 전체 정밀 파라미터 템플릿
-    const INTRANET_DETAIL_BASE_FIELDS = {
-      "detailMap.IS_CURRENT_AUTHO": "",
-      "detailMap.EQUIP_NO": "142353",
-      "detailMap.WO_GRADE": "C",
-      "detailMap.AUTHO_BY14_SAFETY": "N",
-      "detailMap.AUTHO_BY14_BAL": "N",
-      "detailMap.AUTHO_BY_A010": "N",
-      "detailMap.CONFIRM_NO": "",
-      "detailMap.SHEET_LIST": "highSheet",
-      "detailMap.WEEK_YN": "N",
-      "detailMap.PSM_YN": "",
-      "detailMap.WO_STATUS": "S220",
-      "detailMap.REQ_STATUS": "S250",
-      "detailMap.ONLY_FILE": "",
-      "detailMap.ZPLAN_START_DATE": "2026-09-19",
-      "detailMap.HIST_END_DATE": "2026-09-19",
-      "detailMap.ZPLAN_WORK_DAY": "",
-      "detailMap.ZPLAN_CNT": "0",
-      "detailMap.IS_QS_FIRE": "N",
-      "detailMap.IS_QS_NARROW": "N",
-      "detailMap.IS_QS_ELECTRICITY": "N",
-      "detailMap.IS_QS_EXCAVATION": "N",
-      "detailMap.IS_QS_RADIATION": "N",
-      "detailMap.IS_QS_HIGH": "Y",
-      "detailMap.IS_QS_HEAVY": "N",
-      "detailMap.IS_QS_DIVE": "N",
-      "detailMap.IS_QS_PSM": "N",
-      "detailMap.IS_QS_ETC": "N",
-      "detailMap.IS_QS_ETC2": "Y",
-      "detailMap.IS_QS_LOTO": "",
-      "detailMap.IS_QS_LOTO_N": "",
-      "strutsAction": "2000",
-      "pageNum": "1",
-      "rowNum": "11",
-      "totalCount": "0",
-      "isDecoratorName": "popupPage",
-      "extFilterNames": "",
-      "treeConfig": '{"rootName":"기능위치","rootId":"div-node-0","treeType":"LOCATION","beforSelect":"","orgJson":[{"P_KEY":"0","KEY":"100002","CHILD":"8","DESCRIPTION":"제1호기","HOKI":"1100","HOKI_DESC":"제1호기","ITEM_NO":"100000000","ORG_DESCRIPTION":"제1호기","EQ_STATUS":"R","ITEM_LEVEL_DESC":"","EQ_CATEGORY":"","EQ_CATEGORY_LEVEL_DESC":"","EQ_TYPE":"","EQ_SECTION":"","EQ_LOCATION":"","IS_WARRANTY":"","QUALITY_GRADE":"","DEPT_NO":"","OPER_DEPT_NO":"","ASSET_NO":"","TAG_NO":"","PNID_NO":"","REMARK":"","EQ_ORG_NO":"2000","SHOW_LEVEL":"0"},{"P_KEY":"0","KEY":"101124","CHILD":"8","DESCRIPTION":"제2호기","HOKI":"1200","HOKI_DESC":"제2호기","ITEM_NO":"200000000","ORG_DESCRIPTION":"제2호기","EQ_STATUS":"R","ITEM_LEVEL_DESC":"","EQ_CATEGORY":"","EQ_CATEGORY_LEVEL_DESC":"","EQ_TYPE":"","EQ_SECTION":"","EQ_LOCATION":"","IS_WARRANTY":"","QUALITY_GRADE":"","DEPT_NO":"","OPER_DEPT_NO":"","ASSET_NO":"","TAG_NO":"","PNID_NO":"","REMARK":"","EQ_ORG_NO":"2000","SHOW_LEVEL":"0"},{"P_KEY":"0","KEY":"102246","CHILD":"9","DESCRIPTION":"공용설비(#1,2호기)","HOKI":"1400","HOKI_DESC":"공용설비(#1,2호기)","ITEM_NO":"300000000","ORG_DESCRIPTION":"공용설비(#1,2호기)","EQ_STATUS":"R","ITEM_LEVEL_DESC":"","EQ_CATEGORY":"","EQ_CATEGORY_LEVEL_DESC":"","EQ_TYPE":"","EQ_SECTION":"","EQ_LOCATION":"","IS_WARRANTY":"","QUALITY_GRADE":"","DEPT_NO":"","OPER_DEPT_NO":"","ASSET_NO":"","TAG_NO":"","PNID_NO":"","REMARK":"","EQ_ORG_NO":"2000","SHOW_LEVEL":"0"},{"P_KEY":"0","KEY":"103701","CHILD":"4","DESCRIPTION":"소수력(#1,2)","HOKI":"1300","HOKI_DESC":"소수력(#1,2)","ITEM_NO":"400000000","ORG_DESCRIPTION":"소수력(#1,2)","EQ_STATUS":"R","ITEM_LEVEL_DESC":"","EQ_CATEGORY":"","EQ_CATEGORY_LEVEL_DESC":"","EQ_TYPE":"","EQ_SECTION":"","EQ_LOCATION":"","IS_WARRANTY":"","QUALITY_GRADE":"","DEPT_NO":"","OPER_DEPT_NO":"","ASSET_NO":"","TAG_NO":"","PNID_NO":"","REMARK":"","EQ_ORG_NO":"2000","SHOW_LEVEL":"0"}],"dragAndDrop":false}',
-      "jsonObjGuid": "",
-      "sheetPageSize": "50",
-      "pagingSheetConfig": '{"newWoSafetyMstrList":{"pageNum":"1","sheetPageSize":"50"}}',
-      "filterMap.TREETYPE": "",
-      "filterMap.SEARCHNODE": "",
-      "filterMap.KEY_NO": "",
-      "filterMap.KEY_ITEM_NO": "",
-      "filterMap.IS_COUNT": "0",
-      "filterMap.POP_UP_YN": "",
-      "filterMap.myJobPopUp": "",
-      "filterMap.RESULT_MM_TYPE": "",
-      "filterMap.RESULT_MM": "",
-      "filterMap.PLAN_BY": "",
-      "filterMap.PLAN_BY_NM": "",
-      "filterMap.DEPT_NO": "",
-      "filterMap.DEPT_NAME": "",
-      "filterMap.WORK_DEPT_NO": "",
-      "filterMap.WORK_DEPT_NAME": "",
-      "filterMap.WO_NO": "",
-      "filterMap.WO_NO_DESC": "",
-      "filterMap.REQUEST_DATE_FROM": "",
-      "filterMap.REQUEST_DATE_TO": "",
-      "filterMap.REQ_STATUS": "",
-      "filterMap.REQ_NO": "",
-      "filterMap.LOCATION": "",
-      "filterMap.LOCATION_DESC": "",
-      "filterMap.WO_CATEGORY": "",
-      "filterMap.QUALITY_GRADE": "",
-      "filterMap.WO_STATUS": "",
-      "filterMap.EQ_TYPE": "",
-      "filterMap.EQ_TYPE_DESC": "",
-      "filterMap.EQ_SECTION": "",
-      "filterMap.WO_GRADE": "",
-      "filterMap.OPER_DEPT_NO": "",
-      "filterMap.OPER_DEPT_DESC": "",
-      "filterMap.WO_TYPE": "",
-      "filterMap.WORKABLE_CONDITION": "",
-      "filterMap.SAFETY_BY": "",
-      "filterMap.SAFETY_BY_NM": "",
-      "filterMap.WORK_START_DATE": "",
-      "filterMap.WORK_END_DATE": "",
-      "filterMap.WO_BY": "",
-      "filterMap.WO_BY_NM": "",
-      "PDS_IMAGE_TYPE": "SAFETY",
-      "keyValue": "",
-      "ubi_reportName": "",
-      "ubi_parameters": "",
-      "ubi_zoom": "120",
-      "ubi_report_cnt": "1"
-    };
 
     function openSafetyDetail(permitNo, event) {
-      if (event) {
-        try { event.preventDefault(); } catch(e) {}
-      }
+      if (event) event.preventDefault();
       const no = String(permitNo || '').trim();
-      if (!no) {
-        window.open("http://220.70.136.113/newWoSafetyMstrList.do", "_blank");
-        return;
-      }
-
-      // 1. 팝업 창을 먼저 생성하여 window.open 팝업 상태 보존
+      const url = getSafetyDetailUrl(no);
       const topPos = Math.max(0, (window.screen.height - 900) / 2);
       const leftPos = Math.max(0, (window.screen.width - 1300) / 2);
-      const popName = "safetyDetailPop_" + no;
-      window.open("", popName, `width=1300,height=900,top=${topPos},left=${leftPos},toolbar=no,menubar=no,scrollbars=yes,resizable=yes,status=no`);
-
-      // 2. 86개 전체 파라미터를 담은 정밀 폼 생성 후 팝업 창 타깃으로 POST 전송
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = "http://220.70.136.113/newWoSafetyMstrDetail.do";
-      form.target = popName;
-
-      const item = workItems.find(i => i.permitNo === no) || {};
-
-      const fields = Object.assign({}, INTRANET_DETAIL_BASE_FIELDS);
-      fields["strutsAction"] = "2001";
-      
-      // Keys & No
-      fields["filterMap.KEY_NO"] = no;
-      fields["filterMap.PTW_NO"] = no;
-      fields["filterMap.REQ_NO"] = no;
-      fields["filterMap.CONFIRM_NO"] = no;
-      fields["detailMap.KEY_NO"] = no;
-      fields["detailMap.PTW_NO"] = no;
-      fields["detailMap.SAFETY_NO"] = no;
-      fields["detailMap.WO_SAFETY_NO"] = no;
-      fields["detailMap.CONFIRM_NO"] = no;
-      fields["KEY_NO"] = no;
-      fields["PTW_NO"] = no;
-
-      // 작업 정보 상세 폼 바인딩 (filterMap과 detailMap 양쪽 동시 바인딩)
-      if (item.workTitle) {
-        fields["detailMap.WO_NO"] = item.orderNo || no;
-        fields["filterMap.WO_NO"] = item.orderNo || no;
-        fields["detailMap.WO_NO_DESC"] = item.workTitle;
-        fields["filterMap.WO_NO_DESC"] = item.workTitle;
-        fields["detailMap.WORK_TITLE"] = item.workTitle;
-        fields["detailMap.TITLE"] = item.workTitle;
-        fields["detailMap.WORK_CONTENT"] = item.workTitle;
-        fields["detailMap.WORK_DESC"] = item.workTitle;
-      }
-      if (item.equipment) {
-        fields["detailMap.EQUIP_NO"] = item.equipment;
-        fields["filterMap.LOCATION"] = item.equipment;
-        fields["detailMap.EQUIP_DESC"] = item.equipment;
-        fields["detailMap.LOCATION_DESC"] = item.equipment;
-        fields["filterMap.LOCATION_DESC"] = item.equipment;
-        fields["detailMap.LOCATION"] = item.equipment;
-      }
-      if (item.startDate) {
-        fields["detailMap.ZPLAN_START_DATE"] = item.startDate;
-        fields["filterMap.WORK_START_DATE"] = item.startDate;
-        fields["detailMap.WORK_START_DATE"] = item.startDate;
-        fields["filterMap.REQUEST_DATE_FROM"] = item.startDate;
-      }
-      if (item.endDate) {
-        fields["detailMap.HIST_END_DATE"] = item.endDate;
-        fields["filterMap.WORK_END_DATE"] = item.endDate;
-        fields["detailMap.WORK_END_DATE"] = item.endDate;
-        fields["filterMap.REQUEST_DATE_TO"] = item.endDate;
-      }
-      if (item.dept) {
-        fields["detailMap.DEPT_NAME"] = item.dept;
-        fields["filterMap.DEPT_NAME"] = item.dept;
-        fields["detailMap.WORK_DEPT_NAME"] = item.dept;
-        fields["filterMap.WORK_DEPT_NAME"] = item.dept;
-      }
-      if (item.leader) {
-        fields["detailMap.LEADER_NM"] = item.leader;
-        fields["detailMap.WORK_LEADER_NM"] = item.leader;
-        fields["filterMap.WO_BY_NM"] = item.leader;
-        fields["filterMap.SAFETY_BY_NM"] = item.leader;
-        fields["filterMap.PLAN_BY_NM"] = item.leader;
-      }
-      if (item.extraWorkers !== undefined) {
-        fields["detailMap.WORKER_CNT"] = String(item.extraWorkers || 0);
-        fields["detailMap.WORK_CNT"] = String(item.extraWorkers || 0);
-      }
-      if (item.status) {
-        fields["detailMap.WO_STATUS"] = "S220";
-        fields["filterMap.WO_STATUS"] = "S220";
-        fields["detailMap.REQ_STATUS"] = "S250";
-        fields["filterMap.REQ_STATUS"] = "S250";
-      }
-
-      // 위험작업 유형 및 LOTO, PSM 체크박스 반영
-      const tags = item.riskTags || [];
-      fields["detailMap.IS_QS_HIGH"] = tags.some(t => t.includes('고소')) ? 'Y' : 'N';
-      fields["detailMap.IS_QS_FIRE"] = tags.some(t => t.includes('화기')) ? 'Y' : 'N';
-      fields["detailMap.IS_QS_ELECTRICITY"] = tags.some(t => t.includes('정전') || t.includes('전기')) ? 'Y' : 'N';
-      fields["detailMap.IS_QS_NARROW"] = tags.some(t => t.includes('밀폐')) ? 'Y' : 'N';
-      fields["detailMap.IS_QS_HEAVY"] = tags.some(t => t.includes('중장비')) ? 'Y' : 'N';
-      fields["detailMap.IS_QS_EXCAVATION"] = tags.some(t => t.includes('굴착')) ? 'Y' : 'N';
-      fields["detailMap.IS_QS_RADIATION"] = tags.some(t => t.includes('방사선')) ? 'Y' : 'N';
-      fields["detailMap.IS_QS_DIVE"] = tags.some(t => t.includes('잠수')) ? 'Y' : 'N';
-      fields["detailMap.IS_QS_PSM"] = item.isPsm ? 'Y' : 'N';
-      fields["detailMap.IS_QS_LOTO"] = item.isLoto ? 'Y' : 'N';
-      fields["detailMap.PSM_YN"] = item.isPsm ? 'Y' : 'N';
-
-      for (const [k, v] of Object.entries(fields)) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = k;
-        input.value = v;
-        form.appendChild(input);
-      }
-
-      document.body.appendChild(form);
-      try {
-        form.submit();
-      } catch (err) {
-        window.open(getSafetyDetailUrl(no), popName);
-      }
-      setTimeout(() => { form.remove(); }, 1500);
+      // 새 창의 GET 탐색으로 사내 로그인 세션을 유지하며 원본을 조회한다.
+      const popup = window.open(url, 'safetyDetailPop_' + (no || 'list'),
+        'width=1300,height=900,top=' + topPos + ',left=' + leftPos + ',scrollbars=yes,resizable=yes');
+      if (!popup) showToast('팝업이 차단되었습니다. 원문 링크를 새 탭으로 열거나 팝업을 허용해 주세요.');
     }
-
-    function copyCurrentPermitNo() {
-      if (!selectedItemId) return;
-      navigator.clipboard.writeText(selectedItemId).then(() => {
-        showToast(`허가번호 [${selectedItemId}]가 클립보드에 복사되었습니다.`);
-      });
-    }
-
-    function copyAndOpenIntranet() {
-      if (!selectedItemId) return;
-      navigator.clipboard.writeText(selectedItemId).then(() => {
-        showToast(`허가번호 [${selectedItemId}] 복사 완료! 인트라넷 검색창에 붙여넣기(Ctrl+V)하세요.`);
-        window.open("http://220.70.136.113/newWoSafetyMstrList.do", "_blank");
-      });
-    }
-
-    function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); }
 
     function changeCurrentItemPartPrompt() {
       if (!isAdminMode) return;
@@ -3468,6 +2885,10 @@
     let isBridgeConnected = false;
 
     async function checkRealtimePermitData(isManual = false) {
+      if(window.ptwFirebase)await window.ptwFirebase.ready;
+      if(!isAdminMode)return;
+      if(ptwSyncBusy||ptwPublishBusy){showToast('동기화 또는 공유 게시가 진행 중입니다.');return;}
+      ptwSyncBusy=true;ptwPublishError='';updateCloudPublishState();
       const badge = document.getElementById('realtimeSyncBadge');
       const text = document.getElementById('syncStatusText');
       const modalStatus = document.getElementById('modalBridgeStatus');
@@ -3487,6 +2908,7 @@
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const json = await resp.json();
 
+        if (!json.ok) throw new Error(json.error || '동기화 응답 오류');
         if (json.ok) {
           isBridgeConnected = true;
           if (badge) {
@@ -3499,9 +2921,11 @@
             modalStatus.style.color = '#4ade80';
           }
 
-          if (json.exists && json.data && json.data.items && json.data.items.length > 0) {
+          if (json.exists && json.data && Array.isArray(json.data.items) && json.data.items.length > 0) {
             const newUpdatedAt = json.data.updatedAt || '';
             const items = json.data.items;
+            if(items.some(item=>!item||typeof item!=='object'||!item.permitNo))throw new Error('허가번호가 없는 수집 데이터입니다.');
+            if(!isAdminMode)return;
 
             // 새로운 데이터 세트가 감지되었거나 수동 요청 또는 건수 차이 시 자동 반영
             if (newUpdatedAt !== lastSyncUpdatedAt || isManual || !lastSyncUpdatedAt || workItems.length !== items.length) {
@@ -3528,7 +2952,16 @@
 
               const timeDisplay = newUpdatedAt.slice(11, 19) || newUpdatedAt;
               if (text) text.textContent = `실시간 최신 (${items.length}건 · ${timeDisplay})`;
-              showToast(`⚡ 인트라넷 실시간 허가서 ${items.length}건이 자동 업데이트되었습니다! (${timeDisplay})`);
+              if(isManual) {
+                if(text)text.textContent=`동기화 완료 (${items.length}건) · 공유 게시 중…`;
+                const published=await ptwPublishNow({automatic:true});
+                if(text)text.textContent=published
+                  ? `동기화·공유 게시 완료 (${items.length}건 · ${timeDisplay})`
+                  : `동기화 완료 (${items.length}건) · 공유 미게시`;
+                if(!published){const status=document.getElementById('ptwCloudStatus');if(status)status.textContent=ptwPublishError;}
+              } else {
+                showToast(`⚡ 인트라넷 허가서 ${items.length}건이 업데이트되었습니다. (${timeDisplay})`);
+              }
             } else {
               const timeDisplay = lastSyncUpdatedAt.slice(11, 19) || lastSyncUpdatedAt;
               if (text) text.textContent = `실시간 최신 (${items.length}건 · ${timeDisplay})`;
@@ -3550,9 +2983,10 @@
         }
         if (text) text.textContent = '로컬 브릿지 대기 중';
         if (isManual) {
-          showToast('로컬 브릿지 서버(127.0.0.1:17863)와 연결할 수 없습니다.');
+          showToast('동기화 실패 · 공유 게시하지 않았습니다: '+(err.message||String(err)));
         }
       } finally {
+        ptwSyncBusy=false;updateCloudPublishState();
         if (badge) badge.classList.remove('syncing');
       }
     }
@@ -3565,364 +2999,27 @@
     function initAutoSyncPoller() {
       if (autoSyncPollerTimer) { clearInterval(autoSyncPollerTimer); autoSyncPollerTimer = null; }
       const text = document.getElementById('syncStatusText');
-      if (text) text.textContent = '수동 동기화 대기 중 (클릭 시 동기화)';
+      if (text) text.textContent = '수동 동기화 · 자동 공유 게시';
     }
 
     function setupBookmarklet() {
-      // 인트라넷 화면에서 외부 스크립트 로드 없이 100% 즉각 실행되는 자체 완결형 북마클릿
-      const bookmarkletCode = `javascript:(function(){if(window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__){alert('이미 안전작업허가서 실시간 자동 동기화가 가동 중입니다!');return;}window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__=true;var old=document.getElementById('sp-sync-widget');if(old)old.remove();var w=document.createElement('div');w.id='sp-sync-widget';w.style.cssText='position:fixed;bottom:18px;right:18px;z-index:999999;background:#0f172a;color:#f8fafc;border:1px solid rgba(59,130,246,0.5);border-radius:12px;padding:12px 16px;font-family:sans-serif;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6);min-width:250px;';w.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><div style="font-weight:700;color:#38bdf8;display:flex;align-items:center;gap:6px;"><span id="sp-dot" style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;box-shadow:0 0 8px #22c55e;"></span>모니터 실시간 자동 동기화</div><button onclick="document.getElementById(\'sp-sync-widget\').remove();window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__=false;" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;">✕</button></div><div id="sp-status" style="font-size:11px;color:#94a3b8;margin-bottom:4px;">상태: 가동 시작...</div><div id="sp-meta" style="font-size:11px;color:#cbd5e1;margin-bottom:8px;">전송 이력: 없음</div><button id="sp-btn" style="width:100%;background:#2563eb;color:#fff;border:none;padding:5px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">⚡ 지금 즉시 동기화</button>';document.body.appendChild(w);function setStatus(txt,color){var s=document.getElementById('sp-status');var d=document.getElementById('sp-dot');if(s)s.textContent=txt;if(d&&color){d.style.background=color;d.style.boxShadow='0 0 8px '+color;}}function setMeta(cnt,tm){var m=document.getElementById('sp-meta');if(m)m.innerHTML='최근 전송: <b style="color:#60a5fa;">'+cnt+'건</b> ('+tm+')';}function extractWorker(str){var m=str.match(/([가-힣a-zA-Z]+)\s*외\s*(\d+)\s*명/);if(m)return {leader:m[1],extraWorkers:parseInt(m[2],10),totalWorkers:parseInt(m[2],10)+1};var m2=str.match(/([가-힣a-zA-Z]{2,4})/);return {leader:m2?m2[1]:'작업자',extraWorkers:0,totalWorkers:1};}function classify(item){var oper=String(item.operDept||'');if(oper.includes('연료설비'))return 'CHS';if(/발전\s*[1-4]파트|발전[1-4]파트/.test(oper))return 'CCR';if(oper.includes('회처리'))return 'EP';if(oper.includes('탈황'))return 'FGD';if(oper.includes('수폐수')||oper.includes('수처리'))return 'WWT';var t=((item.equipment||'')+' '+(item.workTitle||'')+' '+(item.dept||'')).toUpperCase();if(t.includes('1호기')||t.includes('#1')||t.includes('1BLR')||t.includes('1TBN')){if(t.includes('보일러')||t.includes('BLR'))return 'BTG-B1';if(t.includes('터빈')||t.includes('TBN'))return 'BTG-T1';}if(t.includes('2호기')||t.includes('#2')||t.includes('2BLR')||t.includes('2TBN')){if(t.includes('보일러')||t.includes('BLR'))return 'BTG-B2';if(t.includes('터빈')||t.includes('TBN'))return 'BTG-T2';}if(t.includes('보일러')||t.includes('BLR'))return 'BTG-B1';if(t.includes('터빈')||t.includes('TBN'))return 'BTG-T1';if(t.includes('GIS')||t.includes('345KV')||t.includes('스위치야드')||t.includes('변압기')||t.includes('전기'))return 'SBO';if(t.includes('석탄')||t.includes('CSU')||t.includes('CHS')||t.includes('저탄'))return 'CHS';if(t.includes('회처리')||t.includes('회정제')||t.includes('BOTTOM ASH')||t.includes('EP'))return 'EP';if(t.includes('탈황')||t.includes('FGD')||t.includes('흡수탑'))return 'FGD';if(t.includes('수처리')||t.includes('폐수')||t.includes('순수'))return 'WWT';return 'ETC';}function __ibColNum(el){if(!el)return null;var cls=String(el.className||'');var tokens=cls.split(/\s+/);for(var i=0;i<tokens.length;i++){var m=/C(\d+)$/.exec(tokens[i]);if(m)return parseInt(m[1],10);}return null;}function __ibIsChecked(el){if(!el)return false;var cls=String(el.className||'');var m=/GMBool(\d)/.exec(cls);return !!(m&&m[1]==='1');}function __genericIsChecked(cell){if(!cell)return false;var inp=cell.querySelector('input[type=checkbox],input[type=radio]');if(inp){if(inp.checked)return true;var av=inp.getAttribute('checked');if(av!==null&&av!=='false')return true;}var aria=cell.querySelector('[aria-checked]');if(aria&&aria.getAttribute('aria-checked')==='true')return true;var flagged=cell.querySelector('.checked,.on,.selected,.chk-on,.ico-check,.icon-check');if(flagged)return true;return false;}function __cellChecked(cell){return __ibIsChecked(cell)||__genericIsChecked(cell);}function __rowColMap(tr){var map={};Array.from(tr.querySelectorAll('td')).forEach(function(td){var c=__ibColNum(td);if(c!=null)map[c]=td;});return map;}function __findGubunCell(tds){for(var i=0;i<tds.length;i++){var t=(tds[i].innerText||'').trim();if(t==='화기작업'||t==='일반작업'){var c=__ibColNum(tds[i]);if(c!=null)return {colNum:c,text:t};}}return null;}var __headerMapCache=(typeof WeakMap!=='undefined')?new WeakMap():null;function __computeHeaderMap(doc){var map={};var keyDefs=[['confined','밀폐'],['dive','잠수'],['hazmat','유해물질'],['hazmat2','위험물'],['excavation','굴착'],['heavy','중장비'],['height','고소'],['electric','전기'],['psm','psm']];var trs=Array.from(doc.querySelectorAll('tr'));var bestRow=null,bestScore=-1,bestCells=null;trs.forEach(function(tr){var cells=Array.from(tr.querySelectorAll('th,td'));if(cells.length<4)return;var score=0;cells.forEach(function(c){var t=(c.innerText||'').replace(/\s+/g,'').toLowerCase();keyDefs.forEach(function(k){if(t.indexOf(k[1])>-1)score++;});});if(score>bestScore){bestScore=score;bestRow=tr;bestCells=cells;}});if(bestRow&&bestScore>=3){bestCells.forEach(function(c){var colNum=__ibColNum(c);if(colNum==null)return;var t=(c.innerText||'').replace(/\s+/g,'').toLowerCase();if(t.indexOf('밀폐')>-1)map.confined=colNum;else if(t.indexOf('잠수')>-1)map.dive=colNum;else if(t.indexOf('유해물질')>-1||t.indexOf('위험물')>-1)map.hazmat=colNum;else if(t.indexOf('굴착')>-1)map.excavation=colNum;else if(t.indexOf('중장비')>-1)map.heavy=colNum;else if(t.indexOf('고소')>-1)map.height=colNum;else if(t.indexOf('전기')>-1)map.electric=colNum;else if(t.indexOf('psm')>-1)map.psm=colNum;});}return map;}function getHeaderMapForDoc(doc){if(__headerMapCache&&__headerMapCache.has(doc))return __headerMapCache.get(doc);var map=__computeHeaderMap(doc);if(__headerMapCache)__headerMapCache.set(doc,map);return map;}function getItems(){var items=[];var seen=new Set();var today=new Date().toISOString().slice(0,10);var docs=[document];document.querySelectorAll('iframe, frame').forEach(function(f){try{var d=f.contentDocument||f.contentWindow.document;if(d)docs.push(d);}catch(e){}});docs.forEach(function(doc){var trs=Array.from(doc.querySelectorAll('tr'));trs.forEach(function(tr){if(tr.querySelector('table, tr'))return;var tds=Array.from(tr.querySelectorAll('td, th'));if(tds.length<6)return;var isBlob=tds.some(function(td){var txt=td.innerText||'';return txt.length>250||(txt.match(/\n/g)||[]).length>3;});if(isBlob)return;var texts=tds.map(function(td){return td.innerText.trim();});var full=texts.join(' ');var pIdx=texts.findIndex(function(c){return /^\d{6}$/.test(c);});if(pIdx===-1)return;var permitNo=texts[pIdx];if(seen.has(permitNo))return;function normalizeStatus(v){v=String(v||'').replace(/s+/g,' ').trim();if(v.includes('운전팀 승인중'))return '운전팀 승인중';if(v.includes('정비부서 승인중'))return '정비부서 승인중';if(v.includes('승인대기'))return '승인대기';if(v.includes('승인중'))return '승인중';if(v.includes('작성중'))return '작성중';if(v.includes('작업중'))return '작업중';if(v.includes('발행완료'))return '발행완료';if(v.includes('취소'))return '취소';if(v.includes('반려'))return '반려';return '';}var rawSt=(pIdx>0&&texts[pIdx-1])?texts[pIdx-1].trim():'';var status=normalizeStatus(rawSt)||normalizeStatus(full)||'상태확인';var orderNo='';var workTitle='';var equipment='';var startDate=today;var endDate=today;var issuer='';var dept='';var operDept='';var oIdx=-1;for(var i=pIdx+1;i<=pIdx+3&&i<texts.length;i++){if(/^\d{6}$/.test(texts[i])){oIdx=i;orderNo=texts[i];break;}}if(oIdx!==-1){workTitle=texts[oIdx+1]||'';var eq1=texts[oIdx+2]||'';var eq2=texts[oIdx+3]||'';var isD2=function(v){return /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v);};var isN2=function(v){return /^[0-9]+$/.test(v);};var isEQ2=function(v){return v&&!isD2(v)&&!isN2(v)&&v.length<=60&&!v.includes('발행완료')&&!v.includes('작성중')&&!v.includes('작업중')&&!v.includes('작업오더')&&!v.includes('승인');};if(isEQ2(eq1)){equipment=eq1;startDate=texts[oIdx+3]||today;endDate=texts[oIdx+4]||startDate;issuer=texts[oIdx+6]||'';dept=texts[oIdx+8]||'';operDept=texts[oIdx+10]||'';}else{equipment='';startDate=isD2(eq1)?eq1:(isD2(eq2)?eq2:today);endDate=texts[oIdx+3]||startDate;issuer=texts[oIdx+5]||'';dept=texts[oIdx+7]||'';operDept=texts[oIdx+9]||'';}}else{workTitle=texts[pIdx+3]||texts[pIdx+2]||'';equipment=texts[pIdx+4]||'';var dates=texts.filter(function(c){return /^\d{4}-\d{2}-\d{2}$/.test(c);});startDate=dates[0]||today;endDate=dates[1]||startDate;}if(equipment.length>60||/^\d{4}-\d{2}-\d{2}$/.test(equipment)){equipment='';}seen.add(permitNo);var wi=extractWorker(full);var leader=issuer||wi.leader||'작업자';var __rmap=__rowColMap(tr);var __risk=[];var __psmChecked=false;var __gubun=__findGubunCell(tds);if(__gubun&&__gubun.colNum!=null){var g=__gubun.colNum;if(__cellChecked(__rmap[g+1]))__risk.push('밀폐');if(__cellChecked(__rmap[g+2]))__risk.push('잠수');if(__cellChecked(__rmap[g+3]))__risk.push('유해물질');if(__cellChecked(__rmap[g+4]))__risk.push('굴착');if(__cellChecked(__rmap[g+5]))__risk.push('중장비');if(__cellChecked(__rmap[g+6]))__risk.push('고소');if(__cellChecked(__rmap[g+7]))__risk.push('전기');var __psmCell=__rmap[g+8];var __psmTxt=__psmCell?(__psmCell.innerText||'').trim():'';__psmChecked=(__psmTxt==='Y'||__psmTxt.toUpperCase()==='Y')||__cellChecked(__psmCell);if(__gubun.text==='화기작업')__risk.push('화기');}else{var __hmap=getHeaderMapForDoc(doc);if(__cellChecked(__rmap[__hmap.confined]))__risk.push('밀폐');if(__cellChecked(__rmap[__hmap.dive]))__risk.push('잠수');if(__cellChecked(__rmap[__hmap.hazmat]))__risk.push('유해물질');if(__cellChecked(__rmap[__hmap.excavation]))__risk.push('굴착');if(__cellChecked(__rmap[__hmap.heavy]))__risk.push('중장비');if(__cellChecked(__rmap[__hmap.height]))__risk.push('고소');if(__cellChecked(__rmap[__hmap.electric]))__risk.push('전기');__psmChecked=__cellChecked(__rmap[__hmap.psm]);if(full.indexOf('화기작업')>-1)__risk.push('화기');}if(__risk.length===0)__risk.push('일반작업');var item={permitNo:permitNo,status:status,orderNo:orderNo,workTitle:workTitle,equipment:equipment,startDate:startDate,endDate:endDate,dept:dept,operDept:operDept,issuer:leader,leader:leader,extraWorkers:wi.extraWorkers,totalWorkers:wi.totalWorkers,contractor:dept||'협력사',isPsm:full.includes('PSM')||full.includes('수소')||__psmChecked,isLoto:full.includes('LOTO')||full.includes('정전')||full.includes('차단'),riskTags:__risk};item.part=classify(item);items.push(item);});});return items;}var lastHash='';function tryExpandPageSize(){try{var selects=Array.from(document.querySelectorAll('select'));var target=null,targetOpt=null;var wanted=['200','100'];wanted.forEach(function(w){if(target)return;selects.forEach(function(sel){if(target)return;var opts=Array.from(sel.options||[]);var o=opts.find(function(o){return o.value===w||o.textContent.trim()===w;});if(o){target=sel;targetOpt=o;}});});if(target&&targetOpt&&target.value!==targetOpt.value){target.value=targetOpt.value;target.dispatchEvent(new Event('change',{bubbles:true}));return true;}}catch(e){}return false;}function findScrollContainer(){var cands=Array.from(document.querySelectorAll('div,table,tbody')).filter(function(el){try{var cs=getComputedStyle(el);return (cs.overflowY==='auto'||cs.overflowY==='scroll'||el.scrollHeight>el.clientHeight+80)&&el.clientHeight>100;}catch(e){return false;}});cands.sort(function(a,b){return (b.scrollHeight-b.clientHeight)-(a.scrollHeight-a.clientHeight);});return cands[0]||document.scrollingElement||document.documentElement;}function scrollAndCollectAll(cb){var allItems=[];var allSeen=new Set();function mergeNew(){var items=getItems();var n=0;items.forEach(function(it){if(!allSeen.has(it.permitNo)){allSeen.add(it.permitNo);allItems.push(it);n++;}});return n;}var container=findScrollContainer();var stableRounds=0,round=0,maxRounds=60;try{container.scrollTop=0;}catch(e){}setTimeout(function step(){var newCount=mergeNew();round++;if(newCount===0)stableRounds++;else stableRounds=0;var atBottom=true;try{atBottom=(container.scrollTop+container.clientHeight)>=(container.scrollHeight-8);}catch(e){}if(stableRounds>=3||atBottom||round>=maxRounds){cb(allItems);return;}try{container.scrollTop=container.scrollTop+Math.max(300,Math.floor(container.clientHeight*0.85));}catch(e){}setTimeout(step,380);},300);}function __spLocalDay(){var d=new Date();var z=function(n){return String(n).padStart(2,'0');};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}function __spVal(doc,id){var e=doc.getElementById(id);return e?e.value:'';}function __spChecked(doc,id){var e=doc.getElementById(id);return !!(e&&(e.checked||e.hasAttribute('checked')));}function __spDetailBody(key,kind){var p=new URLSearchParams(),field=function(n){var e=document.querySelector('[name="'+n+'"]');return e?e.value:'';},day=__spLocalDay();var front=[['strutsAction','1000'],['pageNum','1'],['rowNum','1'],['totalCount','0'],['isDecoratorName',''],['extFilterNames',''],['treeConfig',field('treeConfig')],['jsonObjGuid',''],['sheetPageSize',field('sheetPageSize')||'50'],['pagingSheetConfig',field('pagingSheetConfig')]];if(kind==='duplicate')front.forEach(function(pair){p.append(pair[0],pair[1]);});[['strutsAction',kind==='duplicate'?'0':'1000'],['pageNum','1'],['rowNum','1'],['totalCount','0'],['isDecoratorName',''],['extFilterNames',''],['treeConfig',''],['jsonObjGuid',''],['sheetPageSize',field('sheetPageSize')||'50'],['pagingSheetConfig',''],['filterMap.TREETYPE',''],['filterMap.SEARCHNODE',''],['filterMap.KEY_NO',key],['filterMap.KEY_ITEM_NO',''],['filterMap.IS_COUNT','0'],['filterMap.POP_UP_YN',''],['filterMap.myJobPopUp',''],['filterMap.RESULT_MM_TYPE',''],['filterMap.RESULT_MM',''],['detailMap.WO_DESC',''],['filterMap.PLAN_BY',''],['filterMap.PLAN_BY_NM',''],['filterMap.DEPT_NO',''],['filterMap.DEPT_NAME',''],['filterMap.WORK_DEPT_NO',''],['filterMap.WORK_DEPT_NAME',''],['filterMap.WO_NO',''],['filterMap.WO_NO_DESC',''],['filterMap.REQUEST_DATE_FROM',field('filterMap.REQUEST_DATE_FROM')||day],['filterMap.REQUEST_DATE_TO',field('filterMap.REQUEST_DATE_TO')||day],['filterMap.REQ_STATUS',''],['filterMap.REQ_NO',''],['filterMap.LOCATION',''],['filterMap.LOCATION_DESC',''],['filterMap.WO_CATEGORY',''],['filterMap.QUALITY_GRADE',''],['filterMap.WO_STATUS',''],['filterMap.EQ_TYPE',''],['filterMap.EQ_TYPE_DESC',''],['filterMap.EQ_SECTION',''],['filterMap.WO_GRADE',''],['filterMap.OPER_DEPT_NO',''],['filterMap.OPER_DEPT_DESC',''],['filterMap.WO_TYPE',''],['filterMap.WORKABLE_CONDITION',''],['filterMap.SAFETY_BY',''],['filterMap.SAFETY_BY_NM',''],['filterMap.WORK_START_DATE',''],['filterMap.WORK_END_DATE',''],['filterMap.WO_BY',''],['filterMap.WO_BY_NM','']].forEach(function(pair){p.append(pair[0],pair[1]);});return p.toString();}function __spGetDetail(key){function one(kind){return fetch('newWoSafetyMstrDetail.do',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},body:__spDetailBody(key,kind)}).then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.text();}).then(function(html){var d=new DOMParser().parseFromString(html,'text/html');var no=__spVal(d,'detailMap.REQ_NO'),n=parseInt(__spVal(d,'detailMap.WORK_NUM'),10);if(String(no)!==String(key)||!(n>0))return null;return{leader:__spVal(d,'detailMap.WORK_BY'),totalWorkers:n,facilityNo:__spVal(d,'detailMap.ITEM_NO'),facilityName:__spVal(d,'detailMap.ITEM_DESC'),fnEquipDesc:__spVal(d,'detailMap.FN_EQUIP_DESC'),isPsm:__spChecked(d,'detailMap.IS_PSM_WORK'),isLoto:__spChecked(d,'detailMap.IS_LOTO_REQUIRED')};}).catch(function(){return null;});}return one('duplicate').then(function(x){return x||one('simple');});}function __spEnrich(items){return new Promise(function(done){var cursor=0,completed=0,workers=0;function next(){if(cursor>=items.length){if(completed>=items.length)done({workers:workers,total:items.length});return;}var item=items[cursor++];__spGetDetail(item.permitNo).then(function(d){if(d){item.totalWorkers=d.totalWorkers;item.extraWorkers=Math.max(0,d.totalWorkers-1);workers++;if(d.leader){item.leader=d.leader;item.issuer=d.leader;}if(d.facilityNo)item.facilityNo=d.facilityNo;if(d.facilityName)item.facilityName=d.facilityName;if(d.fnEquipDesc)item.systemCategory=d.fnEquipDesc;if(typeof d.isPsm==='boolean')item.isPsm=d.isPsm;if(typeof d.isLoto==='boolean')item.isLoto=d.isLoto;}completed++;setStatus('상세 인원·설비 보정 중... '+completed+'/'+items.length+'건 (인원 확인 '+workers+'건)','#38bdf8');next();});}var parallel=Math.min(3,items.length);for(var i=0;i<parallel;i++)next();});}function sendData(force){var expanded=force?tryExpandPageSize():false;var proceed=function(){setStatus('가상 스크롤 목록 전체 수집 중...','#38bdf8');scrollAndCollectAll(function(allItems){var items=allItems;if(items.length>200){items=items.slice(0,200);}if(items.length===0){setStatus('조회된 허가서 테이블 없음 (대기 중)','#94a3b8');return;}var tc=document.getElementById('totalCount');var total=parseInt(tc&&tc.value,10);if(total>items.length){setStatus('⚠%EF%B8%8F 목록 '+items.length+'/'+total+'건만 수집: 전송 중단','#ef4444');alert('목록의 '+total+'건 중 '+items.length+'건만 수집되었습니다. 부분 목록으로 기존 데이터를 덮어쓰지 않습니다.');return;}setStatus('상세 인원·설비 보정 시작... 0/'+items.length+'건','#38bdf8');__spEnrich(items).then(function(stats){if(stats.workers===0){setStatus('⚠%EF%B8%8F 상세 인원 확인 0/'+items.length+'건: 전송 중단','#ef4444');alert('상세 응답의 WORK_NUM을 한 건도 읽지 못했습니다. 전송을 중단합니다.');return;}var h=JSON.stringify(items.map(function(i){return [i.permitNo,i.status,i.totalWorkers,i.isLoto,i.isPsm];}));if(!force&&h===lastHash){setStatus('🟢 가동 중 (최신 유지, '+items.length+'건)','#22c55e');return;}var now=new Date().toLocaleTimeString();setStatus('전송 중... ('+items.length+'건)','#38bdf8');var payload={data:{updatedAt:new Date().toISOString().slice(0,19).replace('T',' '),source:location.href,count:items.length,items:items}};function doFormSubmit(){try{var winName='sp_save_win';var saveWin=window.open('about:blank',winName,'width=380,height=160,top=200,left=200');var f=document.getElementById('sp_frm');if(!f){f=document.createElement('form');f.id='sp_frm';f.method='POST';f.action='http://127.0.0.1:17863/safety-permit-import-form';f.style.display='none';var tx=document.createElement('textarea');tx.name='data';f.appendChild(tx);document.body.appendChild(f);}f.target=saveWin?winName:'_blank';f.querySelector('textarea').value=JSON.stringify(payload.data);f.submit();lastHash=h;setStatus('🟢 전송 완료 '+items.length+'건 (상세 인원 '+stats.workers+'건 확인)','#22c55e');setMeta(items.length,now);}catch(err){setStatus('⚠%EF%B8%8F 전송 실패 (팝업 허용 필요)','#ef4444');}}try{fetch('http://127.0.0.1:17863/safety-permit-import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(res){if(res.ok){lastHash=h;setStatus('🟢 전송 완료 '+items.length+'건 (상세 인원 '+stats.workers+'건 확인)','#22c55e');setMeta(items.length,now);}else{doFormSubmit();}}).catch(function(){doFormSubmit();});}catch(e){doFormSubmit();}});});};if(expanded){setStatus('페이지당 표시건수 확장 중(최대 200건)...','#38bdf8');setTimeout(proceed,1200);}else{proceed();}}document.getElementById('sp-btn').onclick=function(){sendData(true);};setStatus('대기 중 (버튼을 눌러 동기화, 스크롤 자동수집 최대 200건)','#94a3b8');})();`;
+      const bookmarkletCode = "javascript:(function(){if(window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__){if(window.__SP_REFRESH_TODAY__)window.__SP_REFRESH_TODAY__(true);else alert('기존 수집창을 닫고 북마크를 다시 실행해 주세요.');return;}window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__=true;var old=document.getElementById('sp-sync-widget');if(old)old.remove();var w=document.createElement('div');w.id='sp-sync-widget';w.style.cssText='position:fixed;bottom:18px;right:18px;z-index:999999;background:#0f172a;color:#f8fafc;border:1px solid rgba(59,130,246,0.5);border-radius:12px;padding:12px 16px;font-family:sans-serif;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6);min-width:250px;';w.innerHTML='<div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;\"><div style=\"font-weight:700;color:#38bdf8;display:flex;align-items:center;gap:6px;\"><span id=\"sp-dot\" style=\"width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;box-shadow:0 0 8px #22c55e;\"></span>작업허가서 전체 조회·수집</div><button onclick=\"document.getElementById(\\'sp-sync-widget\\').remove();window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__=false;\" style=\"background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;\">✕</button></div><div id=\"sp-status\" style=\"font-size:11px;color:#94a3b8;margin-bottom:4px;\">상태: 가동 시작...</div><div id=\"sp-meta\" style=\"font-size:11px;color:#cbd5e1;margin-bottom:8px;\">전송 이력: 없음</div><button id=\"sp-btn\" style=\"width:100%;background:#2563eb;color:#fff;border:none;padding:5px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;\">⚡ 선택 날짜로 동기화</button><button id=\"sp-today-btn\" style=\"width:100%;margin-top:6px;background:#334155;color:#fff;border:1px solid #64748b;padding:5px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;\">📅 오늘 날짜로 조회·동기화</button>';document.body.appendChild(w);function setStatus(txt,color){var s=document.getElementById('sp-status');var d=document.getElementById('sp-dot');if(s)s.textContent=txt;if(d&&color){d.style.background=color;d.style.boxShadow='0 0 8px '+color;}}function setMeta(cnt,tm){var m=document.getElementById('sp-meta');if(m)m.innerHTML='최근 전송: <b style=\"color:#60a5fa;\">'+cnt+'건</b> ('+tm+')';}function extractWorker(str){var m=str.match(/([가-힣a-zA-Z]+)\\s*외\\s*(\\d+)\\s*명/);if(m)return {leader:m[1],extraWorkers:parseInt(m[2],10),totalWorkers:parseInt(m[2],10)+1};var m2=str.match(/([가-힣a-zA-Z]{2,4})/);return {leader:m2?m2[1]:'작업자',extraWorkers:0,totalWorkers:1};}function classify(item){if(/fly[\\s_-]*ash|bottom[\\s_-]*ash|회처리|비회/i.test(item.equipment||''))return 'EP';var oper=String(item.operDept||'');if(oper.includes('연료설비'))return 'CHS';if(/발전\\s*[1-4]파트|발전[1-4]파트/.test(oper))return 'CCR';if(oper.includes('회처리'))return 'EP';if(oper.includes('탈황'))return 'FGD';if(oper.includes('수폐수')||oper.includes('수처리'))return 'WWT';var t=((item.equipment||'')+' '+(item.workTitle||'')+' '+(item.dept||'')).toUpperCase();if(t.includes('1호기')||t.includes('#1')||t.includes('1BLR')||t.includes('1TBN')){if(t.includes('보일러')||t.includes('BLR'))return 'BTG-B1';if(t.includes('터빈')||t.includes('TBN'))return 'BTG-T1';}if(t.includes('2호기')||t.includes('#2')||t.includes('2BLR')||t.includes('2TBN')){if(t.includes('보일러')||t.includes('BLR'))return 'BTG-B2';if(t.includes('터빈')||t.includes('TBN'))return 'BTG-T2';}if(t.includes('보일러')||t.includes('BLR'))return 'BTG-B1';if(t.includes('터빈')||t.includes('TBN'))return 'BTG-T1';if(t.includes('GIS')||t.includes('345KV')||t.includes('스위치야드')||t.includes('변압기')||t.includes('전기'))return 'SBO';if(t.includes('석탄')||t.includes('CSU')||t.includes('CHS')||t.includes('저탄'))return 'CHS';if(t.includes('회처리')||t.includes('회정제')||t.includes('BOTTOM ASH')||t.includes('EP'))return 'EP';if(t.includes('탈황')||t.includes('FGD')||t.includes('흡수탑'))return 'FGD';if(t.includes('수처리')||t.includes('폐수')||t.includes('순수'))return 'WWT';return 'ETC';}function __ibColNum(el){if(!el)return null;var cls=String(el.className||'');var tokens=cls.split(/\\s+/);for(var i=0;i<tokens.length;i++){var m=/C(\\d+)$/.exec(tokens[i]);if(m)return parseInt(m[1],10);}return null;}function __ibIsChecked(el){if(!el)return false;var cls=String(el.className||'');var m=/GMBool(\\d)/.exec(cls);return !!(m&&m[1]==='1');}function __genericIsChecked(cell){if(!cell)return false;var inp=cell.querySelector('input[type=checkbox],input[type=radio]');if(inp){if(inp.checked)return true;var av=inp.getAttribute('checked');if(av!==null&&av!=='false')return true;}var aria=cell.querySelector('[aria-checked]');if(aria&&aria.getAttribute('aria-checked')==='true')return true;var flagged=cell.querySelector('.checked,.on,.selected,.chk-on,.ico-check,.icon-check');if(flagged)return true;return false;}function __cellChecked(cell){return __ibIsChecked(cell)||__genericIsChecked(cell);}function __rowColMap(tr){var map={};Array.from(tr.querySelectorAll('td')).forEach(function(td){var c=__ibColNum(td);if(c!=null)map[c]=td;});return map;}function __findGubunCell(tds){for(var i=0;i<tds.length;i++){var t=(tds[i].innerText||'').trim();if(t==='화기작업'||t==='일반작업'){var c=__ibColNum(tds[i]);if(c!=null)return {colNum:c,text:t};}}return null;}var __headerMapCache=(typeof WeakMap!=='undefined')?new WeakMap():null;function __computeHeaderMap(doc){var map={};var keyDefs=[['confined','밀폐'],['dive','잠수'],['hazmat','유해물질'],['hazmat2','위험물'],['excavation','굴착'],['heavy','중장비'],['height','고소'],['electric','전기'],['psm','psm']];var trs=Array.from(doc.querySelectorAll('tr'));var bestRow=null,bestScore=-1,bestCells=null;trs.forEach(function(tr){var cells=Array.from(tr.querySelectorAll('th,td'));if(cells.length<4)return;var score=0;cells.forEach(function(c){var t=(c.innerText||'').replace(/\\s+/g,'').toLowerCase();keyDefs.forEach(function(k){if(t.indexOf(k[1])>-1)score++;});});if(score>bestScore){bestScore=score;bestRow=tr;bestCells=cells;}});if(bestRow&&bestScore>=3){bestCells.forEach(function(c){var colNum=__ibColNum(c);if(colNum==null)return;var t=(c.innerText||'').replace(/\\s+/g,'').toLowerCase();if(t.indexOf('밀폐')>-1)map.confined=colNum;else if(t.indexOf('잠수')>-1)map.dive=colNum;else if(t.indexOf('유해물질')>-1||t.indexOf('위험물')>-1)map.hazmat=colNum;else if(t.indexOf('굴착')>-1)map.excavation=colNum;else if(t.indexOf('중장비')>-1)map.heavy=colNum;else if(t.indexOf('고소')>-1)map.height=colNum;else if(t.indexOf('전기')>-1)map.electric=colNum;else if(t.indexOf('psm')>-1)map.psm=colNum;});}return map;}function getHeaderMapForDoc(doc){if(__headerMapCache&&__headerMapCache.has(doc))return __headerMapCache.get(doc);var map=__computeHeaderMap(doc);if(__headerMapCache)__headerMapCache.set(doc,map);return map;}function getItems(){var items=[];var seen=new Set();var today=__spLocalDay();var snapshot=__spGridSnapshot();var docs=snapshot?[snapshot].concat(__spDocs()):__spDocs();docs.forEach(function(doc){var trs=Array.from(doc.querySelectorAll('tr'));trs.forEach(function(tr){if(tr.querySelector('table, tr'))return;var tds=Array.from(tr.querySelectorAll('td, th'));if(tds.length<6)return;var isBlob=tds.some(function(td){var txt=td.innerText||'';return txt.length>250||(txt.match(/\\n/g)||[]).length>3;});if(isBlob)return;var texts=tds.map(function(td){return td.innerText.trim();});var full=texts.join(' ');var pIdx=texts.findIndex(function(c){return /^\\d{6}$/.test(c);});if(pIdx===-1)return;var permitNo=texts[pIdx];if(seen.has(permitNo))return;function normalizeStatus(v){v=String(v||'').replace(/\\s+/g,' ').trim();if(v.includes('운전팀 승인중'))return '운전팀 승인중';if(v.includes('정비부서 승인중'))return '정비부서 승인중';if(v.includes('승인대기'))return '승인대기';if(v.includes('승인중'))return '승인중';if(v.includes('작성중'))return '작성중';if(v.includes('작업중'))return '작업중';if(v.includes('발행완료'))return '발행완료';if(v.includes('취소'))return '취소';if(v.includes('반려'))return '반려';return '';}var rawSt=(pIdx>0&&texts[pIdx-1])?texts[pIdx-1].trim():'';var status=normalizeStatus(rawSt)||normalizeStatus(full)||'상태확인';var orderNo='';var workTitle='';var equipment='';var startDate=today;var endDate=today;var issuer='';var dept='';var operDept='';var oIdx=-1;for(var i=pIdx+1;i<=pIdx+3&&i<texts.length;i++){if(/^\\d{6}$/.test(texts[i])){oIdx=i;orderNo=texts[i];break;}}if(oIdx!==-1){workTitle=texts[oIdx+1]||'';var eq1=texts[oIdx+2]||'';var eq2=texts[oIdx+3]||'';var isD2=function(v){return /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v);};var isN2=function(v){return /^[0-9]+$/.test(v);};var isEQ2=function(v){return v&&!isD2(v)&&!isN2(v)&&v.length<=60&&!v.includes('발행완료')&&!v.includes('작성중')&&!v.includes('작업중')&&!v.includes('작업오더')&&!v.includes('승인');};if(isEQ2(eq1)){equipment=eq1;startDate=texts[oIdx+3]||today;endDate=texts[oIdx+4]||startDate;issuer=texts[oIdx+6]||'';dept=texts[oIdx+8]||'';operDept=texts[oIdx+10]||'';}else{equipment='';startDate=isD2(eq1)?eq1:(isD2(eq2)?eq2:today);endDate=texts[oIdx+3]||startDate;issuer=texts[oIdx+5]||'';dept=texts[oIdx+7]||'';operDept=texts[oIdx+9]||'';}}else{workTitle=texts[pIdx+3]||texts[pIdx+2]||'';equipment=texts[pIdx+4]||'';var dates=texts.filter(function(c){return /^\\d{4}-\\d{2}-\\d{2}$/.test(c);});startDate=dates[0]||today;endDate=dates[1]||startDate;}if(equipment.length>60||/^\\d{4}-\\d{2}-\\d{2}$/.test(equipment)){equipment='';}seen.add(permitNo);var wi=extractWorker(full);var leader=issuer||wi.leader||'작업자';var __rmap=__rowColMap(tr);var __risk=[];var __psmChecked=false;var __gubun=__findGubunCell(tds);if(__gubun&&__gubun.colNum!=null){var g=__gubun.colNum;if(__cellChecked(__rmap[g+1]))__risk.push('밀폐');if(__cellChecked(__rmap[g+2]))__risk.push('잠수');if(__cellChecked(__rmap[g+3]))__risk.push('유해물질');if(__cellChecked(__rmap[g+4]))__risk.push('굴착');if(__cellChecked(__rmap[g+5]))__risk.push('중장비');if(__cellChecked(__rmap[g+6]))__risk.push('고소');if(__cellChecked(__rmap[g+7]))__risk.push('전기');var __psmCell=__rmap[g+8];var __psmTxt=__psmCell?(__psmCell.innerText||'').trim():'';__psmChecked=(__psmTxt==='Y'||__psmTxt.toUpperCase()==='Y')||__cellChecked(__psmCell);if(__gubun.text==='화기작업')__risk.push('화기');}else{var __hmap=getHeaderMapForDoc(doc);if(__cellChecked(__rmap[__hmap.confined]))__risk.push('밀폐');if(__cellChecked(__rmap[__hmap.dive]))__risk.push('잠수');if(__cellChecked(__rmap[__hmap.hazmat]))__risk.push('유해물질');if(__cellChecked(__rmap[__hmap.excavation]))__risk.push('굴착');if(__cellChecked(__rmap[__hmap.heavy]))__risk.push('중장비');if(__cellChecked(__rmap[__hmap.height]))__risk.push('고소');if(__cellChecked(__rmap[__hmap.electric]))__risk.push('전기');__psmChecked=__cellChecked(__rmap[__hmap.psm]);if(full.indexOf('화기작업')>-1)__risk.push('화기');}if(__risk.length===0)__risk.push('일반작업');var item={permitNo:permitNo,status:status,orderNo:orderNo,workTitle:workTitle,equipment:equipment,startDate:startDate,endDate:endDate,dept:dept,operDept:operDept,issuer:leader,leader:leader,extraWorkers:wi.extraWorkers,totalWorkers:wi.totalWorkers,contractor:dept||'협력사',isPsm:full.includes('PSM')||full.includes('수소')||__psmChecked,isLoto:full.includes('LOTO')||full.includes('정전')||full.includes('차단'),riskTags:__risk};item.part=classify(item);items.push(item);});});return items;}var lastHash='';var __spBusy=false;function __spDocs(){var docs=[document];for(var i=0;i<docs.length&&i<20;i++)Array.from(docs[i].querySelectorAll('iframe,frame')).forEach(function(f){try{var d=f.contentDocument;if(d&&docs.indexOf(d)<0)docs.push(d);}catch(e){}});return docs;}function __spField(doc,name){return doc.getElementById(name)||Array.from(doc.querySelectorAll('input,select')).find(function(el){return el.name===name;});}function __spListDoc(){return __spDocs().find(function(d){return __spField(d,'filterMap.REQUEST_DATE_FROM')&&__spField(d,'filterMap.REQUEST_DATE_TO');})||null;}function __spSheet(){var doc=__spListDoc()||document,view=doc.defaultView||window,candidates=[],seen=new Set();function add(s){if(!s||seen.has(s))return;seen.add(s);if(typeof s.GetTotalRows==='function'&&typeof s.RowCount==='function'&&typeof s.GetCellValue==='function'&&typeof s.LastCol==='function'&&typeof s.HeaderRows==='function')candidates.push(s);}Object.getOwnPropertyNames(view).filter(function(k){return /sheet/i.test(k);}).forEach(function(k){try{var value=view[k];add(value);if(Array.isArray(value))value.forEach(add);else if(value&&typeof value==='object')Object.keys(value).slice(0,100).forEach(function(n){try{add(value[n]);}catch(e){}});}catch(e){}});for(var i=0;i<candidates.length;i++){var s=candidates[i];try{for(var c=0;c<=s.LastCol();c++){var name=typeof s.ColSaveName==='function'?String(s.ColSaveName(c)).replace(/[^a-z0-9]/gi,'').toUpperCase():'';var label=String(s.GetCellValue(0,c)||'').replace(/\\s/g,'');if(/REQNO$|PERMITNO$/.test(name)||/발행번호|허가번호/.test(label))return s;}}catch(e){}}return null;}function __spTotal(){var doc=__spListDoc()||document,s=__spSheet();if(s){try{var total=Number(s.GetTotalRows()),loaded=Number(s.RowCount());if(Number.isInteger(total)&&total>=0&&Number.isInteger(loaded)&&loaded>=0)return Math.max(total,loaded);}catch(e){}}var nodes=Array.from(doc.querySelectorAll('[id*=totalRow],[id*=TotalRow],[id*=totalCount],[id*=TotalCount]'));for(var i=0;i<nodes.length;i++){var label=String(nodes[i].textContent||'');var match=label.match(/(?:총\\s*(?:조회\\s*)?(?:건수|행수)|조회\\s*건수|Total\\s*Rows)\\s*[:：]?\\s*[\\[（(]?\\s*([\\d,]+)/i);if(match)return Number(match[1].replace(/,/g,''));}var e=__spField(doc,'totalCount'),raw=e?String(e.value||e.textContent||'').replace(/,/g,'').trim():'';if(/^\\d+$/.test(raw)){var n=Number(raw);if(n>0)return n;if(getItems().length===0)return 0;}return null;}function __spGridSnapshot(){var sheet=__spSheet();if(!sheet)return null;try{var loaded=Number(sheet.RowCount()),headers=Number(sheet.HeaderRows()),lastCol=Number(sheet.LastCol());if(!loaded)return null;var rows=[];for(var r=0;r<headers+loaded;r++){var cells=[];for(var c=0;c<=lastCol;c++){if(typeof sheet.GetColHidden==='function'&&sheet.GetColHidden(c))continue;var rawValue=sheet.GetCellValue(r,c);var value=typeof sheet.GetCellText==='function'?sheet.GetCellText(r,c):rawValue;cells.push({innerText:String(value==null?'':value),className:'GMC'+c+((rawValue===1||rawValue==='1'||rawValue==='Y'||rawValue===true)?' GMBool1':''),querySelector:function(){return null;}});}rows.push({querySelector:function(){return null;},querySelectorAll:function(selector){return selector==='td'||selector==='td, th'||selector==='th,td'?this.cells:[];},cells:cells});}return{querySelectorAll:function(selector){return selector==='tr'?rows:[];}};}catch(e){return null;}}function __spFire(el,type){var view=el.ownerDocument.defaultView||window;el.dispatchEvent(new view.Event(type,{bubbles:true}));}function __spSearch(doc){var view=doc.defaultView||window;if(typeof view.goSearch==='function'){view.goSearch();return;}var button=Array.from(doc.querySelectorAll('button,a,input[type=button],input[type=submit]')).find(function(el){var label=String(el.textContent||el.value||'').replace(/\\s/g,'');return label==='검색'||/\\bgoSearch\\s*\\(/.test(el.getAttribute('onclick')||'');});if(!button)throw Error('검색 버튼을 찾지 못했습니다. 안전작업허가서 목록 화면에서 실행해 주세요.');button.click();}function __spPageSelect(doc){var direct=__spField(doc,'sheetPageSize');if(direct&&direct.tagName==='SELECT')return direct;return Array.from(doc.querySelectorAll('select')).find(function(s){var ns=Array.from(s.options).map(function(o){return Number(o.value||o.textContent);});return ns.indexOf(50)>=0&&ns.indexOf(100)>=0&&ns.every(function(n){return n>0&&Number.isFinite(n);});});}function __spWaitList(doc){return new Promise(function(resolve,reject){var start=Date.now(),lastChange=start,seenUpdate=false,startTotal=__spTotal();var view=doc.defaultView||window;var observer=new view.MutationObserver(function(records){if(records.some(function(r){var el=r.target.nodeType===1?r.target:r.target.parentElement;return el&&!el.closest('#sp-sync-widget')&&!el.closest('form')?true:el&&!el.closest('#sp-sync-widget')&&!!el.closest('table');})){lastChange=Date.now();seenUpdate=true;}});observer.observe(doc.body,{subtree:true,childList:true,characterData:true});var timer=setInterval(function(){if(!window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__){clearInterval(timer);observer.disconnect();reject(Error('수집을 중지했습니다.'));return;}var now=Date.now();var loading=Array.from(doc.querySelectorAll('.GMLoading,.GMMessage,.IBLoading,[aria-busy=\"true\"]')).some(function(el){return el.getClientRects().length>0&&/조회|검색|loading|처리/i.test(el.textContent||'');});if(now-start>=2500&&now-lastChange>=1200&&!loading&&__spTotal()!==null&&(seenUpdate||__spTotal()!==startTotal)){clearInterval(timer);observer.disconnect();resolve();}else if(now-start>=45000){clearInterval(timer);observer.disconnect();reject(Error('목록 조회 완료를 확인하지 못했습니다. 조회가 끝난 뒤 다시 실행해 주세요.'));}},250);});}function __spSetToday(doc){var day=__spLocalDay();['filterMap.REQUEST_DATE_FROM','filterMap.REQUEST_DATE_TO'].forEach(function(name){var input=__spField(doc,name);if(!input)throw Error('작업허가 기간 입력란을 찾지 못했습니다.');input.value=day;__spFire(input,'input');__spFire(input,'change');});var page=__spField(doc,'pageNum');if(page)page.value='1';return day;}function __spExpandAll(doc,total){var select=__spPageSelect(doc);if(!select){if(total>50)throw Error('표시 건수 선택란을 찾지 못했습니다.');return false;}var options=Array.from(select.options);var nums=options.map(function(o){return {option:o,n:Number(o.value||o.textContent)};}).filter(function(x){return x.n>0;}).sort(function(a,b){return a.n-b.n;});var current=Number(select.value);if(current>=total)return false;var chosen=nums.find(function(x){return x.n>=total;});if(!chosen){var option=doc.createElement('option');option.value=String(total);option.textContent=total+' (전체)';select.appendChild(option);chosen={option:option,n:total};}select.value=chosen.option.value;var size=__spField(doc,'sheetPageSize');if(size&&size!==select)size.value=String(chosen.n);var page=__spField(doc,'pageNum');if(page)page.value='1';var config=__spField(doc,'pagingSheetConfig');if(config&&config.value){try{var p=JSON.parse(config.value);Object.keys(p).forEach(function(k){if(p[k]&&typeof p[k]==='object'){p[k].sheetPageSize=String(chosen.n);p[k].pageNum='1';}});config.value=JSON.stringify(p);}catch(e){}}__spFire(select,'change');if(!select.onchange&&!select.getAttribute('onchange'))__spSearch(doc);return true;}function __spPeriod(doc){var from=__spField(doc,'filterMap.REQUEST_DATE_FROM'),to=__spField(doc,'filterMap.REQUEST_DATE_TO');var start=String(from&&from.value||'').trim(),end=String(to&&to.value||'').trim();if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(start)||!/^\\d{4}-\\d{2}-\\d{2}$/.test(end)||start>end)throw Error('작업허가 기간의 시작일·종료일을 확인해 주세요.');return start+' ~ '+end;}function __spPeriodUnchanged(period){try{return __spPeriod(__spListDoc())===period;}catch(e){return false;}}function __spPrepareList(useToday){var doc=__spListDoc();if(!doc)return Promise.reject(Error('작업허가 기간 입력란이 있는 목록 화면에서 북마크를 실행해 주세요.'));var period;try{if(useToday)__spSetToday(doc);period=__spPeriod(doc);var page=__spField(doc,'pageNum');if(page)page.value='1';}catch(e){return Promise.reject(e);}setStatus((useToday?'오늘 날짜':'선택 날짜')+'('+period+') 조회 중...','#38bdf8');var waiting=__spWaitList(doc);try{__spSearch(doc);}catch(e){return waiting.then(function(){throw e;},function(){throw e;});}return waiting.then(function(){if(__spPeriod(doc)!==period)throw Error('조회 중 날짜가 변경되었습니다. 선택 날짜로 동기화를 다시 눌러 주세요.');var total=__spTotal();setStatus(period+' · '+total+'건 전체 표시 설정 중...','#38bdf8');if(total>0&&__spExpandAll(doc,total))return __spWaitList(doc);}).then(function(){if(__spPeriod(doc)!==period)throw Error('조회 중 날짜가 변경되었습니다. 다시 동기화해 주세요.');return period;});}function findScrollContainer(){var listDoc=__spListDoc()||document;var view=listDoc.defaultView||window;var cands=Array.from(listDoc.querySelectorAll('div')).filter(function(el){try{var cs=view.getComputedStyle(el);return (cs.overflowY==='auto'||cs.overflowY==='scroll')&&el.scrollHeight>el.clientHeight+8&&el.clientHeight>40&&!el.closest('#sp-sync-widget');}catch(e){return false;}});cands.sort(function(a,b){var aGrid=a.querySelector('table')?1:0,bGrid=b.querySelector('table')?1:0;return bGrid-aGrid||(b.scrollHeight-b.clientHeight)-(a.scrollHeight-a.clientHeight);});return cands[0]||listDoc.scrollingElement||listDoc.documentElement;}function scrollAndCollectAll(cb){var allItems=[],allSeen=new Set(),expected=__spTotal(),container=findScrollContainer(),stableRounds=0,stalledRounds=0,round=0,started=Date.now(),done=false;function finish(){if(done)return;done=true;cb(allItems);}function mergeNew(){var n=0;getItems().forEach(function(it){if(!allSeen.has(it.permitNo)){allSeen.add(it.permitNo);allItems.push(it);n++;}});return n;}try{container.scrollTop=0;}catch(e){}setTimeout(function step(){if(!window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__){finish();return;}var newCount=mergeNew();round++;stableRounds=newCount===0?stableRounds+1:0;setStatus('목록 수집 중... '+allItems.length+' / '+(expected===null?'총건수 확인 중':expected)+'건','#38bdf8');if(expected!==null&&expected>0&&allItems.length>=expected){finish();return;}var atBottom=false;try{atBottom=container.scrollTop+container.clientHeight>=container.scrollHeight-8;}catch(e){}if((atBottom&&stableRounds>=3)||(stableRounds>=6&&stalledRounds>=3)||stableRounds>=10||round>=80||Date.now()-started>=30000){finish();return;}try{var before=container.scrollTop;container.scrollTop=before+Math.max(100,Math.floor(container.clientHeight*0.8));stalledRounds=Math.abs(container.scrollTop-before)<1?stalledRounds+1:0;}catch(e){stalledRounds++;}setTimeout(step,380);},300);}function __spLocalDay(){var d=new Date();var z=function(n){return String(n).padStart(2,'0');};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}function __spVal(doc,id){var e=doc.getElementById(id);return e?e.value:'';}function __spChecked(doc,id){var e=doc.getElementById(id);return !!(e&&(e.checked||e.hasAttribute('checked')));}function __spDetailBody(key,kind){var p=new URLSearchParams(),field=function(n){var e=document.querySelector('[name=\"'+n+'\"]');return e?e.value:'';},day=__spLocalDay();var front=[['strutsAction','1000'],['pageNum','1'],['rowNum','1'],['totalCount','0'],['isDecoratorName',''],['extFilterNames',''],['treeConfig',field('treeConfig')],['jsonObjGuid',''],['sheetPageSize',field('sheetPageSize')||'50'],['pagingSheetConfig',field('pagingSheetConfig')]];if(kind==='duplicate')front.forEach(function(pair){p.append(pair[0],pair[1]);});[['strutsAction',kind==='duplicate'?'0':'1000'],['pageNum','1'],['rowNum','1'],['totalCount','0'],['isDecoratorName',''],['extFilterNames',''],['treeConfig',''],['jsonObjGuid',''],['sheetPageSize',field('sheetPageSize')||'50'],['pagingSheetConfig',''],['filterMap.TREETYPE',''],['filterMap.SEARCHNODE',''],['filterMap.KEY_NO',key],['filterMap.KEY_ITEM_NO',''],['filterMap.IS_COUNT','0'],['filterMap.POP_UP_YN',''],['filterMap.myJobPopUp',''],['filterMap.RESULT_MM_TYPE',''],['filterMap.RESULT_MM',''],['detailMap.WO_DESC',''],['filterMap.PLAN_BY',''],['filterMap.PLAN_BY_NM',''],['filterMap.DEPT_NO',''],['filterMap.DEPT_NAME',''],['filterMap.WORK_DEPT_NO',''],['filterMap.WORK_DEPT_NAME',''],['filterMap.WO_NO',''],['filterMap.WO_NO_DESC',''],['filterMap.REQUEST_DATE_FROM',field('filterMap.REQUEST_DATE_FROM')||day],['filterMap.REQUEST_DATE_TO',field('filterMap.REQUEST_DATE_TO')||day],['filterMap.REQ_STATUS',''],['filterMap.REQ_NO',''],['filterMap.LOCATION',''],['filterMap.LOCATION_DESC',''],['filterMap.WO_CATEGORY',''],['filterMap.QUALITY_GRADE',''],['filterMap.WO_STATUS',''],['filterMap.EQ_TYPE',''],['filterMap.EQ_TYPE_DESC',''],['filterMap.EQ_SECTION',''],['filterMap.WO_GRADE',''],['filterMap.OPER_DEPT_NO',''],['filterMap.OPER_DEPT_DESC',''],['filterMap.WO_TYPE',''],['filterMap.WORKABLE_CONDITION',''],['filterMap.SAFETY_BY',''],['filterMap.SAFETY_BY_NM',''],['filterMap.WORK_START_DATE',''],['filterMap.WORK_END_DATE',''],['filterMap.WO_BY',''],['filterMap.WO_BY_NM','']].forEach(function(pair){p.append(pair[0],pair[1]);});return p.toString();}function __spGetDetail(key){function one(kind){return fetch('newWoSafetyMstrDetail.do',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},body:__spDetailBody(key,kind)}).then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.text();}).then(function(html){var d=new DOMParser().parseFromString(html,'text/html');var no=__spVal(d,'detailMap.REQ_NO'),n=parseInt(__spVal(d,'detailMap.WORK_NUM'),10);if(String(no)!==String(key)||!(n>0))return null;return{leader:__spVal(d,'detailMap.WORK_BY'),totalWorkers:n,facilityNo:__spVal(d,'detailMap.ITEM_NO'),facilityName:__spVal(d,'detailMap.ITEM_DESC'),fnEquipDesc:__spVal(d,'detailMap.FN_EQUIP_DESC'),isPsm:__spChecked(d,'detailMap.IS_PSM_WORK'),isLoto:__spChecked(d,'detailMap.IS_LOTO_REQUIRED')};}).catch(function(){return null;});}return one('duplicate').then(function(x){return x||one('simple');});}function __spEnrich(items){return new Promise(function(done){var cursor=0,completed=0,workers=0;function next(){if(cursor>=items.length){if(completed>=items.length)done({workers:workers,total:items.length});return;}var item=items[cursor++];__spGetDetail(item.permitNo).then(function(d){if(d){item.totalWorkers=d.totalWorkers;item.extraWorkers=Math.max(0,d.totalWorkers-1);workers++;if(d.leader){item.leader=d.leader;item.issuer=d.leader;}if(d.facilityNo)item.facilityNo=d.facilityNo;if(d.facilityName)item.facilityName=d.facilityName;if(d.fnEquipDesc)item.systemCategory=d.fnEquipDesc;if(typeof d.isPsm==='boolean')item.isPsm=d.isPsm;if(typeof d.isLoto==='boolean')item.isLoto=d.isLoto;}completed++;setStatus('상세 인원·설비 보정 중... '+completed+'/'+items.length+'건 (인원 확인 '+workers+'건)','#38bdf8');next();});}var parallel=Math.min(3,items.length);for(var i=0;i<parallel;i++)next();});}function sendData(force,useToday){if(__spBusy){setStatus('조회·수집 진행 중입니다. 완료까지 기다려 주세요.','#38bdf8');return;}__spBusy=true;var button=document.getElementById('sp-btn'),todayButton=document.getElementById('sp-today-btn'),activePeriod='';if(button)button.disabled=true;if(todayButton)todayButton.disabled=true;var runDone=false;function finish(){if(runDone)return;runDone=true;__spBusy=false;if(button)button.disabled=false;if(todayButton)todayButton.disabled=false;}var watchdog=setInterval(function(){if(!window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__){clearInterval(watchdog);finish();}if(runDone)clearInterval(watchdog);},500);var proceed=function(){setStatus(activePeriod+' · 목록 전체 수집 중...','#38bdf8');scrollAndCollectAll(function(allItems){var items=allItems;if(!window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__){finish();return;}if(items.length===0){setStatus(__spTotal()===0?'오늘 날짜에 조회된 작업허가서가 없습니다.':'목록을 읽지 못했습니다. 전송하지 않습니다.','#94a3b8');finish();return;}if(!__spPeriodUnchanged(activePeriod)){setStatus('수집 중 날짜가 변경되어 전송을 중단했습니다. 다시 동기화해 주세요.','#ef4444');finish();return;}var total=__spTotal();if(total===null||total!==items.length){setStatus(total===null?'실제 총건수 확인 실패 · 전송 중단':'목록 '+items.length+'/'+total+'건 수집 · 전송 중단','#ef4444');alert(total===null?'목록은 '+items.length+'건 읽었지만 실제 총건수를 확인하지 못했습니다. 그리드 조회 상태를 확인해 주세요.':'조회 총건수 '+total+'건 / 수집 '+items.length+'건이 일치하지 않습니다. 전체 표시 건수가 적용됐는지 확인해 주세요.');finish();return;}setStatus('상세 인원·설비 보정 시작... 0/'+items.length+'건','#38bdf8');__spEnrich(items).then(function(stats){if(!window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__){finish();return;}if(!__spPeriodUnchanged(activePeriod)){setStatus('수집 중 날짜가 변경되어 전송을 중단했습니다. 다시 동기화해 주세요.','#ef4444');finish();return;}if(stats.workers===0){setStatus('⚠️ 상세 인원 확인 0/'+items.length+'건: 전송 중단','#ef4444');alert('상세 응답의 WORK_NUM을 한 건도 읽지 못했습니다. 전송을 중단합니다.');finish();return;}var h=JSON.stringify(items.map(function(i){return [i.permitNo,i.status,i.totalWorkers,i.isLoto,i.isPsm];}));if(!force&&h===lastHash){setStatus('🟢 가동 중 (최신 유지, '+items.length+'건)','#22c55e');finish();return;}var now=new Date().toLocaleTimeString();setStatus('전송 중... ('+items.length+'건)','#38bdf8');var payload={data:{updatedAt:new Date().toISOString().slice(0,19).replace('T',' '),source:location.href,count:items.length,items:items}};function doFormSubmit(){try{var winName='sp_save_win';var saveWin=window.open('about:blank',winName,'width=380,height=160,top=200,left=200');var f=document.getElementById('sp_frm');if(!f){f=document.createElement('form');f.id='sp_frm';f.method='POST';f.action='http://127.0.0.1:17863/safety-permit-import-form';f.style.display='none';var tx=document.createElement('textarea');tx.name='data';f.appendChild(tx);document.body.appendChild(f);}f.target=saveWin?winName:'_blank';f.querySelector('textarea').value=JSON.stringify(payload.data);f.submit();lastHash=h;setStatus('🟢 전송 완료 '+items.length+'건 (상세 인원 '+stats.workers+'건 확인)','#22c55e');setMeta(items.length,now);finish();}catch(err){setStatus('전송 실패 (팝업 허용 필요)','#ef4444');finish();}}try{fetch('http://127.0.0.1:17863/safety-permit-import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(res){if(res.ok){lastHash=h;setStatus('🟢 전송 완료 '+items.length+'건 (상세 인원 '+stats.workers+'건 확인)','#22c55e');setMeta(items.length,now);finish();}else{doFormSubmit();}}).catch(function(){doFormSubmit();});}catch(e){doFormSubmit();}});});};__spPrepareList(!!useToday).then(function(period){activePeriod=period;proceed();}).catch(function(e){setStatus(e.message,'#ef4444');finish();});}window.__SP_REFRESH_TODAY__=function(){sendData(true,true);};document.getElementById('sp-btn').onclick=function(){sendData(true,false);};document.getElementById('sp-today-btn').onclick=function(){sendData(true,true);};sendData(true,true);})();";
       const anchor = document.getElementById('bookmarkletAnchor');
-      if (anchor) anchor.href = bookmarkletCode;
-
-      const detailBookmarkletCode = `javascript:(function(){function v(id){var el=document.getElementById(id);return el?el.value:'';}function vc(id){var el=document.getElementById(id);return el?(el.checked===true||el.hasAttribute('checked')):false;}var data={  permitNo:v('detailMap.REQNO'),  orderNo:v('detailMap.WONO'),  facilityNo:v('detailMap.ITEMNO'),  facilityName:v('detailMap.ITEMDESC'),  fnEquipDesc:v('detailMap.FNEQUIPDESC'),  leader:v('detailMap.WORKBY'),  totalWorkers:v('detailMap.WORKNUM'),  isPsm:vc('detailMap.ISPSMWORK'),  isLoto:vc('detailMap.ISLOTOREQUIRED'),  riskFlags:{    fire:vc('ISQSFIRE'),    confined:vc('ISQSNARROW'),    dive:vc('ISQSDIVE'),    electric:vc('ISQSELECTRICITY'),    excavation:vc('ISQSEXCAVATION'),    radiation:vc('ISQSRADIATION'),    height:vc('ISQSHIGH'),    heavy:vc('ISQSHEAVY')  }};if(!data.permitNo){alert('허가번호(detailMap.REQNO)를 찾지 못했습니다. 상세 페이지가 맞는지 확인해주세요.');return;}var BUF_KEY='sp_manual_collect_buffer_v1';var buf=[];try{buf=JSON.parse(localStorage.getItem(BUF_KEY)||'[]');}catch(e){buf=[];}var idx=buf.findIndex(function(x){return x.permitNo===data.permitNo;});if(idx>=0){buf[idx]=data;}else{buf.push(data);}localStorage.setItem(BUF_KEY,JSON.stringify(buf));alert('✅ 수집됨: ['+data.permitNo+'] '+(data.facilityName||'(설비명없음)')+'\\n\\n누적 '+buf.length+'건 저장됨.\\n\\n계속 다른 상세 페이지에서도 이 스크립트를 실행하세요.\\n다 모으셨으면 목록 화면에서 [누적 데이터 내보내기] 스크립트를 실행하세요.');})();`;
-      const detailAnchor = document.getElementById('detailBookmarkletAnchor');
-      if (detailAnchor) detailAnchor.href = detailBookmarkletCode;
-
-      const exportBookmarkletCode = `javascript:(function(){function __spShowResultOverlay(title,json){  var old=document.getElementById('sp-result-overlay');if(old)old.remove();  var overlay=document.createElement('div');  overlay.id='sp-result-overlay';  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:2147483647;display:flex;align-items:center;justify-content:center;';  var box=document.createElement('div');  box.style.cssText='background:#0f172a;color:#f8fafc;padding:16px;border-radius:10px;width:90%;max-width:640px;font-family:sans-serif;box-shadow:0 10px 40px rgba(0,0,0,0.6);';  box.innerHTML='<div style="font-weight:700;font-size:14px;margin-bottom:8px;">'+title+'</div><div style="font-size:11.5px;color:#94a3b8;margin-bottom:8px;">아래 내용이 자동으로 선택되어 있습니다. [복사] 버튼을 누르거나 Ctrl+C를 눌러 복사한 뒤, 모니터 앱의 붙여넣기 칸에 넣어주세요.</div><textarea id="sp-result-ta" readonly style="width:100%;height:220px;font-size:11px;font-family:monospace;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:8px;box-sizing:border-box;"></textarea><div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end;"><button id="sp-copy-btn" style="background:#2563eb;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">📋 복사</button><button id="sp-close-btn" style="background:#475569;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">닫기</button></div>';  overlay.appendChild(box);document.body.appendChild(overlay);  var ta=document.getElementById('sp-result-ta');  ta.value=json;  setTimeout(function(){ta.focus();ta.select();},50);  document.getElementById('sp-copy-btn').onclick=function(){    ta.focus();ta.select();    var ok=false;    try{ok=document.execCommand('copy');}catch(e){}    if(!ok){try{navigator.clipboard.writeText(json);ok=true;}catch(e){}}    var btn=document.getElementById('sp-copy-btn');    if(btn)btn.textContent=ok?'✅ 복사됨!':'⚠️ 직접 Ctrl+C';  };  document.getElementById('sp-close-btn').onclick=function(){overlay.remove();};}var BUF_KEY='sp_manual_collect_buffer_v1';var buf=[];try{buf=JSON.parse(localStorage.getItem(BUF_KEY)||'[]');}catch(e){buf=[];}if(!buf.length){alert('누적된 수집 데이터가 없습니다.\\n먼저 상세 페이지들을 하나씩 열어서 [단건 수집 북마클릿]을 실행해주세요.');return;}var json=JSON.stringify(buf);__spShowResultOverlay('✅ 누적된 '+buf.length+'건 내보내기',json);if(confirm(buf.length+'건을 내보냈습니다.\\n\\n누적된 데이터를 지금 비우시겠습니까?\\n(예: 다음 수집을 위해 초기화 / 아니오: 계속 누적)')){  localStorage.removeItem(BUF_KEY);}})();`;
-      const exportAnchor = document.getElementById('exportBookmarkletAnchor');
-      if (exportAnchor) exportAnchor.href = exportBookmarkletCode;
-
-      const bulkDetailBookmarkletCode = `javascript:(function(){  function getPermitNumbers(){    var nums=[];    var trs=Array.from(document.querySelectorAll('tr'));    trs.forEach(function(tr){      var tds=Array.from(tr.querySelectorAll('td'));      if(tds.length<6)return;      var texts=tds.map(function(td){return (td.innerText||'').trim();});      var full=texts.join(' ');      if(full.length>250)return;      var pIdx=texts.findIndex(function(t){return /^\\d{6}$/.test(t);});      if(pIdx===-1)return;      var permitNo=texts[pIdx];      if(nums.indexOf(permitNo)===-1)nums.push(permitNo);    });    return nums;  }  function __spShowResultOverlay(title,json){  var old=document.getElementById('sp-result-overlay');if(old)old.remove();  var overlay=document.createElement('div');  overlay.id='sp-result-overlay';  overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:2147483647;display:flex;align-items:center;justify-content:center;';  var box=document.createElement('div');  box.style.cssText='background:#0f172a;color:#f8fafc;padding:16px;border-radius:10px;width:90%;max-width:640px;font-family:sans-serif;box-shadow:0 10px 40px rgba(0,0,0,0.6);';  box.innerHTML='<div style="font-weight:700;font-size:14px;margin-bottom:8px;">'+title+'</div><div style="font-size:11.5px;color:#94a3b8;margin-bottom:8px;">아래 내용이 자동으로 선택되어 있습니다. [복사] 버튼을 누르거나 Ctrl+C를 눌러 복사한 뒤, 모니터 앱의 붙여넣기 칸에 넣어주세요.</div><textarea id="sp-result-ta" readonly style="width:100%;height:220px;font-size:11px;font-family:monospace;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:8px;box-sizing:border-box;"></textarea><div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end;"><button id="sp-copy-btn" style="background:#2563eb;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">📋 복사</button><button id="sp-close-btn" style="background:#475569;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;">닫기</button></div>';  overlay.appendChild(box);document.body.appendChild(overlay);  var ta=document.getElementById('sp-result-ta');  ta.value=json;  setTimeout(function(){ta.focus();ta.select();},50);  document.getElementById('sp-copy-btn').onclick=function(){    ta.focus();ta.select();    var ok=false;    try{ok=document.execCommand('copy');}catch(e){}    if(!ok){try{navigator.clipboard.writeText(json);ok=true;}catch(e){}}    var btn=document.getElementById('sp-copy-btn');    if(btn)btn.textContent=ok?'✅ 복사됨!':'⚠️ 직접 Ctrl+C';  };  document.getElementById('sp-close-btn').onclick=function(){overlay.remove();};}  var permitNos=getPermitNumbers();  if(!permitNos.length){alert('목록에서 허가번호를 찾지 못했습니다.');return;}  if(!confirm(permitNos.length+'건의 상세정보를 순서대로 가져옵니다. 계속하시겠습니까?'))return;  var today=new Date().toISOString().slice(0,10);  var results=[];  var idx=0;  function buildBody(keyNo){    var params={strutsAction:'0',pageNum:'1',rowNum:'1',totalCount:'0',isDecoratorName:'',extFilterNames:'',treeConfig:'',jsonObjGuid:'',sheetPageSize:'50',pagingSheetConfig:'','filterMap.TREETYPE':'','filterMap.SEARCHNODE':'','filterMap.KEY_NO':keyNo,'filterMap.KEY_ITEM_NO':'','filterMap.IS_COUNT':'0','filterMap.POP_UP_YN':'','filterMap.myJobPopUp':'','filterMap.RESULT_MM_TYPE':'','filterMap.RESULT_MM':'','detailMap.WO_DESC':'','filterMap.PLAN_BY':'','filterMap.PLAN_BY_NM':'','filterMap.DEPT_NO':'','filterMap.DEPT_NAME':'','filterMap.WORK_DEPT_NO':'','filterMap.WORK_DEPT_NAME':'','filterMap.WO_NO':'','filterMap.WO_NO_DESC':'','filterMap.REQUEST_DATE_FROM':today,'filterMap.REQUEST_DATE_TO':today,'filterMap.REQ_STATUS':'','filterMap.REQ_NO':'','filterMap.LOCATION':'','filterMap.LOCATION_DESC':'','filterMap.WO_CATEGORY':'','filterMap.QUALITY_GRADE':'','filterMap.WO_STATUS':'','filterMap.EQ_TYPE':'','filterMap.EQ_TYPE_DESC':'','filterMap.EQ_SECTION':'','filterMap.WO_GRADE':'','filterMap.OPER_DEPT_NO':'','filterMap.OPER_DEPT_DESC':'','filterMap.WO_TYPE':'','filterMap.WORKABLE_CONDITION':'','filterMap.SAFETY_BY':'','filterMap.SAFETY_BY_NM':'','filterMap.WORK_START_DATE':'','filterMap.WORK_END_DATE':'','filterMap.WO_BY':'','filterMap.WO_BY_NM':''};    return Object.keys(params).map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(params[k]);}).join('&');  }  function v(doc,id){var el=doc.getElementById(id);return el?el.value:'';}  function fetchOne(keyNo){    return fetch('newWoSafetyMstrDetail.do',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},body:buildBody(keyNo)}).then(function(res){return res.text();}).then(function(html){      var doc=new DOMParser().parseFromString(html,'text/html');      return {permitNo:v(doc,'detailMap.REQ_NO')||keyNo,orderNo:v(doc,'detailMap.WO_NO'),facilityNo:v(doc,'detailMap.ITEM_NO'),facilityName:v(doc,'detailMap.ITEM_DESC'),fnEquipDesc:v(doc,'detailMap.FN_EQUIP_DESC'),isPsm:v(doc,'detailMap.IS_PSM_WORK')==='Y',isLoto:v(doc,'detailMap.IS_LOTO_REQUIRED')==='Y',riskFlags:{confined:v(doc,'detailMap.IS_QS_NARROW')==='Y',dive:v(doc,'detailMap.IS_QS_DIVE')==='Y',electric:v(doc,'detailMap.IS_QS_ELECTRICITY')==='Y',excavation:v(doc,'detailMap.IS_QS_EXCAVATION')==='Y',radiation:v(doc,'detailMap.IS_QS_RADIATION')==='Y',height:v(doc,'detailMap.IS_QS_HIGH')==='Y',heavy:v(doc,'detailMap.IS_QS_HEAVY')==='Y'}};    }).catch(function(err){return null;});  }  function step(){    if(idx>=permitNos.length){finish();return;}    var keyNo=permitNos[idx];    if(idx%5===0){try{document.title='수집중 '+idx+'/'+permitNos.length;}catch(e){}}    fetchOne(keyNo).then(function(data){      if(data)results.push(data);      idx++;      setTimeout(step,250);    });  }  function finish(){    var json=JSON.stringify(results);    __spShowResultOverlay('✅ '+results.length+'건의 상세정보 수집 완료!',json);  }  step();})();`;
-      const bulkDetailAnchor = document.getElementById('bulkDetailBookmarkletAnchor');
-      if (bulkDetailAnchor) bulkDetailAnchor.href = bulkDetailBookmarkletCode;
+      if (anchor) anchor.setAttribute('href', bookmarkletCode);
     }
 
-    function copyBookmarkletCode() {
-      const code = document.getElementById('bookmarkletAnchor').href;
-      navigator.clipboard.writeText(code).then(() => {
-        showToast('📑 북마클릿 코드가 클립보드에 복사되었습니다. 북마크 URL에 붙여넣으셔도 됩니다!');
-      });
-    }
-
-    function copyDetailBookmarklet() {
-      const code = document.getElementById('detailBookmarkletAnchor').href;
-      navigator.clipboard.writeText(code).then(() => {
-        showToast('🔍 단건 수집 북마클릿 코드가 복사되었습니다!');
-      });
-    }
-
-    function copyExportBookmarklet() {
-      const code = document.getElementById('exportBookmarkletAnchor').href;
-      navigator.clipboard.writeText(code).then(() => {
-        showToast('📦 누적 데이터 내보내기 북마클릿 코드가 복사되었습니다!');
-      });
-    }
-
-    function copyBulkDetailBookmarklet() {
-      const code = document.getElementById('bulkDetailBookmarkletAnchor').href;
-      navigator.clipboard.writeText(code).then(() => {
-        showToast('🧲 일괄 수집 북마클릿 코드가 복사되었습니다!');
-      });
-    }
-
-    async function copyTampermonkeyScript() {
-      const tmScript = `// ==UserScript==
-// @name         삼척블루파워 안전작업허가서 실시간 모니터 자동 동기화기
-// @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  http://220.70.136.113/newWoSafetyMstrList.do 화면의 안전작업허가서 목록을 실시간 감지하여 로컬 모니터로 자동 전송합니다.
-// @author       Antigravity
-// @match        http://220.70.136.113/newWoSafetyMstrList*
-// @match        http://220.70.136.113/newWoSafetyMstr*
-// @grant        none
-// @run-at       document-idle
-// ==/UserScript==
-
-(function() {
-  'use strict';
-  if (window.__SAFETY_PERMIT_AUTO_SYNC_RUNNING__) return;
-  var s = document.createElement('script');
-  s.src = 'http://127.0.0.1:17863/safety-permit-auto-sync.js?t=' + Date.now();
-  document.body.appendChild(s);
-})();`;
-
+    async function copyBookmarkletCode() {
+      const code = document.getElementById('bookmarkletAnchor').getAttribute('href');
       try {
-        await navigator.clipboard.writeText(tmScript);
-        showToast('📄 Tampermonkey 유저스크립트 코드가 복사되었습니다! 확장 프로그램에 등록하세요.');
-      } catch (e) {
-        prompt('아래 스크립트 코드를 복사하세요:', tmScript);
-      }
-    }
-
-    function loadRealSampleData() {
-      workItems = [...REAL_SCREENSHOT_DATA];
-      workItems.forEach(i => {
-        i.part = classifyPart(i);
-        if (i.totalWorkers === undefined) {
-          const extra = Number(i.extraWorkers || 0);
-          i.totalWorkers = extra + 1;
-        }
-      });
-      saveToStorage();
-      updateKPICounters();
-      renderFilteredList();
-      closeImportModal();
-      showToast('20건 실전 데이터(#1,#2 BTG-B/T, SBO, CHS, EP, FGD, 수처리)가 로드되었습니다.');
-    }
-
-    function applyFacilityMerge(target, d) {
-      if (d.facilityNo) target.facilityNo = d.facilityNo;
-      if (d.facilityName) target.facilityName = d.facilityName;
-      if (d.fnEquipDesc) target.systemCategory = d.fnEquipDesc;
-      if (typeof d.isPsm === 'boolean') target.isPsm = d.isPsm;
-      if (typeof d.isLoto === 'boolean') target.isLoto = d.isLoto;
-      if (d.totalWorkers) {
-        const tw = parseInt(d.totalWorkers, 10);
-        if (!isNaN(tw) && tw > 0) {
-          target.totalWorkers = tw;
-          target.extraWorkers = Math.max(tw - 1, 0);
-        }
-      }
-      if (d.leader) {
-        target.leader = d.leader;
-        target.issuer = d.leader;
-      }
-      if (d.riskFlags) {
-        const rf = d.riskFlags;
-        const risk = [];
-        if (rf.fire) risk.push('화기');
-        if (rf.confined) risk.push('밀폐');
-        if (rf.dive) risk.push('잠수');
-        if (rf.electric) risk.push('전기');
-        if (rf.excavation) risk.push('굴착');
-        if (rf.heavy) risk.push('중장비');
-        if (rf.height) risk.push('고소');
-        if (rf.radiation) risk.push('방사선');
-        target.riskTags = risk.length ? risk : ['일반작업'];
-      }
-      target.part = classifyPart(target);
-    }
-
-    function parseAndApplyPastedText() {
-      const text = document.getElementById('pasteTextArea').value.trim();
-      if (!text) { alert('붙여넣은 내용이 없습니다.'); return; }
-
-      let count = 0;
-
-      // Extract Worker string: "홍길동 외 10명" -> leader='홍길동', extra=10, total=11
-      function extractWorkerInfo(str) {
-        const m = str.match(/([가-힣a-zA-Z]+)\s*외\s*(\d+)\s*명/);
-        if (m) {
-          const leader = m[1];
-          const extra = parseInt(m[2], 10);
-          return { leader, extraWorkers: extra, totalWorkers: extra + 1 };
-        }
-        const mSingle = str.match(/([가-힣a-zA-Z]{2,4})/);
-        return { leader: mSingle ? mSingle[1] : '작업자', extraWorkers: 0, totalWorkers: 1 };
-      }
-
-      // Case 0: 상세정보 수집 북마클릿에서 복사한 단일 객체 JSON (설비정보/위험유형 병합 업데이트)
-      if (text.startsWith('{') && text.endsWith('}')) {
-        try {
-          const d = JSON.parse(text);
-          const target = workItems.find(i => i.permitNo === String(d.permitNo) || i.orderNo === String(d.orderNo));
-          if (!target) {
-            alert(`허가번호 [${d.permitNo}] (오더 [${d.orderNo}])와 일치하는 항목을 목록에서 찾지 못했습니다.\n먼저 해당 항목을 동기화/가져오기 한 뒤 다시 시도해주세요.`);
-            return;
-          }
-          applyFacilityMerge(target, d);
-          saveToStorage();
-          updateKPICounters();
-          renderFilteredList();
-          closeImportModal();
-          showToast(`✅ [${target.permitNo}] 설비정보·위험유형이 갱신되었습니다: ${target.facilityNo || ''} ${target.facilityName || ''}`);
-        } catch (e) {
-          alert('설비정보 JSON을 해석하지 못했습니다. 형식을 확인해주세요.');
-        }
-        return;
-      }
-
-      // Case 0-B: 일괄 상세정보 수집 북마클릿에서 복사한 배열 JSON (여러 건 한번에 병합)
-      if (text.startsWith('[') && text.endsWith(']')) {
-        try {
-          const arr = JSON.parse(text);
-          if (Array.isArray(arr) && arr.length && arr[0] && typeof arr[0] === 'object' && !Array.isArray(arr[0]) && ('riskFlags' in arr[0] || 'facilityNo' in arr[0])) {
-            let updated = 0, notFound = 0;
-            arr.forEach(d => {
-              const target = workItems.find(i => i.permitNo === String(d.permitNo) || i.orderNo === String(d.orderNo));
-              if (!target) { notFound++; return; }
-              applyFacilityMerge(target, d);
-              updated++;
-            });
-            saveToStorage();
-            updateKPICounters();
-            renderFilteredList();
-            closeImportModal();
-            showToast(`✅ ${updated}건 갱신 완료${notFound > 0 ? ` (매칭 실패 ${notFound}건)` : ''}`);
-            return;
-          }
-        } catch (e) {
-          // 아래 일반 배열 파싱(Case 1)으로 폴백
-        }
-      }
-
-      // Case 1: JSON paste
-      if (text.startsWith('[') && text.endsWith(']')) {
-        try {
-          const raw = JSON.parse(text);
-          raw.forEach((r, idx) => {
-            if (Array.isArray(r) && r.length >= 6) {
-              const permitNo = r.find(c => /^\d{5,7}$/.test(c)) || `12${Date.now().toString().slice(-4)}${idx}`;
-              const title = r.find(c => c.length > 5 && !/^\d+$/.test(c)) || '작업명 미상';
-              const dates = r.filter(c => /^202\d-\d{2}-\d{2}/.test(c));
-              const startDate = dates[0] || currentTargetDate;
-              const endDate = dates[1] || startDate;
-              const equipment = r.find(c => /blr|tbn|area|cpp|gis|345kv|surge|수처리|chute|pulv/i.test(c)) || '';
-              
-              // Worker info extraction
-              const workerInfo = extractWorkerInfo(r.join(' '));
-              const isPsm = r.some(c => c.includes('PSM') || c.includes('수소'));
-              const isLoto = r.some(c => c.includes('LOTO') || c.includes('정전') || c.includes('차단'));
-              const detectedOper = r.find(c => /연료설비|발전\s*[1-4]파트|발전[1-4]파트|회처리|탈황|수폐수|수처리/i.test(c)) || '';
-
-              const item = {
-                permitNo,
-                status: '발행완료',
-                orderNo: '11' + Math.floor(Math.random() * 8999 + 1000),
-                workTitle: title,
-                equipment,
-                startDate,
-                endDate,
-                dept: '운전팀 / 협력사',
-                operDept: detectedOper,
-                leader: workerInfo.leader,
-                extraWorkers: workerInfo.extraWorkers,
-                totalWorkers: workerInfo.totalWorkers,
-                isPsm,
-                isLoto,
-                riskTags: title.includes('화기') ? ['화기'] : (title.includes('고소') ? ['고소'] : ['일반'])
-              };
-              item.part = classifyPart(item);
-              workItems.unshift(item);
-              count++;
-            }
-          });
-        } catch(e) {}
-      }
-
-      // Case 2: TSV / Text (인트라넷 화면 복사-붙여넣기 100% 완벽 대응)
-      if (count === 0) {
-        const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
-        lines.forEach((l, idx) => {
-          const cols = l.split('\t').map(c => c.trim());
-          if (cols.length >= 4) {
-            let permitNo = '';
-            let status = '발행완료';
-            let orderNo = '';
-            let workTitle = '';
-            let equipment = '';
-            let startDate = currentTargetDate;
-            let endDate = currentTargetDate;
-            let issuer = '';
-            let dept = '';
-            let operDept = '';
-
-            // 거대 텍스트 블록(컨테이너) 방어
-            if (cols.some(c => c.length > 250)) return;
-
-            // 1) 허가번호 6자리 위치 동적 탐색 (체크박스 개수 상관없이 100% 매칭)
-            const pIdx = cols.findIndex(c => /^\d{6}$/.test(c));
-            if (pIdx !== -1) {
-              permitNo = cols[pIdx];
-              status = (pIdx > 0 && cols[pIdx - 1]) ? cols[pIdx - 1].trim() : '발행완료';
-              if (status.includes('작성')) status = '작성중';
-              else if (status.includes('작업')) status = '작업중';
-              else if (status.includes('승인')) status = '승인대기';
-              else if (status.includes('취소')) status = '취소';
-              else if (status.includes('반려')) status = '반려';
-              else if (status.includes('발행')) status = '발행완료';
-              else if (l.includes('작성중')) status = '작성중';
-              else if (l.includes('작업중')) status = '작업중';
-              else status = '발행완료';
-
-              let oIdx = -1;
-              for (let i = pIdx + 1; i <= pIdx + 3 && i < cols.length; i++) {
-                if (/^\d{6}$/.test(cols[i])) {
-                  oIdx = i;
-                  orderNo = cols[i];
-                  break;
-                }
-              }
-
-              if (oIdx !== -1) {
-                workTitle = cols[oIdx + 1] || '';
-                equipment = cols[oIdx + 2] || '';
-                startDate = cols[oIdx + 3] || currentTargetDate;
-                endDate = cols[oIdx + 4] || startDate;
-                issuer = cols[oIdx + 6] || '';
-                dept = cols[oIdx + 8] || '';
-                operDept = cols[oIdx + 10] || '';
-              } else {
-                workTitle = cols[pIdx + 3] || cols[pIdx + 2] || '';
-                equipment = cols[pIdx + 4] || '';
-                const dates = cols.filter(c => /^202\d-\d{2}-\d{2}/.test(c));
-                startDate = dates[0] || currentTargetDate;
-                endDate = dates[1] || startDate;
-              }
-            } else {
-              // 2) 휴리스틱 매핑
-              permitNo = cols.find(c => /^\d{5,7}$/.test(c)) || `12${Date.now().toString().slice(-4)}${idx}`;
-              workTitle = cols.find(c => c.length > 5 && !/^\d+$/.test(c) && !c.includes('2026-')) || cols[2] || cols[1];
-              const dates = cols.filter(c => /^202\d-\d{2}-\d{2}/.test(c));
-              startDate = dates[0] || currentTargetDate;
-              endDate = dates[1] || dates[0] || currentTargetDate;
-              equipment = cols.find(c => /blr|tbn|area|cpp|gis|345kv|surge|수처리|chute|pulv|hopper/i.test(c)) || cols[3] || '';
-              orderNo = cols.find(c => /^11\d{4}$/.test(c)) || '';
-              status = cols.includes('발행완료') ? '발행완료' : '작업중';
-              operDept = cols.find(c => /연료설비|발전\s*[1-4]파트|발전[1-4]파트|회처리|탈황|수폐수|수처리/i.test(c)) || '';
-              dept = cols.find(c => (c.includes('팀') || c.includes('HPS') || c.includes('EES')) && !/발전\s*[1-4]파트|연료설비|회처리|탈황|수폐수/.test(c)) || '운전팀';
-            }
-
-            // 설비명 길이 검증 (절대 비정상적인 텍스트 덩어리가 들어가지 않도록 방어)
-            if (equipment.length > 60 || /^\d{4}-\d{2}-\d{2}$/.test(equipment)) {
-              equipment = '';
-            }
-
-            const workerInfo = extractWorkerInfo(l);
-            const leaderName = issuer || workerInfo.leader || '작업자';
-            const extraWorkers = workerInfo.extraWorkers || 0;
-            const totalWorkers = extraWorkers > 0 ? extraWorkers + 1 : 1;
-            const isPsm = l.includes('PSM') || l.includes('수소');
-            const isLoto = l.includes('LOTO') || l.includes('정전') || l.includes('차단');
-
-            const item = {
-              permitNo,
-              status,
-              orderNo,
-              workTitle,
-              equipment,
-              startDate,
-              endDate,
-              dept,
-              operDept,
-              issuer: leaderName,
-              leader: leaderName,
-              extraWorkers,
-              totalWorkers,
-              contractor: dept || 'HPS',
-              isPsm,
-              isLoto,
-              riskTags: l.includes('고소') ? ['고소'] : (l.includes('화기') ? ['화기'] : ['일반'])
-            };
-            item.part = classifyPart(item);
-            workItems.unshift(item);
-            count++;
-          }
-        });
-      }
-
-      if (count > 0) {
-        saveToStorage();
-        updateKPICounters();
-        renderFilteredList();
-        closeImportModal();
-        showToast(`총 ${count}건의 작업이 인원수·LOTO·PSM과 함께 등록되었습니다.`);
-      } else {
-        alert('데이터를 인식하지 못했습니다. 형식을 확인해 주세요.');
+        await navigator.clipboard.writeText(code);
+        showToast('최신 북마크 코드가 복사되었습니다. 북마크 URL에 붙여넣으세요.');
+      } catch(e) {
+        prompt('아래 최신 북마크 코드를 복사해 북마크 URL에 붙여넣으세요:', code);
       }
     }
 
     window.onclick = function(e) {
+      if (e.target === document.getElementById('partSettingsModal')) closePartSettings();
       if (e.target === document.getElementById('reportModal')) closeReportModal();
       if (e.target === document.getElementById('detailModal')) closeDetailModal();
       if (e.target === document.getElementById('importModal')) closeImportModal();
@@ -3930,6 +3027,7 @@
 
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        closePartSettings();
         closeReportModal();
         closeDetailModal();
         closeImportModal();
@@ -3945,7 +3043,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
     import { getFirestore, doc, onSnapshot, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+    import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
     const cfg={
       apiKey:'AIzaSyBC_iSnJo0eHZeuf5-nKyvxB__LLaip6NY',
       authDomain:'ptw-check.firebaseapp.com',
@@ -3957,21 +3055,28 @@
     const adminUid='VMlhxs0fkxO2gGWOwvlq2OOqLhj2';
     try {
       const app=initializeApp(cfg),db=getFirestore(app),auth=getAuth(app);
+      let authRestored=false;
+      const authReady=auth.authStateReady().then(()=>{authRestored=true;window.updateCloudPublishState();});
       const published=doc(db,'published','current');
       window.ptwFirebase={
+        ready:authReady,
+        isReady:()=>authRestored,
+        email:()=>auth.currentUser&&auth.currentUser.email||'관리자 계정',
         isAdmin:()=>!!(auth.currentUser&&auth.currentUser.uid===adminUid),
         login:async(email,password)=>{
+          await authReady;
+          await setPersistence(auth,browserLocalPersistence);
           const result=await signInWithEmailAndPassword(auth,email,password);
           if(result.user.uid!==adminUid){await signOut(auth);throw new Error('이 계정에는 게시 권한이 없습니다.');}
         },
-        logout:()=>signOut(auth).catch(()=>{}),
+        logout:()=>signOut(auth),
         publish:async items=>{
+          await authReady;
           if(!window.isAdminModeEnabled()||!auth.currentUser||auth.currentUser.uid!==adminUid)throw new Error('관리자 인증이 필요합니다.');
           await setDoc(published,{workItems:items,count:items.length,publishedBy:auth.currentUser.uid,publishedAt:serverTimestamp()});
         }
       };
       onAuthStateChanged(auth,user=>{
-        if(user&&!window.isAdminModeEnabled()){signOut(auth).catch(()=>{});return;}
         if(user&&user.uid!==adminUid){signOut(auth).catch(()=>{});return;}
         window.updateCloudPublishState();
       });
