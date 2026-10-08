@@ -79,6 +79,11 @@
       flex-direction: column;
     }
 
+    select, select option {
+      text-align: center;
+      text-align-last: center;
+    }
+
     /* Top Navbar */
     header.top-navbar {
       background: var(--bg-panel);
@@ -564,14 +569,14 @@
     .part-tabs-container {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 6px;
       border-bottom: 1px solid var(--border-subtle);
       padding-bottom: 10px;
     }
 
-    .part-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .part-tabs { display: contents; }
 
     .part-tab {
       background: var(--bg-card);
@@ -630,6 +635,56 @@
       cursor: pointer;
     }
 
+    /* Keep option text centered independently of its leading icon. */
+    @supports (appearance: base-select) {
+      .icon-filter-select, .icon-filter-select::picker(select) {
+        appearance: base-select;
+      }
+      .icon-filter-select {
+        position: relative;
+        display: block;
+        min-width: 160px;
+      }
+      #lotoSelect.icon-filter-select { min-width: 188px; }
+      .icon-filter-select > button {
+        width: 100%;
+        background: transparent;
+        border: 0;
+        color: inherit;
+        font: inherit;
+        cursor: inherit;
+      }
+      .icon-filter-select selectedcontent,
+      .icon-filter-select option {
+        display: grid;
+        grid-template-columns: 20px minmax(0, 1fr) 20px;
+        align-items: center;
+        text-align: center;
+      }
+      .icon-filter-select .option-icon { grid-column: 1; }
+      .icon-filter-select .option-label { grid-column: 2; }
+      .icon-filter-select::picker-icon {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .icon-filter-select::picker(select) {
+        background: var(--bg-card);
+        color: var(--text-main);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        font: inherit;
+      }
+      .icon-filter-select option { padding: 8px 10px; }
+      .icon-filter-select option::checkmark { display: none; }
+      .icon-filter-select option:checked,
+      .icon-filter-select option:hover,
+      .icon-filter-select option:focus-visible {
+        background: var(--bg-main);
+      }
+    }
+
     .search-input-wrapper {
       position: relative;
       min-width: 260px;
@@ -661,25 +716,31 @@
     .view-toggles {
       display: flex;
       align-items: center;
+      margin-left: auto;
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
       padding: 2px;
+      flex-shrink: 0;
     }
 
     .view-toggle-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 5px 10px;
+      width: 32px;
+      height: 32px;
+      padding: 7px;
       border-radius: 4px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 5px;
     }
+    .view-toggle-label { display:none; }
     .view-toggle-btn.active { background: #2563eb; color: white; }
 
     /* Content Area & Table */
@@ -1195,7 +1256,8 @@
       .mobile-part-picker label { font-size:13px; font-weight:700; white-space:nowrap; }
       .mobile-part-picker select { flex:1; min-width:0; width:100%; }
       .view-toggles { display:flex; width:100%; margin:0; }
-      .view-toggle-btn { flex:1; justify-content:center; min-height:44px; font-size:13px; }
+      .view-toggle-btn { flex:1; width:auto; justify-content:center; min-height:44px; font-size:13px; }
+      .view-toggle-label { display:inline; }
       .filter-bar { display:flex; flex-direction:column; align-items:stretch; gap:10px; }
       .search-input-wrapper { order:-2; width:100%; max-width:none; min-width:0; }
       .search-input { min-height:44px; font-size:16px; }
@@ -1369,7 +1431,7 @@
         <input type="date" id="targetDateInput" class="date-input" onchange="onDateChanged()">
         <button class="date-nav-btn" onclick="stepDate(1)" title="다음 날짜">▶</button>
         <button id="datePresetToday" class="btn btn-secondary btn-sm" onclick="setDatePreset('today')">오늘</button>
-        <button id="datePresetTomorrow" class="btn btn-secondary btn-sm" onclick="setRelativeDate(1)">내일 예정</button>
+        <button id="datePresetTomorrow" class="btn btn-secondary btn-sm" onclick="setRelativeDate(1)">내일</button>
         <button type="button" id="summaryGraphToggle" class="btn btn-secondary btn-sm graph-toggle-btn" aria-pressed="false" aria-expanded="false" aria-controls="permitGraphView" onclick="toggleSummaryGraphs()" title="카드 대신 그래프 보기">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16v-5M12 16V7M17 16V4"/></svg>그래프
         </button>
@@ -1696,13 +1758,13 @@
         </div>
 
         <div class="view-toggles">
-          <button class="view-toggle-btn active" id="viewTableBtn" onclick="setViewMode('table')">
+          <button type="button" class="view-toggle-btn active" id="viewTableBtn" onclick="setViewMode('table')" title="작업 목록" aria-label="작업 목록">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"></path></svg>
-            작업 목록
+            <span class="view-toggle-label">작업 목록</span>
           </button>
-          <button class="view-toggle-btn" id="viewKanbanBtn" onclick="setViewMode('kanban')">
+          <button type="button" class="view-toggle-btn" id="viewKanbanBtn" onclick="setViewMode('kanban')" title="칸반 카드" aria-label="칸반 카드">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"></rect><rect x="10" y="3" width="5" height="18" rx="1"></rect><rect x="17" y="3" width="5" height="18" rx="1"></rect></svg>
-            칸반 카드
+            <span class="view-toggle-label">칸반 카드</span>
           </button>
         </div>
       </div>
@@ -1721,17 +1783,19 @@
           </select>
 
           <!-- LOTO Filter -->
-          <select id="lotoSelect" class="filter-select" onchange="renderFilteredList()">
-            <option value="ALL">LOTO 전체</option>
-            <option value="Y">🔒 LOTO 필요 건만</option>
-            <option value="N">LOTO 불필요</option>
+          <select id="lotoSelect" class="filter-select icon-filter-select" onchange="renderFilteredList()">
+            <button type="button"><selectedcontent></selectedcontent></button>
+            <option value="ALL"><span class="option-label">LOTO 전체</span></option>
+            <option value="Y"><span class="option-icon" aria-hidden="true">🔒</span> <span class="option-label">LOTO 필요 건만</span></option>
+            <option value="N"><span class="option-label">LOTO 불필요</span></option>
           </select>
 
           <!-- PSM Filter -->
-          <select id="psmSelect" class="filter-select" onchange="renderFilteredList()">
-            <option value="ALL">PSM 전체</option>
-            <option value="Y">⚠️ PSM 대상만</option>
-            <option value="N">PSM 비대상</option>
+          <select id="psmSelect" class="filter-select icon-filter-select" onchange="renderFilteredList()">
+            <button type="button"><selectedcontent></selectedcontent></button>
+            <option value="ALL"><span class="option-label">PSM 전체</span></option>
+            <option value="Y"><span class="option-icon" aria-hidden="true">⚠️</span> <span class="option-label">PSM 대상만</span></option>
+            <option value="N"><span class="option-label">PSM 비대상</span></option>
           </select>
 
           <!-- Special Risk Filter -->
@@ -2895,9 +2959,9 @@
       const yesterdayBtn = document.getElementById('datePresetYesterday');
       const todayBtn = document.getElementById('datePresetToday');
       const tomorrowBtn = document.getElementById('datePresetTomorrow');
-      if (yesterdayBtn) yesterdayBtn.textContent = `${new Date(getLocalDateString(-1) + 'T12:00:00').getDate()}일 (어제)`;
+      if (yesterdayBtn) yesterdayBtn.textContent = `어제 (${new Date(getLocalDateString(-1) + 'T12:00:00').getDate()}일)`;
       if (todayBtn) todayBtn.textContent = `오늘 (${new Date(getLocalTodayString() + 'T12:00:00').getDate()}일)`;
-      if (tomorrowBtn) tomorrowBtn.textContent = `${new Date(getLocalDateString(1) + 'T12:00:00').getDate()}일 예정`;
+      if (tomorrowBtn) tomorrowBtn.textContent = `내일 (${new Date(getLocalDateString(1) + 'T12:00:00').getDate()}일)`;
     }
 
     function setRelativeDate(offsetDays) {
