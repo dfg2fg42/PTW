@@ -2586,14 +2586,14 @@
     let currentViewMode = 'table';
     let sortColumn = 'totalWorkers';
     let sortAsc = false;
-    let mobileSortActive = false;
+    let explicitSortActive = false;
     let selectedItemId = null;
 
     const STORAGE_KEY = 'SBO_SAFETY_ITEMS_V37_EXACT_SYNC';
     const THEME_KEY = 'SBO_THEME_PREF';
 
     function initApp() {
-      mobileSortActive = window.matchMedia('(max-width:700px)').matches;
+      explicitSortActive = window.matchMedia('(max-width:700px)').matches;
       // 구버전 캐시 데이터 청소 (오염된 데이터 완벽 제거 및 신규 스키마 강제 동기화)
       ['SBO_SAFETY_ITEMS_V30', 'SBO_SAFETY_ITEMS_V31', 'SBO_SAFETY_ITEMS_V32_ALL9PARTS', 'SBO_SAFETY_ITEMS_V33_EXACT_INTRANET', 'SBO_SAFETY_ITEMS_V34', 'SBO_SAFETY_ITEMS_V35_EXACT_INTRANET', 'SBO_SAFETY_ITEMS_V36_PERFECT_DETAIL'].forEach(oldKey => {
         try { localStorage.removeItem(oldKey); } catch(e) {}
@@ -3135,8 +3135,15 @@
   const rankA = partOrder[a.part] ?? 99;
   const rankB = partOrder[b.part] ?? 99;
 
-  // 다른 파트끼리는 지정한 순서로 묶는다.
-  if (!mobileSortActive && rankA !== rankB) return rankA - rankB;
+  // 기본 화면은 보직별로 묶고, 사용자가 정렬을 선택하면 해당 기준을 우선한다.
+  if (!explicitSortActive && rankA !== rankB) return rankA - rankB;
+  if (sortColumn === 'part') return sortAsc ? rankA - rankB : rankB - rankA;
+
+        if (sortColumn === 'totalWorkers') {
+          const workersA = Number(a.totalWorkers || 1);
+          const workersB = Number(b.totalWorkers || 1);
+          return sortAsc ? workersA - workersB : workersB - workersA;
+        }
 
         let valA = a[sortColumn];
         let valB = b[sortColumn];
@@ -3464,6 +3471,13 @@
     }
 
     function setPartFilter(part, keepUnit = false) {
+  if (part === 'ALL' && !keepUnit) {
+    explicitSortActive = window.matchMedia('(max-width:700px)').matches;
+    sortColumn = 'totalWorkers';
+    sortAsc = false;
+    const mobileSort = document.getElementById('mobileSortSelect');
+    if (mobileSort) mobileSort.value = 'totalWorkers:desc';
+  }
   currentPartFilter = part;
   const mobilePartSelect = document.getElementById('mobilePartSelect');
   if (mobilePartSelect) mobilePartSelect.value = part;
@@ -3511,7 +3525,7 @@
     }
 
     function sortTable(col) {
-      mobileSortActive = false;
+      explicitSortActive = true;
       if (sortColumn === col) sortAsc = !sortAsc;
       else { sortColumn = col; sortAsc = false; }
       const mobileSort = document.getElementById('mobileSortSelect');
@@ -3543,7 +3557,7 @@
       if (!['totalWorkers','permitNo','workTitle','startDate','status'].includes(column) || !['asc','desc'].includes(order)) return;
       sortColumn=column;
       sortAsc=order==='asc';
-      mobileSortActive=true;
+      explicitSortActive=true;
       renderFilteredList();
     }
 
