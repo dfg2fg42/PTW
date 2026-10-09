@@ -238,7 +238,11 @@
     }
     #sharedSyncIndicator:focus-visible { outline:2px solid var(--border-accent); outline-offset:2px; }
     #sharedSyncIndicator .shared-sync-dot { width:10px; height:10px; border-radius:50%; background:#94a3b8; }
-    #sharedSyncIndicator[data-state="connected"] .shared-sync-dot { background:#16a34a; box-shadow:0 0 0 3px rgba(22,163,74,.14); }
+    #sharedSyncIndicator[data-state="connected"] .shared-sync-dot {
+      background:#16a34a;
+      box-shadow:0 0 0 3px rgba(22,163,74,.14);
+      animation:shared-sync-glow 1.8s infinite ease-in-out;
+    }
     #sharedSyncIndicator[data-state="syncing"] .shared-sync-dot { background:#0284c7; animation:pulse-sync 1s infinite; }
     #sharedSyncIndicator[data-state="warning"] .shared-sync-dot { background:#d97706; }
     #sharedSyncIndicator[data-state="error"] .shared-sync-dot { background:#dc2626; }
@@ -246,6 +250,21 @@
     @keyframes pulse-sync {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.35; transform: scale(0.85); }
+    }
+    @keyframes shared-sync-glow {
+      0%, 100% {
+        background:#16a34a;
+        transform:scale(1);
+        box-shadow:0 0 0 3px rgba(22,163,74,.14), 0 0 3px rgba(34,197,94,.2);
+      }
+      50% {
+        background:#4ade80;
+        transform:scale(1.1);
+        box-shadow:0 0 0 4px rgba(34,197,94,.22), 0 0 12px rgba(34,197,94,.85);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #sharedSyncIndicator .shared-sync-dot { animation:none !important; }
     }
 
     /* Main Container (좌우 여백 축소하여 전체 화면 공간 극대화) */
