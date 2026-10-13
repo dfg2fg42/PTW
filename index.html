@@ -687,7 +687,7 @@
         text-align: center;
       }
       .icon-filter-select .option-icon { grid-column: 1; }
-      .icon-filter-select .option-label { grid-column: 2; }
+      .icon-filter-select .option-label { grid-column: 2; min-width:0; white-space:nowrap; }
       .icon-filter-select::picker-icon {
         position: absolute;
         right: 10px;
@@ -695,13 +695,15 @@
         transform: translateY(-50%);
       }
       .icon-filter-select::picker(select) {
+        width: anchor-size(self-inline);
+        max-width: anchor-size(self-inline);
         background: var(--bg-card);
         color: var(--text-main);
         border: 1px solid var(--border-subtle);
         border-radius: var(--radius-sm);
         font: inherit;
       }
-      .icon-filter-select option { padding: 8px 10px; }
+      .icon-filter-select option { padding: 8px 10px; min-width:0; }
       .icon-filter-select option::checkmark { display: none; }
       .icon-filter-select option:checked,
       .icon-filter-select option:hover,
@@ -1800,11 +1802,12 @@
         <button type="button" class="btn btn-secondary mobile-only mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="permitExtraFilters" onclick="toggleMobileFilters()">상세 필터 펼치기 ▾</button>
         <div class="filter-group" id="permitExtraFilters">
           <!-- Unit Filter -->
-          <select id="unitSelect" class="filter-select" onchange="setPartFilter('ALL', true)">
-            <option value="ALL">호기 전체</option>
-            <option value="1">1호기 (#1)</option>
-            <option value="2">2호기 (#2)</option>
-            <option value="COMMON">공용설비</option>
+          <select id="unitSelect" class="filter-select icon-filter-select" onchange="setPartFilter('ALL', true)">
+            <button type="button"><selectedcontent></selectedcontent></button>
+            <option value="ALL"><span class="option-label">호기 전체</span></option>
+            <option value="1"><span class="option-label">1호기 (#1)</span></option>
+            <option value="2"><span class="option-label">2호기 (#2)</span></option>
+            <option value="COMMON"><span class="option-label">공용설비</span></option>
           </select>
 
           <!-- LOTO Filter -->
@@ -1824,13 +1827,14 @@
           </select>
 
           <!-- Special Risk Filter -->
-          <select id="riskSelect" class="filter-select" onchange="renderFilteredList()">
-            <option value="ALL">위험유형 전체</option>
-            <option value="고소">고소작업</option>
-            <option value="화기">화기작업</option>
-            <option value="정전">정전작업</option>
-            <option value="밀폐">밀폐공간</option>
-            <option value="위험물">유해물질/위험물</option>
+          <select id="riskSelect" class="filter-select icon-filter-select" onchange="renderFilteredList()">
+            <button type="button"><selectedcontent></selectedcontent></button>
+            <option value="ALL"><span class="option-label">위험유형 전체</span></option>
+            <option value="고소"><span class="option-label">고소작업</span></option>
+            <option value="화기"><span class="option-label">화기작업</span></option>
+            <option value="정전"><span class="option-label">정전작업</span></option>
+            <option value="밀폐"><span class="option-label">밀폐공간</span></option>
+            <option value="위험물"><span class="option-label">유해물질/위험물</span></option>
           </select>
         </div>
 
