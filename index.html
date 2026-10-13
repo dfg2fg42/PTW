@@ -397,7 +397,7 @@
     .controls-panel { scroll-margin-top:84px; }
     .permit-graph-note { margin-top:10px; font-size:11px; color:var(--text-muted); }
     @media(max-width:1499px) { .permit-graph-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media(max-width:700px) {
+    @media (max-width:700px), (max-width:1024px) and (any-pointer:coarse) {
       .summary-view-stage { margin-bottom:12px; }
       .permit-graph-grid { grid-template-columns:minmax(0,1fr); gap:10px; }
       .permit-graph-panel { padding:14px; }
@@ -531,7 +531,7 @@
     .kpi-status-filter[aria-pressed="true"], .kpi-risk-filter[aria-pressed="true"] { border-color:var(--border-accent); background:rgba(59,130,246,.1); }
     .kpi-status-filter[aria-pressed="true"] .kpi-status-label, .kpi-risk-filter[aria-pressed="true"] { color:var(--border-accent); font-weight:700; }
     .kpi-status-filter:focus-visible, .kpi-risk-filter:focus-visible { outline:2px solid var(--border-accent); outline-offset:2px; }
-    @media(max-width:700px) { .kpi-status-grid > button, .kpi-risk-filter { min-height:44px; } }
+    @media (max-width:700px), (max-width:1024px) and (any-pointer:coarse) { .kpi-status-grid > button, .kpi-risk-filter { min-height:44px; } }
     .kpi-status-label { color: var(--text-muted); font-size: 11px; white-space: nowrap; }
     .kpi-status-grid b { color: var(--text-main); font-size: 15px; white-space: nowrap; }
     .kpi-status-grid b > span:last-child { color: var(--text-muted); font-size: 11px; font-weight: 400; margin-left: 3px; }
@@ -697,6 +697,8 @@
       .icon-filter-select::picker(select) {
         width: anchor-size(self-inline);
         max-width: anchor-size(self-inline);
+        max-block-size: min(60dvh, 320px);
+        overflow-y: auto;
         background: var(--bg-card);
         color: var(--text-main);
         border: 1px solid var(--border-subtle);
@@ -1166,7 +1168,7 @@
       display: none;
     }
 
-    /* Mobile first view: preserve the desktop table above 700px. */
+    /* Narrow displays and Fold/tablet touch screens use the compact layout. */
     body:not(.ptw-admin) #ptwReportBtn,
     body:not(.ptw-admin) #importDataBtn,
     body:not(.ptw-admin) #reclassifyBtn,
@@ -1201,7 +1203,7 @@
       .header-actions { width:100%; justify-content:flex-start; }
       .admin-toolbar .sync-badge { margin-left:0; }
     }
-    @media(max-width:700px) {
+    @media (max-width:700px), (max-width:1024px) and (any-pointer:coarse) {
       header.top-navbar { gap:10px; }
       .brand-title > span:first-child { flex-shrink:1; }
       .brand-version { font-size:10px !important; }
@@ -1234,7 +1236,7 @@
     .mobile-only { display:none; }
     .work-title-button { display:block; width:100%; border:0; padding:0; background:transparent; color:inherit; font:inherit; text-align:inherit; cursor:pointer; }
     .work-title-button:focus-visible { outline:2px solid var(--border-accent); outline-offset:3px; border-radius:4px; }
-    @media (max-width:700px) {
+    @media (max-width:700px), (max-width:1024px) and (any-pointer:coarse) {
       .mobile-only { display:block; }
       header.top-navbar { padding:14px 12px; gap:12px; position:relative; }
       .brand-badge { flex-shrink:0; }
@@ -1291,7 +1293,8 @@
       .mobile-filter-toggle { min-height:44px; font-size:13px; justify-content:center; }
       .filter-group { display:none; }
       .controls-panel.mobile-filters-expanded .filter-group { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-      .filter-select { width:100%; min-width:0; min-height:44px; font-size:16px; padding:8px; }
+      .filter-select { width:100%; max-width:100%; min-width:0; min-height:44px; font-size:16px; padding:8px; }
+      #lotoSelect.icon-filter-select { min-width:0; }
       .mobile-sort-row { display:flex; align-items:center; gap:10px; }
       .mobile-sort-row label { font-size:13px; font-weight:700; white-space:nowrap; }
       .mobile-sort-row select { flex:1; }
@@ -1348,6 +1351,18 @@
       #adminJsonUploadSection input[type=file] { max-width:100%; }
       #reportPreviewText { overflow-wrap:anywhere; font-size:12px; }
       #toast-msg { left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); font-size:13px; }
+    }
+    /* Cover screens need full-width filters; inner Fold screens can use two columns. */
+    @media (max-width:420px) {
+      .controls-panel.mobile-filters-expanded .filter-group { grid-template-columns:minmax(0,1fr); }
+    }
+    @media (min-width:600px) and (max-width:1024px) and (any-pointer:coarse) {
+      .permit-graph-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .kpi-grid.mobile-expanded { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+      .kpi-card.card-all { grid-column:1/-1; grid-row:auto; }
+      table.work-table tbody { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; align-items:start; }
+      table.work-table tr { margin:0; }
+      .kanban-container { grid-template-columns:repeat(2,minmax(0,1fr)); }
     }
   </style>
 </head>
@@ -2601,9 +2616,12 @@
 
     const STORAGE_KEY = 'SBO_SAFETY_ITEMS_V37_EXACT_SYNC';
     const THEME_KEY = 'SBO_THEME_PREF';
+    function isCompactPermitLayout() {
+      return window.matchMedia('(max-width:700px), (max-width:1024px) and (any-pointer:coarse)').matches;
+    }
 
     function initApp() {
-      explicitSortActive = window.matchMedia('(max-width:700px)').matches;
+      explicitSortActive = isCompactPermitLayout();
       // 구버전 캐시 데이터 청소 (오염된 데이터 완벽 제거 및 신규 스키마 강제 동기화)
       ['SBO_SAFETY_ITEMS_V30', 'SBO_SAFETY_ITEMS_V31', 'SBO_SAFETY_ITEMS_V32_ALL9PARTS', 'SBO_SAFETY_ITEMS_V33_EXACT_INTRANET', 'SBO_SAFETY_ITEMS_V34', 'SBO_SAFETY_ITEMS_V35_EXACT_INTRANET', 'SBO_SAFETY_ITEMS_V36_PERFECT_DETAIL'].forEach(oldKey => {
         try { localStorage.removeItem(oldKey); } catch(e) {}
@@ -3496,7 +3514,7 @@
 
     function setPartFilter(part, keepUnit = false) {
   if (part === 'ALL' && !keepUnit) {
-    explicitSortActive = window.matchMedia('(max-width:700px)').matches;
+    explicitSortActive = isCompactPermitLayout();
     sortColumn = 'totalWorkers';
     sortAsc = false;
     const mobileSort = document.getElementById('mobileSortSelect');
