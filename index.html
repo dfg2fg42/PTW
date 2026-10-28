@@ -1426,7 +1426,7 @@
       <!-- Target Origin URL -->
       <div class="header-origin-controls">
         <button type="button" id="sharedSyncIndicator" data-state="waiting" title="공유 데이터 연결 중…" aria-label="공유 데이터 연결 중…" onclick="showToast(this.title)"><span class="shared-sync-dot" aria-hidden="true"></span></button>
-      <a href="http://220.70.136.113/newWoSafetyMstrList.do" target="_blank" rel="opener" onclick="return openOriginalPermitList(event)" class="origin-link" title="안전작업허가서 원본 목록 열기">
+      <a href="http://192.168.20.12/newWoSafetyMstrList.do" target="_blank" rel="opener" onclick="return openOriginalPermitList(event)" class="origin-link" title="안전작업허가서 원본 목록 열기">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
         <span class="origin-label-desktop">안전작업허가서 원본</span><span class="origin-label-mobile">원본 보기</span>
       </a>
@@ -2124,7 +2124,7 @@
           </div>
           <ol style="font-size:12px;color:var(--text-dim);line-height:1.9;padding-left:20px;margin-top:14px;">
             <li>위 버튼을 북마크바로 드래그하거나, 코드를 복사해 기존 북마크의 URL에 붙여넣으세요.</li>
-            <li><a href="http://220.70.136.113/newWoSafetyMstrList.do" target="_blank" rel="opener" onclick="return openOriginalPermitList(event)" style="color:#60a5fa;">사내 안전작업허가서 목록</a>을 열고 등록한 북마크를 누르세요.</li>
+            <li><a href="http://192.168.20.12/newWoSafetyMstrList.do" target="_blank" rel="opener" onclick="return openOriginalPermitList(event)" style="color:#60a5fa;">사내 안전작업허가서 목록</a>을 열고 등록한 북마크를 누르세요.</li>
             <li>수집창의 ‘오늘~내일 조회·동기화’를 눌러 시작하세요. 이후 선택한 재검색 주기로 추가 작업과 결재 변경을 반영합니다. ‘자동 멈춤’에서는 버튼으로 직접 조회하세요.</li>
             <li>기존 코드를 교체했다면 원본 페이지를 새로고침한 뒤 실행하세요.</li>
           </ol>
@@ -3948,7 +3948,7 @@
 
     function getSafetyDetailUrl(permitNo) {
       const no = String(permitNo || '').trim();
-      if (!no) return 'http://220.70.136.113/newWoSafetyMstrList.do';
+      if (!no) return 'http://192.168.20.12/newWoSafetyMstrList.do';
       // 수집기의 상세 조회와 같은 조회 액션/허가서 키를 사용한다.
       const params = new URLSearchParams({
         strutsAction:'1000',
@@ -3960,7 +3960,7 @@
         'filterMap.POP_UP_YN':'', 'filterMap.myJobPopUp':'',
         'filterMap.REQUEST_DATE_FROM':'', 'filterMap.REQUEST_DATE_TO':''
       });
-      return 'http://220.70.136.113/newWoSafetyMstrDetail.do?' + params.toString();
+      return 'http://192.168.20.12/newWoSafetyMstrDetail.do?' + params.toString();
     }
 
     function openSafetyDetail(permitNo, event) {
@@ -4326,7 +4326,7 @@
 
     // A direct child can reattach after this monitor reloads; other sources stay untrusted.
     function createSafetyPermitMonitorRelay(importData, onStored = () => {}, onConnected = () => {}) {
-      const intranetOrigin = 'http://220.70.136.113';
+      const intranetOrigin = 'http://192.168.20.12';
       const relayId = 'monitor_' + Date.now() + '_' + Math.random().toString(36).slice(2);
       let root = null, sessionToken = '', pending = false, savedResult = null, savedPayload = '';
       function respond(source, token, phase, result) {
@@ -4400,7 +4400,7 @@
     function openOriginalPermitList(event) {
       if (event) event.preventDefault();
       if (ptwIntranetWindow && !ptwIntranetWindow.closed) { ptwIntranetWindow.focus(); return false; }
-      const source = window.open('http://220.70.136.113/newWoSafetyMstrList.do', 'ptw_intranet_' + Date.now());
+      const source = window.open('http://192.168.20.12/newWoSafetyMstrList.do', 'ptw_intranet_' + Date.now());
       if (!source) { showToast('원본 목록 창이 차단되었습니다. 이 화면의 팝업을 허용해 주세요.'); return false; }
       ptwIntranetWindow = source;
       ensureSafetyPermitMonitorRelay().register(source);
