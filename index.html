@@ -1483,8 +1483,8 @@
         </button>
       </div>
 
-      <div class="date-summary-text" title="발행 완료된 허가서만 작업 건수·투입인원·LOTO·PSM에 집계합니다.">
-        <span>발행완료 작업: <b id="dateFilteredCountText">0건</b></span>
+      <div class="date-summary-text" id="dateSummary" title="선택한 날짜의 전체 작업을 집계합니다.">
+        <span><span id="dateSummaryLabel">취합 작업:</span> <b id="dateFilteredCountText">0건</b></span>
         <span style="color:var(--border-subtle);">|</span>
         <span>총 투입인원: <b id="totalWorkerCountText" style="color:#60a5fa;">0명</b></span>
         <span style="color:var(--border-subtle);">|</span>
@@ -3251,18 +3251,12 @@
         if (item.isPsm) counts.psm++;
       });
 
-      const issuedSummary = dateItems.filter(item => getPermitStatusGroup(item.status) === 'issued')
-        .reduce((summary, item) => {
-          summary.count++;
-          summary.workers += Number(item.totalWorkers || 1);
-          if (item.isLoto) summary.loto++;
-          if (item.isPsm) summary.psm++;
-          return summary;
-        }, { count:0, workers:0, loto:0, psm:0 });
-      document.getElementById('dateFilteredCountText').textContent = `${issuedSummary.count}건 (${isDateFilterActive ? currentTargetDate : '전체'})`;
-      document.getElementById('totalWorkerCountText').textContent = `${issuedSummary.workers}명`;
-      document.getElementById('totalLotoCountText').textContent = `${issuedSummary.loto}건`;
-      document.getElementById('totalPsmCountText').textContent = `${issuedSummary.psm}건`;
+      document.getElementById('dateSummaryLabel').textContent = dashboardIssuedOnly ? '발행완료 작업:' : '취합 작업:';
+      document.getElementById('dateSummary').title = dashboardIssuedOnly ? '발행 완료된 허가서만 집계합니다.' : '선택한 날짜의 전체 작업을 집계합니다.';
+      document.getElementById('dateFilteredCountText').textContent = `${counts.ALL}건 (${isDateFilterActive ? currentTargetDate : '전체'})`;
+      document.getElementById('totalWorkerCountText').textContent = `${counts.totalWorkers}명`;
+      document.getElementById('totalLotoCountText').textContent = `${counts.loto}건`;
+      document.getElementById('totalPsmCountText').textContent = `${counts.psm}건`;
 
       // 전체 취합
       animateKpiNumber('kpi-all-count', counts.ALL);
