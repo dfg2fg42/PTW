@@ -1449,7 +1449,7 @@
       <!-- Target Origin URL -->
       <div class="header-origin-controls">
         <button type="button" id="sharedSyncIndicator" data-state="waiting" title="공유 데이터 연결 중…" aria-label="공유 데이터 연결 중…" onclick="showToast(this.title)"><span class="shared-sync-dot" aria-hidden="true"></span></button>
-        <span id="ptwPresenceCount" role="status" aria-live="polite" title="현재 이 화면을 열어 둔 접속 수 (최근 2분 기준, 탭 단위)">👥 -</span>
+        <span id="ptwPresenceCount" role="status" aria-live="polite" title="현재 이 화면을 열어 둔 접속 수 (탭 단위)">👥 -</span>
       <a href="http://192.168.20.12/newWoSafetyMstrList.do" target="_blank" rel="opener" onclick="return openOriginalPermitList(event)" class="origin-link" title="안전작업허가서 원본 목록 열기">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
         <span class="origin-label-desktop">안전작업허가서 원본</span><span class="origin-label-mobile">원본 보기</span>
@@ -4632,7 +4632,7 @@
       });
       // ── 실시간 접속자 수: 탭마다 1분 간격으로 접속 신호(lastSeen)만 기록, 개인정보 저장 없음 ──
       (function setupPresence(){
-        const WINDOW_MS=150000, BEAT_MS=60000, COUNT_MS=30000;
+        const WINDOW_MS=75000, BEAT_MS=30000, COUNT_MS=15000;
         let id='';
         try { id=sessionStorage.getItem('PTW_PRESENCE_ID')||''; } catch(e) {}
         if(!/^[A-Za-z0-9_-]{8,60}$/.test(id)){
@@ -4659,13 +4659,24 @@
             box.dataset.state=beatError?'error':'ok';
             box.title=beatError
               ? '접속 신호 기록 실패('+beatError+') · Firestore 규칙에 presence 항목을 추가해 주세요.'
-              : '현재 접속 '+n+'명 (최근 2분 기준, 탭 단위) · '+new Date().toLocaleTimeString('ko-KR',{hour12:false})+' 확인';
+              : '현재 접속 '+n+'명 (탭 단위, 창을 닫으면 바로 빠짐) · '+new Date().toLocaleTimeString('ko-KR',{hour12:false})+' 확인';
           } catch(err){
             box.textContent='👥 ?';
             box.dataset.state='error';
             box.title='접속자 수 확인 실패: '+(err.code||err.message||String(err))+' · Firestore 규칙에 presence 읽기 권한이 필요합니다.';
           } finally { counting=false; }
         }
+        // 창을 닫거나 새로고침·다른 주소로 이동하면 내 접속 기록을 즉시 지워 누적되지 않게 한다.
+        const docUrl='https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents/presence/'+id+'?key='+cfg.apiKey;
+        let left=false;
+        function leave(){
+          if(left)return; left=true;
+          // 새로고침 후에는 새 ID로 시작해 지연된 삭제 요청이 새 접속 기록을 지우지 않게 한다.
+          try { sessionStorage.removeItem('PTW_PRESENCE_ID'); } catch(e) {}
+          try { fetch(docUrl,{method:'DELETE',keepalive:true}).catch(()=>{}); } catch(e) {}
+        }
+        window.addEventListener('pagehide',leave);
+        window.addEventListener('pageshow',e=>{ if(e.persisted){ left=false; try { sessionStorage.setItem('PTW_PRESENCE_ID',id); } catch(_) {} beat().then(refresh); } });
         window.ptwPresenceRefresh=refresh;
         beat().then(refresh);
         setInterval(beat,BEAT_MS);
